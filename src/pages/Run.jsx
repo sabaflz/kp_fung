@@ -1,20 +1,22 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { BUILTIN_SETS, BY_ID } from '../data/pool.js'
-import { useSets } from '../lib/data.js'
+import { BUILTIN_SETS } from '../data/pool.js'
+import { useSets, useQuestions } from '../lib/data.js'
 import { useToast, copyText } from '../components/ui.jsx'
 
 export default function Run() {
   const { rows: saved } = useSets()
+  const { rows: qrows } = useQuestions()
   const toast = useToast()
   const nav = useNavigate()
 
+  const byId = Object.fromEntries(qrows.map((q) => [q[0], q]))
   const allSets = [...BUILTIN_SETS, ...saved]
   const [setId, setSetId] = useState(BUILTIN_SETS[0].id)
   const [asked, setAsked] = useState({})
 
   const active = allSets.find((s) => s.id === setId) || BUILTIN_SETS[0]
-  const questions = (active.question_ids || []).map((id) => BY_ID[id]).filter(Boolean)
+  const questions = (active.question_ids || []).map((id) => byId[id]).filter(Boolean)
   const done = questions.filter((q) => asked[q[0]]).length
   const pct = questions.length ? Math.round((done / questions.length) * 100) : 0
 
