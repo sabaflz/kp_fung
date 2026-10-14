@@ -25,8 +25,9 @@ You do this once. After that everyone else just opens the link and signs in.
 
 1. Go to supabase.com and sign up (free, no card).
 2. Click **New project**. Give it a name, set a database password (save it somewhere), pick the closest region. Wait about two minutes while it provisions.
-3. In the left sidebar open **SQL Editor**, click **New query**, paste in the entire contents of `supabase_schema.sql` from this folder, and hit **Run**. You should see "Success." This creates the two tables and the sharing rules.
-4. In the left sidebar open **Project Settings -> API**. Copy two values:
+3. In the left sidebar open **SQL Editor**, click **New query**, paste in the entire contents of `supabase_schema.sql` from this folder, and hit **Run**. You should see "Success." This creates the interviews and sets tables and the sharing rules.
+4. Click **New query** again, paste in the entire contents of `supabase_questions_migration.sql`, and **Run**. This adds the shared question pool (so anyone can add or edit questions) and seeds your starter questions.
+5. In the left sidebar open **Project Settings -> API**. Copy two values:
    - **Project URL** (looks like `https://abcd1234.supabase.co`)
    - **anon public** key (a long string under "Project API keys")
 

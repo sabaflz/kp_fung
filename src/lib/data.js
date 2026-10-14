@@ -1,5 +1,10 @@
 import { useEffect, useState, useCallback } from 'react'
 import { supabase, isConfigured } from './supabase.js'
+import { POOL } from '../data/pool.js'
+
+// The built-in questions act as the fallback until the shared table loads
+// (or if the questions migration has not been run yet).
+const SEED = POOL
 
 /* Shared interviews, live-synced across the team. */
 export function useInterviews() {
@@ -66,6 +71,56 @@ export function useSets() {
   }, [refresh])
 
   return { rows, loading, refresh }
+}
+
+/* Shared question pool, live-synced. Rows come back as [id, group, text]
+   tuples so the rest of the app keeps working unchanged. */
+export function useQuestions() {
+  const [rows, setRows] = useState(SEED)
+  const [loading, setLoading] = useState(true)
+
+  const refresh = useCallback(async () => {
+    if (!isConfigured) { setRows(SEED); setLoading(false); return }
+    const { data, error } = await supabase
+      .from('questions').select('*').order('ord', { ascending: true })
+    if (!error && data && data.length) setRows(data.map((r) => [r.id, r.grp, r.body]))
+    else if (!error) setRows(SEED) // table exists but not seeded yet
+    // on error (table not created yet) keep the built-in seed
+    setLoading(false)
+  }, [])
+
+  useEffect(() => {
+    refresh()
+    if (!isConfigured) return
+    const ch = supabase.channel('questions-live')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'questions' }, refresh)
+      .subscribe()
+    return () => { supabase.removeChannel(ch) }
+  }, [refresh])
+
+  return { rows, loading, refresh }
+}
+
+export function newQuestionId() {
+  return 'C' + Date.now().toString(36) + Math.floor(Math.random() * 1e3).toString(36)
+}
+
+export async function addQuestion(grp, body) {
+  const { data: u } = await supabase.auth.getUser()
+  const { error } = await supabase.from('questions').insert({
+    id: newQuestionId(), grp: grp || 'Custom', body, ord: Date.now(), created_by: u?.user?.id ?? null,
+  })
+  if (error) throw error
+}
+
+export async function updateQuestion(id, patch) {
+  const { error } = await supabase.from('questions').update(patch).eq('id', id)
+  if (error) throw error
+}
+
+export async function deleteQuestion(id) {
+  const { error } = await supabase.from('questions').delete().eq('id', id)
+  if (error) throw error
 }
 
 export async function addSet(name, ids, note) {

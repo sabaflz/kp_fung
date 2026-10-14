@@ -7,7 +7,7 @@ export const POOL = [
   ['Q5','Behavior','Have you ever needed care and put it off or skipped it? What happened?'],
   ['Q6','Behavior','How do you even know what your plan covers? Have you ever looked?'],
   ['Q7','Aging-off','Do you know what happens to your coverage when you turn 26? How did you find out?'],
-  ['Q8','Aging-off','Has anyone actually talked to you about the transition — a parent, school, your insurer? Walk me through that.'],
+  ['Q8','Aging-off','Has anyone actually talked to you about the transition, like a parent, school, or your insurer? Walk me through that.'],
   ['Q9','Aging-off','(Past 26) What did you actually do when you aged off? Talk me through that whole stretch.'],
   ['Q10','Friction','What is the most annoying or confusing thing about dealing with your health coverage?'],
   ['Q11','Friction','When something about insurance confuses you, what do you do? Who do you ask?'],
@@ -110,7 +110,7 @@ export function snapTopBenefit(text) {
 // The extraction prompt teammates paste into any AI assistant.
 export const EXTRACT_PROMPT = `You are helping a UC Berkeley research team (Fung x KP Benefits) capture user interviews about supplemental health benefits for young adults ages 18 to 30. I will paste an interview transcript below. It may be raw dialogue or an AI summary.
 
-Return the fields below, one per line, as "Field: value". Keep each short. If something is not in the transcript, write "N/A". Never invent details. Do not include the person's real name — use a short role/context description.
+Return the fields below, one per line, as "Field: value". Keep each short. If something is not in the transcript, write "N/A". Never invent details. Do not include the person's real name. Use a short role/context description instead.
 
 Date:
 Interviewer:
