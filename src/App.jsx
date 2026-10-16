@@ -7,7 +7,6 @@ import Interviews from './pages/Interviews.jsx'
 import Sets from './pages/Sets.jsx'
 import Dashboard from './pages/Dashboard.jsx'
 import Survey from './pages/Survey.jsx'
-import Outreach from './pages/Outreach.jsx'
 
 const TABS = [
   ['/', 'Run'],
@@ -15,7 +14,6 @@ const TABS = [
   ['/sets', 'Question sets'],
   ['/survey', 'Survey'],
   ['/dashboard', 'Dashboard'],
-  ['/outreach', 'Outreach'],
 ]
 
 export default function App() {
@@ -56,7 +54,7 @@ export default function App() {
           <Route path="/sets" element={<Sets />} />
           <Route path="/survey" element={<Survey />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/outreach" element={<Outreach />} />
+          <Route path="/outreach" element={<Navigate to="/survey" replace />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
 
