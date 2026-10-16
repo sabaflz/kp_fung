@@ -45,15 +45,7 @@ export default function Outreach() {
   }
 
   return (
-    <div className="grid" style={{ gap: 18 }}>
-      <div>
-        <div className="eyebrow">Distribution</div>
-        <h1 style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 'clamp(24px,4vw,32px)', margin: '4px 0 6px' }}>
-          Where we shared the survey
-        </h1>
-        <p className="lede">A running log so we do not double-post and can show the partners our reach. Add a row each time anyone sends the survey somewhere.</p>
-      </div>
-
+    <div className="grid" style={{ gap: 16 }}>
       <div className="card">
         <div className="hd"><h2>Log a share</h2><span className="note">{posted} posted</span></div>
         <form className="bd" onSubmit={add} style={{ display: 'grid', gap: 12 }}>

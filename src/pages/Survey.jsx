@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useSettings, setSetting, useInterviews } from '../lib/data.js'
 import { useSurvey } from '../lib/survey.js'
 import { useToast } from '../components/ui.jsx'
+import Outreach from './Outreach.jsx'
 
 function Bars({ data, empty, limit = 12 }) {
   if (!data.length) return <div className="empty">{empty}</div>
@@ -126,6 +127,13 @@ export default function Survey() {
           </div>
         </div>
       )}
+
+      <div style={{ marginTop: 6 }}>
+        <div className="eyebrow">Distribution</div>
+        <h2 style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 20, margin: '4px 0 2px' }}>Where we shared it</h2>
+        <p className="lede">A running log so we do not double-post and can show the partners our reach. Add a row each time anyone sends the survey somewhere.</p>
+      </div>
+      <Outreach />
     </div>
   )
 }
