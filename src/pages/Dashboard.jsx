@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { FIELDS } from '../data/pool.js'
-import { useInterviews } from '../lib/data.js'
+import { useInterviews, useSettings, useShares } from '../lib/data.js'
+import { useSurvey } from '../lib/survey.js'
 import { useToast, copyText } from '../components/ui.jsx'
 
 function tally(values) {
@@ -35,7 +36,18 @@ function Bars({ data, empty }) {
 
 export default function Dashboard() {
   const { rows, loading } = useInterviews()
+  const { map } = useSettings()
+  const survey = useSurvey(map.survey_csv_url)
+  const { rows: shares } = useShares()
   const toast = useToast()
+
+  const placesShared = shares.filter((r) => r.status === 'posted').length
+
+  const combined = useMemo(() => {
+    const m = { ...(survey.topMap || {}) }
+    for (const r of rows) { const c = (r.top_benefit || '').trim(); if (c) m[c] = (m[c] || 0) + 1 }
+    return Object.entries(m).sort((a, b) => b[1] - a[1])
+  }, [survey.topMap, rows])
 
   const stats = useMemo(() => {
     const topBenefit = tally(rows.map((r) => r.top_benefit))
@@ -91,10 +103,19 @@ export default function Dashboard() {
 
       <div className="tiles">
         <div className="tile"><div className="n">{rows.length}</div><div className="l">interviews logged</div></div>
+        <div className="tile"><div className="n">{survey.responses}</div><div className="l">survey responses</div></div>
+        <div className="tile"><div className="n">{placesShared}</div><div className="l">places shared</div></div>
         <div className="tile"><div className="n">{stats.needs}</div><div className="l">need follow-up</div></div>
         <div className="tile"><div className="n">{stats.done}</div><div className="l">marked done</div></div>
         <div className="tile"><div className="n">{stats.quotes.length}</div><div className="l">quotes captured</div></div>
       </div>
+
+      {(combined.length > 0) && (
+        <div className="card">
+          <div className="hd"><h2>Top benefit, survey + interviews</h2><span className="note">same ten categories</span></div>
+          <div className="bd"><Bars data={combined} empty="Connect the survey or log interviews to see this." /></div>
+        </div>
+      )}
 
       {rows.length === 0 ? (
         <div className="card"><div className="empty">No data yet. The charts fill in as interviews are logged.</div></div>

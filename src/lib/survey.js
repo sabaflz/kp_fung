@@ -1,0 +1,85 @@
+import { useEffect, useMemo, useState } from 'react'
+import { snapBenefits } from '../data/pool.js'
+
+/* Turn any Google Sheets URL into a CSV endpoint the browser can fetch. */
+export function csvEndpoint(url) {
+  const u = (url || '').trim()
+  if (!u) return ''
+  if (u.includes('/pub')) return u.includes('output=csv') ? u : u + (u.includes('?') ? '&' : '?') + 'output=csv'
+  const m = u.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/)
+  if (m) return `https://docs.google.com/spreadsheets/d/${m[1]}/gviz/tq?tqx=out:csv`
+  return u
+}
+
+/* Minimal CSV parser (handles quotes, commas and newlines inside fields). */
+function parseCSV(text) {
+  const rows = []; let row = []; let field = ''; let i = 0; let q = false
+  while (i < text.length) {
+    const c = text[i]
+    if (q) {
+      if (c === '"') { if (text[i + 1] === '"') { field += '"'; i += 2; continue } q = false; i++; continue }
+      field += c; i++; continue
+    }
+    if (c === '"') { q = true; i++; continue }
+    if (c === ',') { row.push(field); field = ''; i++; continue }
+    if (c === '\r') { i++; continue }
+    if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; i++; continue }
+    field += c; i++
+  }
+  if (field.length || row.length) { row.push(field); rows.push(row) }
+  return rows
+}
+
+/* Fetch + analyze the published survey CSV. Returns tallies the UI can chart. */
+export function useSurvey(csvUrl) {
+  const [raw, setRaw] = useState(null)
+  const [state, setState] = useState('idle') // idle | loading | ok | error
+  const [err, setErr] = useState('')
+
+  useEffect(() => {
+    if (!csvUrl) { setRaw(null); setState('idle'); return }
+    let cancelled = false
+    setState('loading'); setErr('')
+    fetch(csvEndpoint(csvUrl))
+      .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text() })
+      .then((text) => {
+        if (cancelled) return
+        const rows = parseCSV(text)
+        setRaw({ header: rows[0] || [], rows: rows.slice(1).filter((r) => r.some((c) => c && c.trim())) })
+        setState('ok')
+      })
+      .catch((e) => { if (cancelled) return; setErr(e.message || 'fetch failed'); setState('error') })
+    return () => { cancelled = true }
+  }, [csvUrl])
+
+  const analysis = useMemo(() => {
+    const H = (raw?.header || []).map((h) => (h || '').toLowerCase())
+    const find = (kw) => H.findIndex((h) => kw.some((k) => h.includes(k)))
+    const col = {
+      age: find(['age']),
+      want: find(['would you most want', 'which three', 'most want']),
+      top: find(['number one priority', 'your number one', 'which is your']),
+      use: find(['no additional cost', 'likely would you be to use']),
+      five: find(['more per month', '5 more', 'costs 5']),
+    }
+    const vals = (i) => (i < 0 || !raw) ? [] : raw.rows.map((r) => (r[i] || '').trim()).filter(Boolean)
+    const tally = (arr) => { const m = {}; for (const v of arr) m[v] = (m[v] || 0) + 1; return Object.entries(m).sort((x, y) => y[1] - x[1]) }
+
+    const topMap = {}
+    for (const v of vals(col.top)) { const c = snapBenefits(v)[0]; if (c) topMap[c] = (topMap[c] || 0) + 1 }
+    const wantMap = {}
+    for (const v of vals(col.want)) for (const c of snapBenefits(v)) wantMap[c] = (wantMap[c] || 0) + 1
+
+    return {
+      responses: raw ? raw.rows.length : 0,
+      topMap,
+      top: Object.entries(topMap).sort((x, y) => y[1] - x[1]),
+      want: Object.entries(wantMap).sort((x, y) => y[1] - x[1]),
+      age: tally(vals(col.age)),
+      use: tally(vals(col.use)),
+      five: tally(vals(col.five)),
+    }
+  }, [raw])
+
+  return { state, err, ...analysis }
+}
