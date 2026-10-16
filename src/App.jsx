@@ -1,6 +1,6 @@
 import { NavLink, Navigate, Route, Routes } from 'react-router-dom'
 import { useAuth, signOut } from './lib/auth.jsx'
-import { ThemeToggle } from './components/ui.jsx'
+import { ThemeToggle, ExitIcon } from './components/ui.jsx'
 import Login from './pages/Login.jsx'
 import Run from './pages/Run.jsx'
 import Interviews from './pages/Interviews.jsx'
@@ -36,9 +36,11 @@ export default function App() {
             ))}
           </nav>
           <div className="right">
-            <span className="who-badge">{email}</span>
+            <span className="who-badge" title={email}>{email}</span>
             <ThemeToggle />
-            <button className="btn ghost sm" onClick={signOut}>Sign out</button>
+            <button className="icon-btn" type="button" onClick={signOut} title="Sign out" aria-label="Sign out">
+              <ExitIcon />
+            </button>
           </div>
         </div>
       </header>
