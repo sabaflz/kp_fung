@@ -18,7 +18,33 @@ function splitMany(s) {
   return (s || '').split(/[,;\n|]/).map((x) => x.trim()).filter((x) => x.length > 1)
 }
 
-function Bars({ data, empty }) {
+// Bucket the free-text coverage-awareness field into three levels.
+function awarenessBucket(s) {
+  const t = (s || '').toLowerCase()
+  if (!t) return 'Unknown'
+  if (t.includes('high')) return 'High'
+  if (t.includes('low')) return 'Low'
+  if (t.includes('partial') || t.includes('moderate') || t.includes('50')) return 'Partial'
+  return 'Unknown'
+}
+
+// Keyword-tagged recurring themes across the qualitative fields.
+const THEMES = [
+  ['Low coverage awareness', ['understand', 'unsure', 'not sure', 'confus', 'unfamiliar', 'navigat', 'terminolog', 'figuring', 'unclear', "don't know", 'do not know', "didn't know", 'trial and error', '25%']],
+  ['Relies on a parent or family', ['mom', 'mother', 'parent', 'father', 'family']],
+  ['Cost or financial barrier', ['afford', 'financial', 'out of pocket', 'out-of-pocket', 'copay', 'co-pay', 'overcharg', 'expensive', 'spending limit', 'money']],
+  ['Access or wait times', ['wait', 'referral', 'specialist', 'schedul', 'delay']],
+  ['Self-manages outside the plan', ['supplement', 'gym', 'myfitnesspal', 'apple health', 'meditat', 'journal', 'workout', 'home remed', 'calorie', 'tracker']],
+  ['Wants proactive guidance', ['guidance', 'workshop', 'come to us', 'proactive', 'informational', 'education', 'clearer', 'more support', 'better access']],
+  ['Benefits feel built for families', ['families', 'established life', 'established adult']],
+]
+
+function interviewText(r) {
+  return [r.friction, r.workaround, r.awareness, r.surprise, r.quote, r.services]
+    .map((x) => x || '').join(' ').toLowerCase()
+}
+
+function Bars({ data, empty, total }) {
   if (!data.length) return <div className="empty">{empty}</div>
   const max = data[0][1]
   return (
@@ -27,7 +53,7 @@ function Bars({ data, empty }) {
         <div className="bar" key={label}>
           <span style={{ minWidth: 0, overflowWrap: 'anywhere' }}>{label}</span>
           <div className="track"><div className="fill" style={{ width: Math.max(6, (n / max) * 100) + '%' }} /></div>
-          <span className="v">{n}</span>
+          <span className="v">{total ? `${n} · ${Math.round((n / total) * 100)}%` : n}</span>
         </div>
       ))}
     </div>
@@ -42,6 +68,7 @@ export default function Dashboard() {
   const toast = useToast()
 
   const placesShared = shares.filter((r) => r.status === 'posted').length
+  const n = rows.length
 
   const combined = useMemo(() => {
     const m = { ...(survey.topMap || {}) }
@@ -57,7 +84,33 @@ export default function Dashboard() {
     const needs = rows.filter((r) => r.status === 'needs-followup').length
     const done = rows.filter((r) => r.status === 'done').length
     const quotes = rows.filter((r) => r.quote)
-    return { topBenefit, wants, plans, bullseye, needs, done, quotes }
+
+    // coverage awareness, bucketed, ordered low -> high
+    const order = { Low: 0, Partial: 1, High: 2, Unknown: 3 }
+    const awareness = tally(rows.map((r) => awarenessBucket(r.awareness)))
+      .sort((a, b) => (order[a[0]] ?? 9) - (order[b[0]] ?? 9))
+    const lowPartial = rows.filter((r) => ['Low', 'Partial'].includes(awarenessBucket(r.awareness))).length
+
+    // recurring themes
+    const themeCounts = {}
+    for (const r of rows) {
+      const t = interviewText(r)
+      for (const [name, kws] of THEMES) if (kws.some((k) => t.includes(k))) themeCounts[name] = (themeCounts[name] || 0) + 1
+    }
+    const themes = Object.entries(themeCounts).sort((a, b) => b[1] - a[1])
+
+    // top benefit by segment (cross-tab)
+    const seg = {}
+    for (const r of rows) {
+      const s = (r.bullseye || '').trim() || 'untagged'
+      const tb = (r.top_benefit || '').trim()
+      if (!seg[s]) seg[s] = { count: 0, benefits: {} }
+      seg[s].count++
+      if (tb) seg[s].benefits[tb] = (seg[s].benefits[tb] || 0) + 1
+    }
+    const segments = Object.entries(seg).sort((a, b) => b[1].count - a[1].count)
+
+    return { topBenefit, wants, plans, bullseye, needs, done, quotes, awareness, lowPartial, themes, segments }
   }, [rows])
 
   const COLS = [...FIELDS.map(([k, l]) => [k, l]), ['bullseye', 'Bullseye'], ['status', 'Status']]
@@ -85,6 +138,11 @@ export default function Dashboard() {
 
   if (loading) return <div className="empty"><span className="spin" /></div>
 
+  const headline = n
+    ? `Based on ${n} interview${n === 1 ? '' : 's'}` + (survey.responses ? ` and ${survey.responses} survey responses` : '') +
+      `. ${Math.round((stats.lowPartial / n) * 100)}% report low or partial coverage awareness.`
+    : ''
+
   return (
     <div className="grid" style={{ gap: 18 }}>
       <div className="row" style={{ justifyContent: 'space-between', alignItems: 'flex-end' }}>
@@ -93,7 +151,7 @@ export default function Dashboard() {
           <h1 style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 'clamp(24px,4vw,32px)', margin: '4px 0 6px' }}>
             Dashboard
           </h1>
-          <p className="lede">What the interviews are telling us, updated live as the team logs. Export anytime for the deck or a shared sheet.</p>
+          <p className="lede">What the research is telling us, updated live as the team logs. {headline}</p>
         </div>
         <div className="row">
           <button className="btn ghost sm" onClick={copySheet} disabled={!rows.length}>Copy for Google Sheet</button>
@@ -102,11 +160,10 @@ export default function Dashboard() {
       </div>
 
       <div className="tiles">
-        <div className="tile"><div className="n">{rows.length}</div><div className="l">interviews logged</div></div>
+        <div className="tile"><div className="n">{n}</div><div className="l">interviews logged</div></div>
         <div className="tile"><div className="n">{survey.responses}</div><div className="l">survey responses</div></div>
         <div className="tile"><div className="n">{placesShared}</div><div className="l">places shared</div></div>
-        <div className="tile"><div className="n">{stats.needs}</div><div className="l">need follow-up</div></div>
-        <div className="tile"><div className="n">{stats.done}</div><div className="l">marked done</div></div>
+        <div className="tile"><div className="n">{n ? Math.round((stats.lowPartial / n) * 100) + '%' : '—'}</div><div className="l">low/partial awareness</div></div>
         <div className="tile"><div className="n">{stats.quotes.length}</div><div className="l">quotes captured</div></div>
       </div>
 
@@ -117,26 +174,52 @@ export default function Dashboard() {
         </div>
       )}
 
-      {rows.length === 0 ? (
+      {n === 0 ? (
         <div className="card"><div className="empty">No data yet. The charts fill in as interviews are logged.</div></div>
       ) : (
         <>
           <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 16 }}>
             <div className="card">
               <div className="hd"><h2>Top benefit named</h2><span className="note">the one that matters most</span></div>
-              <div className="bd"><Bars data={stats.topBenefit} empty="No top benefit recorded yet." /></div>
+              <div className="bd"><Bars data={stats.topBenefit} total={n} empty="No top benefit recorded yet." /></div>
             </div>
             <div className="card">
-              <div className="hd"><h2>Benefits wanted</h2><span className="note">all mentions</span></div>
-              <div className="bd"><Bars data={stats.wants.slice(0, 10)} empty="Nothing recorded yet." /></div>
+              <div className="hd"><h2>Benefits wanted</h2><span className="note">share of interviews</span></div>
+              <div className="bd"><Bars data={stats.wants.slice(0, 10)} total={n} empty="Nothing recorded yet." /></div>
+            </div>
+            <div className="card">
+              <div className="hd"><h2>Coverage awareness</h2><span className="note">how well they know their plan</span></div>
+              <div className="bd"><Bars data={stats.awareness} total={n} empty="No awareness recorded yet." /></div>
+            </div>
+            <div className="card">
+              <div className="hd"><h2>Recurring themes</h2><span className="note">auto-tagged from interviews</span></div>
+              <div className="bd"><Bars data={stats.themes} total={n} empty="No themes yet." /></div>
             </div>
             <div className="card">
               <div className="hd"><h2>Bullseye segment</h2></div>
-              <div className="bd"><Bars data={stats.bullseye} empty="No segments tagged yet." /></div>
+              <div className="bd"><Bars data={stats.bullseye} total={n} empty="No segments tagged yet." /></div>
             </div>
             <div className="card">
               <div className="hd"><h2>Current plans</h2></div>
-              <div className="bd"><Bars data={stats.plans} empty="No plans recorded yet." /></div>
+              <div className="bd"><Bars data={stats.plans} total={n} empty="No plans recorded yet." /></div>
+            </div>
+          </div>
+
+          <div className="card">
+            <div className="hd"><h2>Top benefit by segment</h2><span className="note">which benefits matter to whom</span></div>
+            <div className="tablewrap">
+              <table>
+                <thead><tr><th>Segment</th><th>Interviews</th><th>Top benefits</th></tr></thead>
+                <tbody>
+                  {stats.segments.map(([seg, v]) => (
+                    <tr key={seg} style={{ cursor: 'default' }}>
+                      <td><span className="tag b">{seg}</span></td>
+                      <td style={{ fontVariantNumeric: 'tabular-nums' }}>{v.count}</td>
+                      <td>{Object.entries(v.benefits).sort((a, b) => b[1] - a[1]).map(([b, c]) => `${b} (${c})`).join(', ') || '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
 
@@ -147,7 +230,7 @@ export default function Dashboard() {
               {stats.quotes.map((r) => (
                 <div key={r.id} style={{ borderLeft: '3px solid var(--accent)', paddingLeft: 14 }}>
                   <div style={{ fontFamily: 'var(--serif)', fontSize: 16, lineHeight: 1.4 }}>&ldquo;{r.quote}&rdquo;</div>
-                  <div style={{ fontSize: 12, color: 'var(--faint)', marginTop: 3 }}>{r.who || 'unknown'}{r.plan ? ` · ${r.plan}` : ''}</div>
+                  <div style={{ fontSize: 12, color: 'var(--faint)', marginTop: 3 }}>{r.who ? r.who.slice(0, 80) : 'unknown'}{r.plan ? ` · ${r.plan}` : ''}</div>
                 </div>
               ))}
             </div>
