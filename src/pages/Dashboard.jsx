@@ -60,6 +60,64 @@ function Bars({ data, empty, total }) {
   )
 }
 
+// Categorical slice colors that read in both light and dark.
+const SLICE = ['#14b8a6', '#f59e0b', '#6366f1', '#f43f5e', '#94a3b8', '#22c55e']
+
+function Donut({ data, total, size = 148 }) {
+  const r = 56, sw = 22, C = 2 * Math.PI * r, cx = size / 2, cy = size / 2
+  const tot = total || data.reduce((s, [, nn]) => s + nn, 0) || 1
+  let off = 0
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="img" aria-label="donut chart" style={{ flex: 'none' }}>
+      <circle cx={cx} cy={cy} r={r} fill="none" stroke="var(--surface-2)" strokeWidth={sw} />
+      {data.map(([label, nn], i) => {
+        const f = nn / tot
+        const el = (
+          <circle key={label} cx={cx} cy={cy} r={r} fill="none" stroke={SLICE[i % SLICE.length]} strokeWidth={sw}
+            strokeDasharray={`${f * C} ${C - f * C}`} strokeDashoffset={-off * C} transform={`rotate(-90 ${cx} ${cy})`} />
+        )
+        off += f
+        return el
+      })}
+      <text x={cx} y={cy - 1} textAnchor="middle" fontSize="27" fontWeight="700" fill="var(--fg)" style={{ fontVariantNumeric: 'tabular-nums' }}>{tot}</text>
+      <text x={cx} y={cy + 16} textAnchor="middle" fontSize="11" fill="var(--faint)">total</text>
+    </svg>
+  )
+}
+
+function Legend({ data, total }) {
+  const tot = total || data.reduce((s, [, n]) => s + n, 0) || 1
+  return (
+    <div style={{ display: 'grid', gap: 9, minWidth: 0, flex: 1 }}>
+      {data.map(([label, n], i) => (
+        <div key={label} className="row" style={{ justifyContent: 'space-between', gap: 10, flexWrap: 'nowrap' }}>
+          <span className="row" style={{ gap: 8, minWidth: 0, flexWrap: 'nowrap' }}>
+            <span style={{ width: 11, height: 11, borderRadius: 3, background: SLICE[i % SLICE.length], flex: 'none' }} />
+            <span style={{ overflowWrap: 'anywhere', fontSize: 13 }}>{label}</span>
+          </span>
+          <span style={{ color: 'var(--muted)', fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap', fontSize: 12.5 }}>{n} &middot; {Math.round((n / tot) * 100)}%</span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function DonutCard({ title, note, data, total, empty }) {
+  return (
+    <div className="card">
+      <div className="hd"><h2>{title}</h2>{note && <span className="note">{note}</span>}</div>
+      <div className="bd">
+        {data.length === 0 ? <div className="empty">{empty}</div> : (
+          <div style={{ display: 'flex', gap: 18, alignItems: 'center', flexWrap: 'wrap' }}>
+            <Donut data={data} total={total} />
+            <Legend data={data} total={total} />
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 export default function Dashboard() {
   const { rows, loading } = useInterviews()
   const { map } = useSettings()
@@ -179,6 +237,11 @@ export default function Dashboard() {
       ) : (
         <>
           <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 16 }}>
+            <DonutCard title="Coverage awareness" note="how well they know their plan" data={stats.awareness} total={n} empty="No awareness recorded yet." />
+            <DonutCard title="Bullseye segment" note="who we're hearing from" data={stats.bullseye} total={n} empty="No segments tagged yet." />
+          </div>
+
+          <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 16 }}>
             <div className="card">
               <div className="hd"><h2>Top benefit named</h2><span className="note">the one that matters most</span></div>
               <div className="bd"><Bars data={stats.topBenefit} total={n} empty="No top benefit recorded yet." /></div>
@@ -188,16 +251,8 @@ export default function Dashboard() {
               <div className="bd"><Bars data={stats.wants.slice(0, 10)} total={n} empty="Nothing recorded yet." /></div>
             </div>
             <div className="card">
-              <div className="hd"><h2>Coverage awareness</h2><span className="note">how well they know their plan</span></div>
-              <div className="bd"><Bars data={stats.awareness} total={n} empty="No awareness recorded yet." /></div>
-            </div>
-            <div className="card">
               <div className="hd"><h2>Recurring themes</h2><span className="note">auto-tagged from interviews</span></div>
               <div className="bd"><Bars data={stats.themes} total={n} empty="No themes yet." /></div>
-            </div>
-            <div className="card">
-              <div className="hd"><h2>Bullseye segment</h2></div>
-              <div className="bd"><Bars data={stats.bullseye} total={n} empty="No segments tagged yet." /></div>
             </div>
             <div className="card">
               <div className="hd"><h2>Current plans</h2></div>
