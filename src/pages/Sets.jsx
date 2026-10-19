@@ -3,14 +3,18 @@ import { BUILTIN_SETS } from '../data/pool.js'
 import {
   useSets, addSet, deleteSet,
   useQuestions, addQuestion, updateQuestion, deleteQuestion,
+  useSettings, setSetting,
 } from '../lib/data.js'
 import { Modal, useToast } from '../components/ui.jsx'
 
 export default function Sets() {
   const { rows: saved, loading } = useSets()
   const { rows: pool } = useQuestions()
+  const { map } = useSettings()
   const toast = useToast()
 
+  const defaultId = map.default_set || ''
+  const [tab, setTab] = useState('sets') // sets | build
   const [sel, setSel] = useState({})
   const [name, setName] = useState('')
   const [note, setNote] = useState('')
@@ -26,6 +30,13 @@ export default function Sets() {
 
   const chosen = pool.filter((q) => sel[q[0]]).map((q) => q[0])
 
+  // Starter + saved together, with the team default pinned to the top.
+  const allSets = [
+    ...BUILTIN_SETS.map((s) => ({ ...s, builtin: true })),
+    ...saved.map((s) => ({ ...s, builtin: false })),
+  ]
+  const ordered = [...allSets].sort((a, b) => (b.id === defaultId ? 1 : 0) - (a.id === defaultId ? 1 : 0))
+
   function toggle(id) { setSel((s) => ({ ...s, [id]: !s[id] })) }
   function clear() { setSel({}); setName(''); setNote('') }
 
@@ -35,7 +46,13 @@ export default function Sets() {
     setSel(m)
     setName(s.builtin ? '' : s.name)
     setNote(s.note || '')
+    setTab('build')
     window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  async function makeDefault(id) {
+    try { await setSetting('default_set', id); toast('Set as the default for the Run tab') }
+    catch (e) { toast(e.message || 'Could not set the default') }
   }
 
   async function saveSet() {
@@ -65,77 +82,95 @@ export default function Sets() {
           <h1 style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 'clamp(24px,4vw,32px)', margin: '4px 0 6px' }}>
             Question sets
           </h1>
-          <p className="lede">The shared question pool. Add or edit questions, then pick the ones you want, name the set, and save it. Everything here syncs live for the whole team.</p>
+          <p className="lede">The sets your team runs interviews from, and the shared question pool. Pick a default, or build a new set. Everything here syncs live for the whole team.</p>
         </div>
-        <button className="btn" onClick={() => setQEdit({ grp: '', body: '' })}>+ Add question</button>
+        {tab === 'build' && <button className="btn" onClick={() => setQEdit({ grp: '', body: '' })}>+ Add question</button>}
       </div>
 
-      <div className="card">
-        <div className="hd">
-          <h2>Build a set</h2>
-          <span className="note">{chosen.length} selected</span>
-        </div>
-        <div className="bd" style={{ display: 'grid', gap: 12 }}>
-          <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: 12 }}>
-            <div className="field">
-              <label htmlFor="sname">Set name</label>
-              <input id="sname" className="inp" value={name} placeholder="e.g. Aging-off, second round" onChange={(e) => setName(e.target.value)} />
-            </div>
-            <div className="field">
-              <label htmlFor="snote">Note <span className="hint">(when to use it)</span></label>
-              <input id="snote" className="inp" value={note} placeholder="one line of guidance" onChange={(e) => setNote(e.target.value)} />
-            </div>
-          </div>
-          <div className="row">
-            <button className="btn" onClick={saveSet} disabled={busy || !name.trim() || !chosen.length}>
-              {busy ? 'Saving…' : 'Save set for the team'}
-            </button>
-            <button className="btn ghost" onClick={clear} disabled={busy}>Clear</button>
-          </div>
-        </div>
+      <div className="row" style={{ gap: 6 }}>
+        <button type="button" className={'chip' + (tab === 'sets' ? ' on' : '')} onClick={() => setTab('sets')}>Saved sets</button>
+        <button type="button" className={'chip' + (tab === 'build' ? ' on' : '')} onClick={() => setTab('build')}>Build a set</button>
       </div>
 
-      <div className="card">
-        <div className="hd">
-          <h2>Pick questions</h2>
-          <span className="note">{pool.length} in the pool</span>
+      {tab === 'sets' && (
+        <div className="card">
+          <div className="hd">
+            <h2>Saved &amp; starter sets</h2>
+            <span className="note">{defaultId ? 'default loads first on Run' : 'pick a default below'}</span>
+          </div>
+          <div className="bd" style={{ display: 'grid', gap: 10 }}>
+            {loading && <div className="empty"><span className="spin" /></div>}
+            {ordered.map((s) => (
+              <SetRow
+                key={s.id}
+                s={s}
+                builtin={s.builtin}
+                isDefault={s.id === defaultId}
+                onLoad={() => loadInto(s)}
+                onMakeDefault={() => makeDefault(s.id)}
+                onDelete={s.builtin ? undefined : () => removeSet(s.id)}
+              />
+            ))}
+          </div>
         </div>
-        <div className="bd">
-          {groupNames.map((grp) => (
-            <div className="poolgrp" key={grp}>
-              <h3>{grp}</h3>
-              <div className="grid" style={{ gap: 8 }}>
-                {groups[grp].map((q) => (
-                  <div key={q[0]} style={{ display: 'flex', gap: 8, alignItems: 'stretch' }}>
-                    <label className={'qpick' + (sel[q[0]] ? ' on' : '')} style={{ flex: 1, minWidth: 0 }}>
-                      <input type="checkbox" checked={!!sel[q[0]]} onChange={() => toggle(q[0])} />
-                      <span><span className="id">{q[0]}</span> &nbsp;{q[2]}</span>
-                    </label>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                      <button className="btn ghost sm" title="Edit" onClick={() => setQEdit({ id: q[0], grp: q[1], body: q[2] })}>Edit</button>
-                      <button className="btn danger sm" title="Delete" onClick={() => removeQuestion(q)}>Del</button>
-                    </div>
-                  </div>
-                ))}
+      )}
+
+      {tab === 'build' && (
+        <>
+          <div className="card">
+            <div className="hd">
+              <h2>Build a set</h2>
+              <span className="note">{chosen.length} selected</span>
+            </div>
+            <div className="bd" style={{ display: 'grid', gap: 12 }}>
+              <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: 12 }}>
+                <div className="field">
+                  <label htmlFor="sname">Set name</label>
+                  <input id="sname" className="inp" value={name} placeholder="e.g. Aging-off, second round" onChange={(e) => setName(e.target.value)} />
+                </div>
+                <div className="field">
+                  <label htmlFor="snote">Note <span className="hint">(when to use it)</span></label>
+                  <input id="snote" className="inp" value={note} placeholder="one line of guidance" onChange={(e) => setNote(e.target.value)} />
+                </div>
+              </div>
+              <div className="row">
+                <button className="btn" onClick={saveSet} disabled={busy || !name.trim() || !chosen.length}>
+                  {busy ? 'Saving…' : 'Save set for the team'}
+                </button>
+                <button className="btn ghost" onClick={clear} disabled={busy}>Clear</button>
               </div>
             </div>
-          ))}
-        </div>
-      </div>
+          </div>
 
-      <div className="card">
-        <div className="hd"><h2>Saved &amp; starter sets</h2><span className="note">{saved.length} saved by the team</span></div>
-        <div className="bd" style={{ display: 'grid', gap: 10 }}>
-          {BUILTIN_SETS.map((s) => (
-            <SetRow key={s.id} s={s} builtin onLoad={() => loadInto(s)} />
-          ))}
-          {loading && <div className="empty"><span className="spin" /></div>}
-          {!loading && saved.length === 0 && <div className="empty">No custom sets yet. Build one above and it shows up here for everyone.</div>}
-          {saved.map((s) => (
-            <SetRow key={s.id} s={s} onLoad={() => loadInto(s)} onDelete={() => removeSet(s.id)} />
-          ))}
-        </div>
-      </div>
+          <div className="card">
+            <div className="hd">
+              <h2>Pick questions</h2>
+              <span className="note">{pool.length} in the pool</span>
+            </div>
+            <div className="bd">
+              {groupNames.map((grp) => (
+                <div className="poolgrp" key={grp}>
+                  <h3>{grp}</h3>
+                  <div className="grid" style={{ gap: 8 }}>
+                    {groups[grp].map((q) => (
+                      <div key={q[0]} style={{ display: 'flex', gap: 8, alignItems: 'stretch' }}>
+                        <label className={'qpick' + (sel[q[0]] ? ' on' : '')} style={{ flex: 1, minWidth: 0 }}>
+                          <input type="checkbox" checked={!!sel[q[0]]} onChange={() => toggle(q[0])} />
+                          <span><span className="id">{q[0]}</span> &nbsp;{q[2]}</span>
+                        </label>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                          <button className="btn ghost sm" title="Edit" onClick={() => setQEdit({ id: q[0], grp: q[1], body: q[2] })}>Edit</button>
+                          <button className="btn danger sm" title="Delete" onClick={() => removeQuestion(q)}>Del</button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
 
       {qEdit && (
         <QuestionEditor
@@ -193,22 +228,30 @@ function QuestionEditor({ draft, groupNames, onClose, onSaved }) {
   )
 }
 
-function SetRow({ s, builtin, onLoad, onDelete }) {
+function SetRow({ s, builtin, isDefault, onLoad, onDelete, onMakeDefault }) {
   return (
-    <div style={{ border: '1px solid var(--line)', borderRadius: 12, padding: '13px 15px', display: 'grid', gap: 7 }}>
-      <div className="row" style={{ justifyContent: 'space-between' }}>
+    <div style={{
+      border: '1px solid ' + (isDefault ? 'var(--accent)' : 'var(--line)'),
+      borderRadius: 12, padding: '13px 15px', display: 'grid', gap: 7,
+      background: isDefault ? 'var(--accent-soft)' : 'transparent',
+    }}>
+      <div className="row" style={{ justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
         <div className="row" style={{ gap: 8 }}>
           <strong style={{ fontSize: 14.5 }}>{s.name}</strong>
           {builtin
             ? <span className="tag b">starter</span>
             : <span className="tag s-done">{(s.question_ids || []).length} questions</span>}
+          {isDefault && <span className="tag b">default</span>}
         </div>
         <div className="row" style={{ gap: 6 }}>
+          {isDefault
+            ? <span style={{ fontSize: 12, color: 'var(--accent-ink)', fontWeight: 600 }}>Loads on Run</span>
+            : <button className="btn ghost sm" onClick={onMakeDefault}>Make default</button>}
           <button className="btn ghost sm" onClick={onLoad}>Load &amp; edit</button>
-          {!builtin && <button className="btn danger sm" onClick={onDelete}>Delete</button>}
+          {onDelete && <button className="btn danger sm" onClick={onDelete}>Delete</button>}
         </div>
       </div>
-      {s.note && <div style={{ fontSize: 12.5, color: 'var(--muted)' }}>{s.note}</div>}
+      {s.note && <div style={{ fontSize: 12.5, color: isDefault ? 'var(--accent-ink)' : 'var(--muted)' }}>{s.note}</div>}
       <div style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--faint)' }}>
         {(s.question_ids || []).join(' · ')}
       </div>
