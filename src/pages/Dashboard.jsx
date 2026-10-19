@@ -317,14 +317,6 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 16 }}>
-            <DonutCard
-              title="Responses by source"
-              note="interviews + survey"
-              data={[['Interviews', n], ['Survey', survey.responses]].filter(([, v]) => v > 0)}
-              total={totalResponses}
-              empty="No responses yet." />
-          </div>
         </>
       )}
 
@@ -332,7 +324,7 @@ export default function Dashboard() {
         <div className="card"><div className="empty">No data yet. The charts fill in as interviews and survey responses come in.</div></div>
       )}
 
-      {n > 0 && (
+      {n > 0 && source !== 'survey' && (
         <>
           <div>
             <div className="eyebrow">From interviews only</div>
