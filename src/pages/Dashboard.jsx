@@ -148,6 +148,7 @@ export default function Dashboard() {
 
   const placesShared = shares.filter((r) => r.status === 'posted').length
   const n = rows.length
+  const totalResponses = n + survey.responses
 
   const combined = useMemo(() => {
     const m = { ...(survey.topMap || {}) }
@@ -168,6 +169,12 @@ export default function Dashboard() {
         (share(b.i, rows.length) + share(b.s, survey.responses)) -
         (share(a.i, rows.length) + share(a.s, survey.responses)))
   }, [rows, survey.want, survey.responses])
+
+  // Benefits wanted, both sources summed into one count per category.
+  const combinedWants = useMemo(
+    () => compare.map(({ cat, i, s }) => [cat, i + s]).filter(([, c]) => c > 0).sort((a, b) => b[1] - a[1]),
+    [compare],
+  )
 
   const stats = useMemo(() => {
     const topBenefit = tally(rows.map((r) => r.top_benefit))
@@ -255,15 +262,27 @@ export default function Dashboard() {
       <div className="tiles">
         <div className="tile"><div className="n">{n}</div><div className="l">interviews logged</div></div>
         <div className="tile"><div className="n">{survey.responses}</div><div className="l">survey responses</div></div>
+        <div className="tile"><div className="n">{totalResponses}</div><div className="l">total responses</div></div>
         <div className="tile"><div className="n">{placesShared}</div><div className="l">places shared</div></div>
         <div className="tile"><div className="n">{n ? Math.round((stats.lowPartial / n) * 100) + '%' : '—'}</div><div className="l">low/partial awareness</div></div>
         <div className="tile"><div className="n">{stats.quotes.length}</div><div className="l">quotes captured</div></div>
       </div>
 
+      {totalResponses > 0 && (
+        <div className="eyebrow" style={{ marginTop: 2 }}>Both sources &middot; everyone we have heard from</div>
+      )}
+
+      {combinedWants.length > 0 && (
+        <div className="card">
+          <div className="hd"><h2>Benefits wanted, survey + interviews</h2><span className="note">share of all {totalResponses} responses</span></div>
+          <div className="bd"><Bars data={combinedWants} total={totalResponses} empty="No benefits recorded yet." /></div>
+        </div>
+      )}
+
       {(combined.length > 0) && (
         <div className="card">
-          <div className="hd"><h2>Top benefit, survey + interviews</h2><span className="note">same ten categories</span></div>
-          <div className="bd"><Bars data={combined} empty="Connect the survey or log interviews to see this." /></div>
+          <div className="hd"><h2>Top benefit, survey + interviews</h2><span className="note">share of all {totalResponses} responses</span></div>
+          <div className="bd"><Bars data={combined} total={totalResponses} empty="Connect the survey or log interviews to see this." /></div>
         </div>
       )}
 
@@ -285,10 +304,25 @@ export default function Dashboard() {
         </div>
       )}
 
+      {totalResponses > 0 && (
+        <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 16 }}>
+          <DonutCard
+            title="Responses by source"
+            note="interviews + survey"
+            data={[['Interviews', n], ['Survey', survey.responses]].filter(([, v]) => v > 0)}
+            total={totalResponses}
+            empty="No responses yet." />
+        </div>
+      )}
+
       {n === 0 ? (
         <div className="card"><div className="empty">No data yet. The charts fill in as interviews are logged.</div></div>
       ) : (
         <>
+          <div>
+            <div className="eyebrow">From interviews only</div>
+            <p className="lede" style={{ fontSize: 13, margin: '2px 0 0' }}>The survey does not ask these, so they come from interviews.</p>
+          </div>
           <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 16 }}>
             <DonutCard title="Coverage awareness" note="how well they know their plan" data={stats.awareness} total={n} empty="No awareness recorded yet." />
             <DonutCard title="Bullseye segment" note="who we're hearing from" data={stats.bullseye} total={n} empty="No segments tagged yet." />
