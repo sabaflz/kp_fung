@@ -54,13 +54,26 @@ export function useSurvey(csvUrl) {
 
   const analysis = useMemo(() => {
     const H = (raw?.header || []).map((h) => (h || '').toLowerCase())
-    const find = (kw) => H.findIndex((h) => kw.some((k) => h.includes(k)))
+    // A Google Form that was edited keeps the old (now empty) columns and adds
+    // new ones for the current questions, and the same question text can appear
+    // more than once. So match by keyword, then pick the matching column that
+    // actually has answers.
+    const dataCount = (i) => raw ? raw.rows.reduce((a, r) => a + ((r[i] || '').trim() ? 1 : 0), 0) : 0
+    const find = (kw) => {
+      let best = -1, bestN = -1
+      H.forEach((h, i) => {
+        if (!kw.some((k) => h.includes(k))) return
+        const c = dataCount(i)
+        if (c > bestN) { bestN = c; best = i }
+      })
+      return best
+    }
     const col = {
-      age: find(['age']),
-      want: find(['would you most want', 'which three', 'most want']),
-      top: find(['number one priority', 'your number one', 'which is your']),
-      use: find(['no additional cost', 'likely would you be to use']),
-      five: find(['more per month', '5 more', 'costs 5']),
+      age: find(['what is your age']),
+      want: find(['which three', 'most want']),
+      top: find(['number one priority', 'your number one']),
+      use: find(['no additional cost', 'how likely would you be to use']),
+      choose: find(['includes your number one supplemental benefit']),
     }
     const vals = (i) => (i < 0 || !raw) ? [] : raw.rows.map((r) => (r[i] || '').trim()).filter(Boolean)
     const tally = (arr) => { const m = {}; for (const v of arr) m[v] = (m[v] || 0) + 1; return Object.entries(m).sort((x, y) => y[1] - x[1]) }
@@ -77,7 +90,7 @@ export function useSurvey(csvUrl) {
       want: Object.entries(wantMap).sort((x, y) => y[1] - x[1]),
       age: tally(vals(col.age)),
       use: tally(vals(col.use)),
-      five: tally(vals(col.five)),
+      choose: tally(vals(col.choose)),
     }
   }, [raw])
 

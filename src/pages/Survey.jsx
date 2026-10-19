@@ -111,8 +111,8 @@ export default function Survey() {
             <div className="bd"><Bars data={s.use} empty="No responses yet." /></div>
           </div>
           <div className="card">
-            <div className="hd"><h2>Still choose it at $5 more</h2></div>
-            <div className="bd"><Bars data={s.five} empty="No responses yet." /></div>
+            <div className="hd"><h2>Would pick the plan with the benefit</h2><span className="note">same cost</span></div>
+            <div className="bd"><Bars data={s.choose} empty="No responses yet." /></div>
           </div>
         </div>
       )}
