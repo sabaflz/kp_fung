@@ -1,10 +1,16 @@
 import { Fragment, useMemo, useState } from 'react'
-import { FIELDS, BULLSEYE_TAGS, STATUS_TAGS, EXTRACT_PROMPT, BENEFITS, snapBenefits, snapTopBenefit, USE_OPTIONS, CHOICE_OPTIONS } from '../data/pool.js'
+import { FIELDS, BULLSEYE_TAGS, STATUS_TAGS, EXTRACT_PROMPT, BENEFITS, snapBenefits, snapTopBenefit, USE_OPTIONS, CHOICE_OPTIONS, FLEX_OPTIONS, INFLUENCE_OPTIONS, BARRIER_OPTIONS } from '../data/pool.js'
 import { useInterviews, addInterview, updateInterview, deleteInterview } from '../lib/data.js'
 import { useAuth } from '../lib/auth.jsx'
 import { Modal, useToast, copyText } from '../components/ui.jsx'
 
-const LONG = new Set(['benefits_want', 'friction', 'surprise', 'quote', 'workaround', 'last_use', 'services'])
+const LONG = new Set(['benefits_want', 'friction', 'surprise', 'quote', 'workaround', 'last_use', 'services', 'why_top'])
+
+// Fields rendered as a dropdown, each tied to its option list.
+const SELECTS = {
+  would_use: USE_OPTIONS, plan_choice: CHOICE_OPTIONS,
+  flex_pref: FLEX_OPTIONS, influence: INFLUENCE_OPTIONS, barrier: BARRIER_OPTIONS,
+}
 
 // Map the AI extract prompt's labels back onto our field keys.
 const LABEL_MAP = [
@@ -13,6 +19,8 @@ const LABEL_MAP = [
   [/^coverage awareness|^awareness/, 'awareness'], [/^last/, 'last_use'],
   [/^services/, 'services'], [/^benefits/, 'benefits_want'], [/^top benefit/, 'top_benefit'],
   [/^would use/, 'would_use'], [/^pick the plan|^plan with|^would pick/, 'plan_choice'],
+  [/^\$?300|^allowance preference/, 'flex_pref'], [/^do benefits sway|^benefits sway/, 'influence'],
+  [/^why/, 'why_top'], [/^reason they might not|^biggest reason/, 'barrier'],
   [/^workaround/, 'workaround'], [/^friction|^pain/, 'friction'],
   [/^one surprise|^surprise/, 'surprise'], [/^best quote|^quote/, 'quote'],
   [/^follow/, 'followup'],
@@ -232,14 +240,13 @@ function InterviewForm({ record, onClose, onSaved, onError }) {
                 </select>
               </div>
             )
-            if (key === 'would_use' || key === 'plan_choice') {
-              const opts = key === 'would_use' ? USE_OPTIONS : CHOICE_OPTIONS
+            if (SELECTS[key]) {
               return (
                 <div className="field" key={key}>
                   <label htmlFor={key}>{label} {hint && <span className="hint">{hint}</span>}</label>
                   <select id={key} className="inp" value={form[key] || ''} onChange={(e) => set(key, e.target.value)}>
                     <option value="">—</option>
-                    {opts.map((o) => <option key={o} value={o}>{o}</option>)}
+                    {SELECTS[key].map((o) => <option key={o} value={o}>{o}</option>)}
                   </select>
                 </div>
               )
