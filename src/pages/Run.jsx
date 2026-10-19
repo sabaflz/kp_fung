@@ -1,21 +1,24 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { BUILTIN_SETS } from '../data/pool.js'
-import { useSets, useQuestions } from '../lib/data.js'
+import { useSets, useQuestions, useSettings } from '../lib/data.js'
 import { useToast, copyText } from '../components/ui.jsx'
 
 export default function Run() {
   const { rows: saved } = useSets()
   const { rows: qrows } = useQuestions()
+  const { map } = useSettings()
   const toast = useToast()
   const nav = useNavigate()
 
   const byId = Object.fromEntries(qrows.map((q) => [q[0], q]))
   const allSets = [...BUILTIN_SETS, ...saved]
-  const [setId, setSetId] = useState(BUILTIN_SETS[0].id)
+  // null = follow the team default (from the Question sets tab); a pick overrides it.
+  const [setId, setSetId] = useState(null)
   const [asked, setAsked] = useState({})
 
-  const active = allSets.find((s) => s.id === setId) || BUILTIN_SETS[0]
+  const effectiveId = setId || map.default_set || BUILTIN_SETS[0].id
+  const active = allSets.find((s) => s.id === effectiveId) || BUILTIN_SETS[0]
   const questions = (active.question_ids || []).map((id) => byId[id]).filter(Boolean)
   const done = questions.filter((q) => asked[q[0]]).length
   const pct = questions.length ? Math.round((done / questions.length) * 100) : 0
@@ -43,7 +46,7 @@ export default function Run() {
         <div className="bd">
           <div className="row">
             {allSets.map((s) => (
-              <button key={s.id} className={'chip' + (s.id === setId ? ' on' : '')} onClick={() => pick(s.id)}>
+              <button key={s.id} className={'chip' + (s.id === effectiveId ? ' on' : '')} onClick={() => pick(s.id)}>
                 {s.name}
                 <span className="ct">{(s.question_ids || []).length}</span>
               </button>
