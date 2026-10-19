@@ -102,8 +102,9 @@ function SplitBars({ data, source, iTotal, sTotal, empty }) {
   )
 }
 
-// Categorical slice colors that read in both light and dark.
-const SLICE = ['#14b8a6', '#f59e0b', '#6366f1', '#f43f5e', '#94a3b8', '#22c55e']
+// Categorical slice colors for the interview-only donuts. Cool tones only — no
+// amber or orange, so orange stays reserved for "survey" across the whole page.
+const SLICE = ['#14b8a6', '#6366f1', '#0ea5e9', '#8b5cf6', '#22c55e', '#94a3b8']
 
 function Donut({ data, total, size = 148 }) {
   const r = 56, sw = 22, C = 2 * Math.PI * r, cx = size / 2, cy = size / 2
