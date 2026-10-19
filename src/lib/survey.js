@@ -29,8 +29,9 @@ const BARRIER_MAP = [
   ['nothing significant', 'Nothing would stop me'],
 ]
 // "Why top choice" is multi-select, so count each option as a substring, which
-// is robust to how Google joins multiple answers in one cell.
-const WHY_OPTS = [
+// is robust to how Google joins multiple answers in one cell. Exported so the
+// dashboard can bucket the interview free-text field the same way.
+export const WHY_OPTS = [
   ['already spend', 'Already spend on it'],
   ['currently have this need', 'Have the need, still unmet'],
   ['prevent future', 'Prevents future problems'],

@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { FIELDS } from '../data/pool.js'
 import { useInterviews, useSettings } from '../lib/data.js'
-import { useSurvey } from '../lib/survey.js'
+import { useSurvey, WHY_OPTS } from '../lib/survey.js'
 import { coverageBucket, situationBucket, useBucket, choiceBucket } from '../data/buckets.js'
 import { useToast, copyText } from '../components/ui.jsx'
 
@@ -105,8 +105,6 @@ function SplitBars({ data, source, iTotal, sTotal, empty }) {
 // Categorical slice colors for the interview-only donuts. Cool tones only — no
 // amber or orange, so orange stays reserved for "survey" across the whole page.
 const SLICE = ['#14b8a6', '#6366f1', '#0ea5e9', '#8b5cf6', '#22c55e', '#94a3b8']
-// Warm palette for the survey-only charts, led by the survey orange.
-const SLICE_SV = ['#e0792e', '#eab308', '#c2410c', '#9333ea', '#be123c', '#a16207']
 
 function Donut({ data, total, size = 148, palette = SLICE }) {
   const r = 56, sw = 22, C = 2 * Math.PI * r, cx = size / 2, cy = size / 2
@@ -224,6 +222,17 @@ export default function Dashboard() {
   const sitTri = combineTriples(tally(rows.map((r) => situationBucket(r.who))), survey.situation || [])
   const useTri = combineTriples(tally(rows.map((r) => useBucket(r.would_use))), survey.use || [])
   const choTri = combineTriples(tally(rows.map((r) => choiceBucket(r.plan_choice))), survey.choose || [])
+  // Interview dropdowns use the survey's own short labels, so they tally directly.
+  const flexTri = combineTriples(tally(rows.map((r) => r.flex_pref)), survey.flex || [])
+  const inflTri = combineTriples(tally(rows.map((r) => r.influence)), survey.influence || [])
+  const barrTri = combineTriples(tally(rows.map((r) => r.barrier)), survey.barrier || [])
+  // "Why" is free text in interviews: keyword-bucket it like the survey multi-select.
+  const whyBucket = (texts) => {
+    const m = {}
+    for (const v of texts) { const t = (v || '').toLowerCase(); for (const [kw, l] of WHY_OPTS) if (t.includes(kw)) m[l] = (m[l] || 0) + 1 }
+    return Object.entries(m).sort((a, b) => b[1] - a[1])
+  }
+  const whyTri = combineTriples(whyBucket(rows.map((r) => r.why_top)), survey.why || [])
 
   const COLS = [...FIELDS.map(([k, l]) => [k, l]), ['bullseye', 'Bullseye'], ['status', 'Status']]
 
@@ -336,6 +345,30 @@ export default function Dashboard() {
             </div>
           </div>
 
+          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--muted)' }}>Choice and flexibility</div>
+          <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 16 }}>
+            <div className="card">
+              <div className="hd"><h2>If the plan had $300 to spend</h2><span className="note">set benefit vs. flexible allowance</span></div>
+              <div className="bd"><SplitBars data={flexTri} source={source} iTotal={n} sTotal={survey.responses} empty="Nothing recorded yet." /></div>
+            </div>
+            <div className="card">
+              <div className="hd"><h2>Do benefits sway plan choice</h2><span className="note">when cost and coverage are equal</span></div>
+              <div className="bd"><SplitBars data={inflTri} source={source} iTotal={n} sTotal={survey.responses} empty="Nothing recorded yet." /></div>
+            </div>
+          </div>
+
+          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--muted)' }}>Why it matters, and what stops them</div>
+          <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 16 }}>
+            <div className="card">
+              <div className="hd"><h2>Why it&rsquo;s their top choice</h2><span className="note">pick several</span></div>
+              <div className="bd"><SplitBars data={whyTri} source={source} iTotal={n} sTotal={survey.responses} empty="Nothing recorded yet." /></div>
+            </div>
+            <div className="card">
+              <div className="hd"><h2>Reason they might not use it</h2><span className="note">even if it were free</span></div>
+              <div className="bd"><SplitBars data={barrTri} source={source} iTotal={n} sTotal={survey.responses} empty="Nothing recorded yet." /></div>
+            </div>
+          </div>
+
         </>
       )}
 
@@ -392,28 +425,6 @@ export default function Dashboard() {
         </>
       )}
 
-      {survey.responses > 0 && source !== 'interviews' && (
-        <>
-          <div>
-            <div className="eyebrow">From the survey</div>
-            <p className="lede" style={{ fontSize: 13, margin: '2px 0 0' }}>Questions only the survey asks, across {survey.responses} responses.</p>
-          </div>
-          <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 16 }}>
-            <DonutCard title="If the plan had $300 to spend" note="set benefit vs. flexible allowance" data={survey.flex} total={survey.responses} palette={SLICE_SV} empty="No responses yet." />
-            <DonutCard title="Do benefits sway plan choice" note="when cost and coverage are equal" data={survey.influence} total={survey.responses} palette={SLICE_SV} empty="No responses yet." />
-          </div>
-          <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 16 }}>
-            <div className="card">
-              <div className="hd"><h2>Why it&rsquo;s their top choice</h2><span className="note">share of {survey.responses}, pick several</span></div>
-              <div className="bd"><Bars data={survey.why} total={survey.responses} color="var(--sv)" empty="No responses yet." /></div>
-            </div>
-            <div className="card">
-              <div className="hd"><h2>Reason they might not use it</h2><span className="note">even if it were free</span></div>
-              <div className="bd"><Bars data={survey.barrier} total={survey.responses} color="var(--sv)" empty="No responses yet." /></div>
-            </div>
-          </div>
-        </>
-      )}
     </div>
   )
 }

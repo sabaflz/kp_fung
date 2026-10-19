@@ -59,6 +59,10 @@ export const FIELDS = [
   ['top_benefit','Top benefit',''],
   ['would_use','Would use it if free','likely / maybe / unlikely'],
   ['plan_choice','Pick the plan with the benefit','with / no preference / without'],
+  ['flex_pref','$300: set benefit vs flexible','pick the closest'],
+  ['influence','Benefits sway plan choice','major / somewhat / minor…'],
+  ['why_top','Why it is their top choice','any reasons that apply, in their words'],
+  ['barrier','Reason they might not use it','pick the closest'],
   ['workaround','Workaround','family, ChatGPT, calling insurer, apps…'],
   ['friction','Friction / pain point',''],
   ['surprise','One surprise',''],
@@ -73,6 +77,11 @@ export const STATUS_TAGS = ['logged','needs-followup','done']
 // the survey does and the two combine on the dashboard.
 export const USE_OPTIONS = ['Likely','Maybe','Unlikely']
 export const CHOICE_OPTIONS = ['With the benefit','No preference','Without the benefit']
+// These MUST match the short labels the survey maps to (src/lib/survey.js), so
+// an interview answer and a survey answer land in the same bucket and combine.
+export const FLEX_OPTIONS = ['One set benefit for all','Pick one from a list','Flexible allowance','Standard plus some choice','No preference']
+export const INFLUENCE_OPTIONS = ['A major factor','Somewhat','A minor factor','No influence','Not sure']
+export const BARRIER_OPTIONS = ['Would not need it','Would not know how','Not enough time','Would not cover enough','Process too complicated','Prefer another provider','Quality or privacy worry','Nothing would stop me']
 
 // Canonical benefit categories — EXACTLY the labels in the team survey (Q6).
 // Interviews record benefits from this list so interview charts and survey
@@ -131,6 +140,10 @@ Benefits they want:
 Top benefit:
 Would use it if free (Likely / Maybe / Unlikely):
 Pick the plan with the benefit (With the benefit / No preference / Without the benefit):
+$300 allowance preference (One set benefit for all / Pick one from a list / Flexible allowance / Standard plus some choice / No preference):
+Do benefits sway plan choice (A major factor / Somewhat / A minor factor / No influence / Not sure):
+Why it is their top choice (any that apply: already spend on it, have the need still unmet, prevents future problems, saves time or is easier, reduces financial stress, would realistically use it, improves quality of life, plan does not cover it well):
+Reason they might not use it (Would not need it / Would not know how / Not enough time / Would not cover enough / Process too complicated / Prefer another provider / Quality or privacy worry / Nothing would stop me):
 Workaround:
 Friction / pain point:
 One surprise:
