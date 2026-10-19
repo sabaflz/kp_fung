@@ -113,6 +113,84 @@ export function Legend({ data, palette = SLICE }) {
   )
 }
 
+// Two concentric rings so a donut can still show both sources: survey on the
+// outer ring, interviews on the inner, same color per category. Follows the
+// toggle (one ring in single-source mode). data = [label, iN, sN] triples.
+export function TwoRingDonut({ data, source, size = 150, palette = SLICE }) {
+  const cx = size / 2, cy = size / 2
+  const iTot = data.reduce((a, [, i]) => a + i, 0)
+  const sTot = data.reduce((a, [, , s]) => a + s, 0)
+  const surveyRing = { tot: sTot, pick: (row) => row[2] }
+  const ivRing = { tot: iTot, pick: (row) => row[1] }
+  let rings = []
+  if (source === 'interviews') rings = [{ ...ivRing, r: 56, sw: 20 }]
+  else if (source === 'survey') rings = [{ ...surveyRing, r: 56, sw: 20 }]
+  else if (sTot > 0 && iTot > 0) rings = [{ ...surveyRing, r: 58, sw: 13 }, { ...ivRing, r: 40, sw: 13 }]
+  else if (sTot > 0) rings = [{ ...surveyRing, r: 56, sw: 20 }]
+  else rings = [{ ...ivRing, r: 56, sw: 20 }]
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ flex: 'none' }} role="img" aria-label="donut chart">
+      {rings.map((ring, ri) => {
+        const C = 2 * Math.PI * ring.r
+        let off = 0
+        return (
+          <g key={ri}>
+            <circle cx={cx} cy={cy} r={ring.r} fill="none" stroke="var(--surface-2)" strokeWidth={ring.sw} />
+            {ring.tot > 0 && data.map((row, i) => {
+              const v = ring.pick(row)
+              if (!v) return null
+              const f = v / ring.tot
+              const el = <circle key={row[0]} cx={cx} cy={cy} r={ring.r} fill="none" stroke={palette[i % palette.length]} strokeWidth={ring.sw}
+                strokeDasharray={`${f * C} ${C - f * C}`} strokeDashoffset={-off * C} transform={`rotate(-90 ${cx} ${cy})`} />
+              off += f
+              return el
+            })}
+          </g>
+        )
+      })}
+    </svg>
+  )
+}
+
+export function TwoRingDonutCard({ title, note, data, source, empty, palette = SLICE }) {
+  const val = ([, i, s]) => source === 'interviews' ? i : source === 'survey' ? s : i + s
+  const shown = data.map((row, idx) => ({ label: row[0], v: val(row), idx })).filter((x) => x.v > 0)
+  const tot = shown.reduce((a, x) => a + x.v, 0) || 1
+  const iTot = data.reduce((a, [, i]) => a + i, 0)
+  const sTot = data.reduce((a, [, , s]) => a + s, 0)
+  const twoRings = source === 'both' && iTot > 0 && sTot > 0
+  return (
+    <div className="card">
+      <div className="hd"><h2>{title}</h2>{note && <span className="note">{note}</span>}</div>
+      <div className="bd">
+        {shown.length === 0 ? <div className="empty">{empty}</div> : (
+          <>
+            <div style={{ display: 'flex', gap: 18, alignItems: 'center', flexWrap: 'wrap' }}>
+              <TwoRingDonut data={data} source={source} palette={palette} />
+              <div style={{ display: 'grid', gap: 9, minWidth: 0, flex: 1 }}>
+                {shown.map((x) => (
+                  <div key={x.label} className="row" style={{ justifyContent: 'space-between', gap: 10, flexWrap: 'nowrap' }}>
+                    <span className="row" style={{ gap: 8, minWidth: 0, flexWrap: 'nowrap' }}>
+                      <span style={{ width: 11, height: 11, borderRadius: 3, background: palette[x.idx % palette.length], flex: 'none' }} />
+                      <span style={{ overflowWrap: 'anywhere', fontSize: 13 }}>{x.label}</span>
+                    </span>
+                    <span style={{ color: 'var(--muted)', fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap', fontSize: 12.5 }}>{x.v} &middot; {Math.round((x.v / tot) * 100)}%</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            {source === 'both' && (
+              <div style={{ fontSize: 11.5, color: 'var(--faint)', marginTop: 10 }}>
+                {twoRings ? 'inner ring: interviews · outer ring: survey' : 'survey only so far · interviews fill the inner ring as they are logged'}
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
+
 export function DonutCard({ title, note, data, empty, unit }) {
   return (
     <div className="card">

@@ -4,7 +4,7 @@ import { useInterviews, useSettings } from '../lib/data.js'
 import { useSurvey } from '../lib/survey.js'
 import { coverageBucket, situationBucket, choiceBucket } from '../data/buckets.js'
 import { useToast, copyText } from '../components/ui.jsx'
-import { tally, splitMany, combineTriples, SplitBars } from '../components/charts.jsx'
+import { tally, splitMany, combineTriples, SplitBars, TwoRingDonutCard } from '../components/charts.jsx'
 
 function GroupLabel({ children }) {
   return <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--muted)' }}>{children}</div>
@@ -121,7 +121,7 @@ export default function Dashboard() {
             <div className="row" style={{ gap: 16, fontSize: 12.5, color: 'var(--muted)', marginTop: -4 }}>
               <span className="row" style={{ gap: 7 }}><span className="swatch" style={{ background: 'var(--iv)' }} />Interviews ({n})</span>
               <span className="row" style={{ gap: 7 }}><span className="swatch" style={{ background: 'var(--sv)' }} />Survey ({survey.responses})</span>
-              <span style={{ color: 'var(--faint)' }}>every bar stacks both sources</span>
+              <span style={{ color: 'var(--faint)' }}>bars stack both sources; donuts show interviews (inner ring) and survey (outer)</span>
             </div>
           )}
 
@@ -139,26 +139,14 @@ export default function Dashboard() {
 
           <GroupLabel>What would move them</GroupLabel>
           <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 16 }}>
-            <div className="card">
-              <div className="hd"><h2>Do benefits sway plan choice</h2><span className="note">how much it weighs</span></div>
-              <div className="bd"><SplitBars data={inflTri} source={source} iTotal={n} sTotal={survey.responses} empty="Nothing recorded yet." /></div>
-            </div>
-            <div className="card">
-              <div className="hd"><h2>If the plan had $300 to spend</h2><span className="note">set benefit vs. flexible allowance</span></div>
-              <div className="bd"><SplitBars data={flexTri} source={source} iTotal={n} sTotal={survey.responses} empty="Nothing recorded yet." /></div>
-            </div>
+            <TwoRingDonutCard title="Do benefits sway plan choice" note="how much it weighs" data={inflTri} source={source} empty="Nothing recorded yet." />
+            <TwoRingDonutCard title="If the plan had $300 to spend" note="set benefit vs. flexible allowance" data={flexTri} source={source} empty="Nothing recorded yet." />
           </div>
 
           <GroupLabel>Who we heard from</GroupLabel>
           <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 16 }}>
-            <div className="card">
-              <div className="hd"><h2>How they are covered</h2><span className="note">share of each source</span></div>
-              <div className="bd"><SplitBars data={covTri} source={source} iTotal={n} sTotal={survey.responses} empty="Nothing recorded yet." /></div>
-            </div>
-            <div className="card">
-              <div className="hd"><h2>Student or working</h2><span className="note">share of each source</span></div>
-              <div className="bd"><SplitBars data={sitTri} source={source} iTotal={n} sTotal={survey.responses} empty="Nothing recorded yet." /></div>
-            </div>
+            <TwoRingDonutCard title="How they are covered" data={covTri} source={source} empty="Nothing recorded yet." />
+            <TwoRingDonutCard title="Student or working" data={sitTri} source={source} empty="Nothing recorded yet." />
           </div>
         </>
       )}
