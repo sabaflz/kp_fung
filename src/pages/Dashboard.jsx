@@ -19,11 +19,15 @@ function splitMany(s) {
   return (s || '').split(/[,;\n|]/).map((x) => x.trim()).filter((x) => x.length > 1)
 }
 
-// Merge two [label, n] lists into one summed, sorted list.
-function mergeTally(a, b) {
-  const m = Object.fromEntries(a)
-  for (const [k, v] of b) m[k] = (m[k] || 0) + v
-  return Object.entries(m).sort((x, y) => y[1] - x[1])
+// Merge an interview tally and a survey tally into [label, iN, sN] triples,
+// so one bar can show both sources stacked. Sorted by combined count.
+function combineTriples(iT, sT) {
+  const m = {}
+  for (const [k, v] of iT) (m[k] ||= { i: 0, s: 0 }).i += v
+  for (const [k, v] of sT) (m[k] ||= { i: 0, s: 0 }).s += v
+  return Object.entries(m)
+    .map(([label, { i, s }]) => [label, i, s])
+    .sort((a, b) => (b[1] + b[2]) - (a[1] + a[2]))
 }
 
 // Bucket the free-text coverage-awareness field into three levels.
@@ -64,6 +68,36 @@ function Bars({ data, empty, total }) {
           <span className="v">{total ? `${n} · ${Math.round((n / total) * 100)}%` : n}</span>
         </div>
       ))}
+    </div>
+  )
+}
+
+// Stacked bars that follow the Both / Interviews / Survey toggle.
+// data: [label, interviewN, surveyN][]. In Both view each bar shows a teal
+// segment (interviews) and an orange segment (survey) sized to their counts.
+function SplitBars({ data, source, iTotal, sTotal, empty }) {
+  const value = (i, s) => source === 'interviews' ? i : source === 'survey' ? s : i + s
+  const visible = data.filter(([, i, s]) => value(i, s) > 0)
+  if (!visible.length) return <div className="empty">{empty}</div>
+  const max = Math.max(1, ...visible.map(([, i, s]) => value(i, s)))
+  const denom = source === 'interviews' ? iTotal : source === 'survey' ? sTotal : iTotal + sTotal
+  const showIv = source !== 'survey'
+  const showSv = source !== 'interviews'
+  return (
+    <div className="bars">
+      {visible.map(([label, i, s]) => {
+        const v = value(i, s)
+        return (
+          <div className="bar" key={label}>
+            <span style={{ minWidth: 0, overflowWrap: 'anywhere' }}>{label}</span>
+            <div className="track">
+              {showIv && i > 0 && <div className="seg" style={{ width: (i / max) * 100 + '%', background: 'var(--iv)' }} title={`${i} from interview${i === 1 ? '' : 's'}`} />}
+              {showSv && s > 0 && <div className="seg" style={{ width: (s / max) * 100 + '%', background: 'var(--sv)' }} title={`${s} from survey`} />}
+            </div>
+            <span className="v">{denom ? `${v} · ${Math.round((v / denom) * 100)}%` : v}</span>
+          </div>
+        )
+      })}
     </div>
   )
 }
@@ -136,32 +170,6 @@ export default function Dashboard() {
   const n = rows.length
   const totalResponses = n + survey.responses
 
-  const combined = useMemo(() => {
-    const m = { ...(survey.topMap || {}) }
-    for (const r of rows) { const c = (r.top_benefit || '').trim(); if (c) m[c] = (m[c] || 0) + 1 }
-    return Object.entries(m).sort((a, b) => b[1] - a[1])
-  }, [survey.topMap, rows])
-
-  // Benefits wanted, interviews vs survey, side by side on the same categories.
-  const compare = useMemo(() => {
-    const iWant = {}
-    for (const r of rows) for (const c of splitMany(r.benefits_want)) iWant[c] = (iWant[c] || 0) + 1
-    const sWant = Object.fromEntries(survey.want || [])
-    const keys = Array.from(new Set([...Object.keys(iWant), ...Object.keys(sWant)]))
-    const share = (o, t) => (t ? (o || 0) / t : 0)
-    return keys
-      .map((cat) => ({ cat, i: iWant[cat] || 0, s: sWant[cat] || 0 }))
-      .sort((a, b) =>
-        (share(b.i, rows.length) + share(b.s, survey.responses)) -
-        (share(a.i, rows.length) + share(a.s, survey.responses)))
-  }, [rows, survey.want, survey.responses])
-
-  // Benefits wanted, both sources summed into one count per category.
-  const combinedWants = useMemo(
-    () => compare.map(({ cat, i, s }) => [cat, i + s]).filter(([, c]) => c > 0).sort((a, b) => b[1] - a[1]),
-    [compare],
-  )
-
   const stats = useMemo(() => {
     const topBenefit = tally(rows.map((r) => r.top_benefit))
     const wants = tally(rows.flatMap((r) => splitMany(r.benefits_want)))
@@ -199,20 +207,20 @@ export default function Dashboard() {
     return { topBenefit, wants, plans, bullseye, needs, done, quotes, awareness, lowPartial, themes, segments }
   }, [rows])
 
-  // Benefit charts respond to the Both / Interviews / Survey toggle.
-  const wantData = source === 'survey' ? (survey.want || []) : source === 'interviews' ? stats.wants.slice(0, 10) : combinedWants
-  const topData = source === 'survey' ? (survey.top || []) : source === 'interviews' ? stats.topBenefit : combined
-  const srcTotal = source === 'survey' ? survey.responses : source === 'interviews' ? n : totalResponses
   const srcNote = source === 'survey' ? `share of ${survey.responses} survey responses`
     : source === 'interviews' ? `share of ${n} interviews`
     : `share of all ${totalResponses} responses`
 
-  // Shared dimensions: bucket the interview side, then follow the toggle.
-  const pick = (iT, sT) => source === 'survey' ? sT : source === 'interviews' ? iT : mergeTally(iT, sT)
-  const covData = pick(tally(rows.map((r) => coverageBucket(r.plan))), survey.coverage || [])
-  const sitData = pick(tally(rows.map((r) => situationBucket(r.who))), survey.situation || [])
-  const useData = pick(tally(rows.map((r) => useBucket(r.would_use))), survey.use || [])
-  const choData = pick(tally(rows.map((r) => choiceBucket(r.plan_choice))), survey.choose || [])
+  // Six shared dimensions, each as [label, interviewN, surveyN] triples so a
+  // single bar can stack both sources. SplitBars decides what to show per toggle.
+  const iWant = {}
+  for (const r of rows) for (const c of splitMany(r.benefits_want)) iWant[c] = (iWant[c] || 0) + 1
+  const wantTri = combineTriples(Object.entries(iWant), survey.want || []).slice(0, 10)
+  const topTri = combineTriples(tally(rows.map((r) => r.top_benefit)), survey.top || [])
+  const covTri = combineTriples(tally(rows.map((r) => coverageBucket(r.plan))), survey.coverage || [])
+  const sitTri = combineTriples(tally(rows.map((r) => situationBucket(r.who))), survey.situation || [])
+  const useTri = combineTriples(tally(rows.map((r) => useBucket(r.would_use))), survey.use || [])
+  const choTri = combineTriples(tally(rows.map((r) => choiceBucket(r.plan_choice))), survey.choose || [])
 
   const COLS = [...FIELDS.map(([k, l]) => [k, l]), ['bullseye', 'Bullseye'], ['status', 'Status']]
 
@@ -279,15 +287,23 @@ export default function Dashboard() {
             </div>
           </div>
 
+          {source === 'both' && (
+            <div className="row" style={{ gap: 16, fontSize: 12.5, color: 'var(--muted)', marginTop: -4 }}>
+              <span className="row" style={{ gap: 7 }}><span className="swatch" style={{ background: 'var(--iv)' }} />Interviews ({n})</span>
+              <span className="row" style={{ gap: 7 }}><span className="swatch" style={{ background: 'var(--sv)' }} />Survey ({survey.responses})</span>
+              <span style={{ color: 'var(--faint)' }}>every bar stacks both sources</span>
+            </div>
+          )}
+
           <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--muted)' }}>What they want</div>
           <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 16 }}>
             <div className="card">
               <div className="hd"><h2>Benefits wanted</h2><span className="note">{srcNote}</span></div>
-              <div className="bd"><Bars data={wantData} total={srcTotal} empty="Nothing recorded yet." /></div>
+              <div className="bd"><SplitBars data={wantTri} source={source} iTotal={n} sTotal={survey.responses} empty="Nothing recorded yet." /></div>
             </div>
             <div className="card">
               <div className="hd"><h2>Top benefit</h2><span className="note">{srcNote}</span></div>
-              <div className="bd"><Bars data={topData} total={srcTotal} empty="Nothing recorded yet." /></div>
+              <div className="bd"><SplitBars data={topTri} source={source} iTotal={n} sTotal={survey.responses} empty="Nothing recorded yet." /></div>
             </div>
           </div>
 
@@ -295,11 +311,11 @@ export default function Dashboard() {
           <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 16 }}>
             <div className="card">
               <div className="hd"><h2>How they are covered</h2><span className="note">{srcNote}</span></div>
-              <div className="bd"><Bars data={covData} total={srcTotal} empty="Nothing recorded yet." /></div>
+              <div className="bd"><SplitBars data={covTri} source={source} iTotal={n} sTotal={survey.responses} empty="Nothing recorded yet." /></div>
             </div>
             <div className="card">
               <div className="hd"><h2>Student or working</h2><span className="note">{srcNote}</span></div>
-              <div className="bd"><Bars data={sitData} total={srcTotal} empty="Nothing recorded yet." /></div>
+              <div className="bd"><SplitBars data={sitTri} source={source} iTotal={n} sTotal={survey.responses} empty="Nothing recorded yet." /></div>
             </div>
           </div>
 
@@ -309,11 +325,11 @@ export default function Dashboard() {
           <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 16 }}>
             <div className="card">
               <div className="hd"><h2>Would use it if free</h2><span className="note">{srcNote}</span></div>
-              <div className="bd"><Bars data={useData} total={srcTotal} empty="Nothing recorded yet." /></div>
+              <div className="bd"><SplitBars data={useTri} source={source} iTotal={n} sTotal={survey.responses} empty="Nothing recorded yet." /></div>
             </div>
             <div className="card">
               <div className="hd"><h2>Pick the plan with the benefit</h2><span className="note">same cost</span></div>
-              <div className="bd"><Bars data={choData} total={srcTotal} empty="Nothing recorded yet." /></div>
+              <div className="bd"><SplitBars data={choTri} source={source} iTotal={n} sTotal={survey.responses} empty="Nothing recorded yet." /></div>
             </div>
           </div>
 
