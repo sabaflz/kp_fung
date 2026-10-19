@@ -57,6 +57,8 @@ export const FIELDS = [
   ['services','Services used most',''],
   ['benefits_want','Benefits they want',''],
   ['top_benefit','Top benefit',''],
+  ['would_use','Would use it if free','likely / maybe / unlikely'],
+  ['plan_choice','Pick the plan with the benefit','with / no preference / without'],
   ['workaround','Workaround','family, ChatGPT, calling insurer, apps…'],
   ['friction','Friction / pain point',''],
   ['surprise','One surprise',''],
@@ -66,6 +68,11 @@ export const FIELDS = [
 
 export const BULLSEYE_TAGS = ['aging-off','first-time buyer','medi-cal','already independent','other']
 export const STATUS_TAGS = ['logged','needs-followup','done']
+
+// Survey-aligned dropdowns, so interviews capture the same structured answers
+// the survey does and the two combine on the dashboard.
+export const USE_OPTIONS = ['Likely','Maybe','Unlikely']
+export const CHOICE_OPTIONS = ['With the benefit','No preference','Without the benefit']
 
 // Canonical benefit categories — EXACTLY the labels in the team survey (Q6).
 // Interviews record benefits from this list so interview charts and survey
@@ -122,6 +129,8 @@ Last time they used it:
 Services used most:
 Benefits they want:
 Top benefit:
+Would use it if free (Likely / Maybe / Unlikely):
+Pick the plan with the benefit (With the benefit / No preference / Without the benefit):
 Workaround:
 Friction / pain point:
 One surprise:

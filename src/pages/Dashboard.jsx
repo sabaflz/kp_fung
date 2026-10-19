@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { FIELDS } from '../data/pool.js'
 import { useInterviews, useSettings } from '../lib/data.js'
 import { useSurvey } from '../lib/survey.js'
+import { coverageBucket, situationBucket, useBucket, choiceBucket } from '../data/buckets.js'
 import { useToast, copyText } from '../components/ui.jsx'
 
 function tally(values) {
@@ -16,6 +17,13 @@ function tally(values) {
 
 function splitMany(s) {
   return (s || '').split(/[,;\n|]/).map((x) => x.trim()).filter((x) => x.length > 1)
+}
+
+// Merge two [label, n] lists into one summed, sorted list.
+function mergeTally(a, b) {
+  const m = Object.fromEntries(a)
+  for (const [k, v] of b) m[k] = (m[k] || 0) + v
+  return Object.entries(m).sort((x, y) => y[1] - x[1])
 }
 
 // Bucket the free-text coverage-awareness field into three levels.
@@ -199,6 +207,13 @@ export default function Dashboard() {
     : source === 'interviews' ? `share of ${n} interviews`
     : `share of all ${totalResponses} responses`
 
+  // Shared dimensions: bucket the interview side, then follow the toggle.
+  const pick = (iT, sT) => source === 'survey' ? sT : source === 'interviews' ? iT : mergeTally(iT, sT)
+  const covData = pick(tally(rows.map((r) => coverageBucket(r.plan))), survey.coverage || [])
+  const sitData = pick(tally(rows.map((r) => situationBucket(r.who))), survey.situation || [])
+  const useData = pick(tally(rows.map((r) => useBucket(r.would_use))), survey.use || [])
+  const choData = pick(tally(rows.map((r) => choiceBucket(r.plan_choice))), survey.choose || [])
+
   const COLS = [...FIELDS.map(([k, l]) => [k, l]), ['bullseye', 'Bullseye'], ['status', 'Status']]
 
   function table(sep) {
@@ -256,7 +271,7 @@ export default function Dashboard() {
       {totalResponses > 0 && (
         <>
           <div className="row" style={{ justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-            <div className="eyebrow">What people want</div>
+            <div className="eyebrow">Combined view</div>
             <div className="row" style={{ gap: 6 }}>
               {[['both', 'Both'], ['interviews', 'Interviews'], ['survey', 'Survey']].map(([v, l]) => (
                 <button key={v} type="button" className={'chip' + (source === v ? ' on' : '')} onClick={() => setSource(v)}>{l}</button>
@@ -264,6 +279,7 @@ export default function Dashboard() {
             </div>
           </div>
 
+          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--muted)' }}>What they want</div>
           <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 16 }}>
             <div className="card">
               <div className="hd"><h2>Benefits wanted</h2><span className="note">{srcNote}</span></div>
@@ -272,6 +288,32 @@ export default function Dashboard() {
             <div className="card">
               <div className="hd"><h2>Top benefit</h2><span className="note">{srcNote}</span></div>
               <div className="bd"><Bars data={topData} total={srcTotal} empty="Nothing recorded yet." /></div>
+            </div>
+          </div>
+
+          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--muted)' }}>Who they are</div>
+          <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 16 }}>
+            <div className="card">
+              <div className="hd"><h2>How they are covered</h2><span className="note">{srcNote}</span></div>
+              <div className="bd"><Bars data={covData} total={srcTotal} empty="Nothing recorded yet." /></div>
+            </div>
+            <div className="card">
+              <div className="hd"><h2>Student or working</h2><span className="note">{srcNote}</span></div>
+              <div className="bd"><Bars data={sitData} total={srcTotal} empty="Nothing recorded yet." /></div>
+            </div>
+          </div>
+
+          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--muted)' }}>
+            What they would do <span style={{ fontWeight: 400, color: 'var(--faint)' }}>&middot; interviews fill this in going forward</span>
+          </div>
+          <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 16 }}>
+            <div className="card">
+              <div className="hd"><h2>Would use it if free</h2><span className="note">{srcNote}</span></div>
+              <div className="bd"><Bars data={useData} total={srcTotal} empty="Nothing recorded yet." /></div>
+            </div>
+            <div className="card">
+              <div className="hd"><h2>Pick the plan with the benefit</h2><span className="note">same cost</span></div>
+              <div className="bd"><Bars data={choData} total={srcTotal} empty="Nothing recorded yet." /></div>
             </div>
           </div>
 
@@ -301,15 +343,9 @@ export default function Dashboard() {
             <DonutCard title="Bullseye segment" note="who we're hearing from" data={stats.bullseye} total={n} empty="No segments tagged yet." />
           </div>
 
-          <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 16 }}>
-            <div className="card">
-              <div className="hd"><h2>Recurring themes</h2><span className="note">auto-tagged from interviews</span></div>
-              <div className="bd"><Bars data={stats.themes} total={n} empty="No themes yet." /></div>
-            </div>
-            <div className="card">
-              <div className="hd"><h2>Current plans</h2></div>
-              <div className="bd"><Bars data={stats.plans} total={n} empty="No plans recorded yet." /></div>
-            </div>
+          <div className="card">
+            <div className="hd"><h2>Recurring themes</h2><span className="note">auto-tagged from interviews</span></div>
+            <div className="bd"><Bars data={stats.themes} total={n} empty="No themes yet." /></div>
           </div>
 
           <div className="card">
