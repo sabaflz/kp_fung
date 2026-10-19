@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react'
+import { Fragment, useMemo, useState } from 'react'
 import { FIELDS, BULLSEYE_TAGS, STATUS_TAGS, EXTRACT_PROMPT, BENEFITS, snapBenefits, snapTopBenefit } from '../data/pool.js'
 import { useInterviews, addInterview, updateInterview, deleteInterview } from '../lib/data.js'
 import { useAuth } from '../lib/auth.jsx'
@@ -22,12 +22,37 @@ function todayMD() {
   return `${d.getMonth() + 1}/${d.getDate()}`
 }
 
+// Parse interview_date ("10/13", "10/13/2026", "2026-10-13") to a sortable time.
+// Undated rows return -Infinity so they sort to the bottom.
+function parseDate(s) {
+  const t = (s || '').trim()
+  if (!t) return -Infinity
+  const p = t.split(/[/.\-]/).map((x) => parseInt(x, 10))
+  if (p.length >= 2 && Number.isFinite(p[0]) && Number.isFinite(p[1])) {
+    // ISO-ish (year first) vs US (month first)
+    let y, m, d
+    if (p[0] > 31) { y = p[0]; m = p[1]; d = p[2] || 1 }
+    else { m = p[0]; d = p[1]; y = p[2] }
+    if (!Number.isFinite(y)) y = new Date().getFullYear()
+    else if (y < 100) y += 2000
+    return new Date(y, m - 1, d).getTime()
+  }
+  const ms = Date.parse(t)
+  return Number.isFinite(ms) ? ms : -Infinity
+}
+
 export default function Interviews() {
   const { rows, loading } = useInterviews()
   const { session } = useAuth()
   const toast = useToast()
   const [editing, setEditing] = useState(null) // record object (new has no id)
   const [viewing, setViewing] = useState(null)
+
+  // Newest interviews first; undated fall to the bottom.
+  const sorted = useMemo(
+    () => [...rows].sort((a, b) => parseDate(b.interview_date) - parseDate(a.interview_date)),
+    [rows],
+  )
 
   function startNew() {
     setEditing({
@@ -51,7 +76,7 @@ export default function Interviews() {
       </div>
 
       <div className="card">
-        <div className="hd"><h2>All interviews</h2><span className="note">{rows.length} logged</span></div>
+        <div className="hd"><h2>All interviews</h2><span className="note">{rows.length} logged · newest first</span></div>
         {loading ? (
           <div className="empty"><span className="spin" /></div>
         ) : rows.length === 0 ? (
@@ -63,7 +88,7 @@ export default function Interviews() {
                 <tr><th>Date</th><th>Who</th><th>Plan</th><th>Top benefit</th><th>Bullseye</th><th>Status</th></tr>
               </thead>
               <tbody>
-                {rows.map((r) => (
+                {sorted.map((r) => (
                   <tr key={r.id} onClick={() => setViewing(r)}>
                     <td style={{ whiteSpace: 'nowrap' }}>{r.interview_date || '—'}</td>
                     <td>{r.who || '—'}</td>

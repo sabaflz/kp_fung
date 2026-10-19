@@ -118,6 +118,27 @@ function DonutCard({ title, note, data, total, empty }) {
   )
 }
 
+// One benefit category: interview share (teal) over survey share (amber),
+// each scaled to its own source so the two are comparable despite different n.
+function CmpRow({ label, i, s, iTotal, sTotal }) {
+  const w = (v, t) => Math.max(2, (t ? v / t : 0) * 100) + '%'
+  const track = { flex: 1, height: 9, background: 'var(--surface-2)', borderRadius: 999, overflow: 'hidden' }
+  const num = { fontSize: 12, color: 'var(--muted)', minWidth: 26, textAlign: 'right', fontVariantNumeric: 'tabular-nums' }
+  return (
+    <div style={{ display: 'grid', gap: 5 }}>
+      <div style={{ fontSize: 13, fontWeight: 500, overflowWrap: 'anywhere' }}>{label}</div>
+      <div className="row" style={{ gap: 10, flexWrap: 'nowrap' }}>
+        <div style={track}><div style={{ height: '100%', width: w(i, iTotal), background: 'var(--accent)', borderRadius: 999 }} /></div>
+        <span style={num}>{i}</span>
+      </div>
+      <div className="row" style={{ gap: 10, flexWrap: 'nowrap' }}>
+        <div style={track}><div style={{ height: '100%', width: w(s, sTotal), background: '#f59e0b', borderRadius: 999 }} /></div>
+        <span style={num}>{s}</span>
+      </div>
+    </div>
+  )
+}
+
 export default function Dashboard() {
   const { rows, loading } = useInterviews()
   const { map } = useSettings()
@@ -133,6 +154,20 @@ export default function Dashboard() {
     for (const r of rows) { const c = (r.top_benefit || '').trim(); if (c) m[c] = (m[c] || 0) + 1 }
     return Object.entries(m).sort((a, b) => b[1] - a[1])
   }, [survey.topMap, rows])
+
+  // Benefits wanted, interviews vs survey, side by side on the same categories.
+  const compare = useMemo(() => {
+    const iWant = {}
+    for (const r of rows) for (const c of splitMany(r.benefits_want)) iWant[c] = (iWant[c] || 0) + 1
+    const sWant = Object.fromEntries(survey.want || [])
+    const keys = Array.from(new Set([...Object.keys(iWant), ...Object.keys(sWant)]))
+    const share = (o, t) => (t ? (o || 0) / t : 0)
+    return keys
+      .map((cat) => ({ cat, i: iWant[cat] || 0, s: sWant[cat] || 0 }))
+      .sort((a, b) =>
+        (share(b.i, rows.length) + share(b.s, survey.responses)) -
+        (share(a.i, rows.length) + share(a.s, survey.responses)))
+  }, [rows, survey.want, survey.responses])
 
   const stats = useMemo(() => {
     const topBenefit = tally(rows.map((r) => r.top_benefit))
@@ -229,6 +264,24 @@ export default function Dashboard() {
         <div className="card">
           <div className="hd"><h2>Top benefit, survey + interviews</h2><span className="note">same ten categories</span></div>
           <div className="bd"><Bars data={combined} empty="Connect the survey or log interviews to see this." /></div>
+        </div>
+      )}
+
+      {(n > 0 || survey.responses > 0) && compare.length > 0 && (
+        <div className="card">
+          <div className="hd">
+            <h2>Survey vs interviews</h2>
+            <span className="note">benefits wanted, share of each source</span>
+          </div>
+          <div className="bd" style={{ display: 'grid', gap: 14 }}>
+            <div className="row" style={{ gap: 18, fontSize: 12, color: 'var(--muted)' }}>
+              <span className="row" style={{ gap: 6 }}><span style={{ width: 11, height: 11, borderRadius: 3, background: 'var(--accent)' }} /> Interviews (n = {n})</span>
+              <span className="row" style={{ gap: 6 }}><span style={{ width: 11, height: 11, borderRadius: 3, background: '#f59e0b' }} /> Survey (n = {survey.responses})</span>
+            </div>
+            {compare.map(({ cat, i, s }) => (
+              <CmpRow key={cat} label={cat} i={i} s={s} iTotal={n} sTotal={survey.responses} />
+            ))}
+          </div>
         </div>
       )}
 
