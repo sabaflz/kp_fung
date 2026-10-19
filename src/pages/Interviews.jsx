@@ -3,8 +3,81 @@ import { FIELDS, BULLSEYE_TAGS, STATUS_TAGS, EXTRACT_PROMPT, BENEFITS, snapBenef
 import { useInterviews, addInterview, updateInterview, deleteInterview } from '../lib/data.js'
 import { useAuth } from '../lib/auth.jsx'
 import { Modal, useToast, copyText } from '../components/ui.jsx'
+import { tally, Bars, DonutCard } from '../components/charts.jsx'
 
 const LONG = new Set(['benefits_want', 'friction', 'surprise', 'quote', 'workaround', 'last_use', 'services', 'why_top'])
+
+// Keyword-tagged recurring themes across the qualitative interview fields.
+const THEMES = [
+  ['Low coverage awareness', ['understand', 'unsure', 'not sure', 'confus', 'unfamiliar', 'navigat', 'terminolog', 'figuring', 'unclear', "don't know", 'do not know', "didn't know", 'trial and error']],
+  ['Relies on a parent or family', ['mom', 'mother', 'parent', 'father', 'family']],
+  ['Cost or financial barrier', ['afford', 'financial', 'out of pocket', 'out-of-pocket', 'copay', 'co-pay', 'overcharg', 'expensive', 'spending limit', 'money']],
+  ['Access or wait times', ['wait', 'referral', 'specialist', 'schedul', 'delay']],
+  ['Self-manages outside the plan', ['supplement', 'gym', 'myfitnesspal', 'apple health', 'meditat', 'journal', 'workout', 'home remed', 'calorie', 'tracker']],
+  ['Wants proactive guidance', ['guidance', 'workshop', 'come to us', 'proactive', 'informational', 'education', 'clearer', 'more support', 'better access']],
+  ['Benefits feel built for families', ['families', 'established life', 'established adult']],
+]
+
+function interviewText(r) {
+  return [r.friction, r.workaround, r.awareness, r.surprise, r.quote, r.services]
+    .map((x) => x || '').join(' ').toLowerCase()
+}
+
+// Interview-only synthesis: segments and themes the survey cannot provide.
+function Synthesis({ rows }) {
+  const n = rows.length
+  const bullseye = tally(rows.map((r) => r.bullseye || 'untagged'))
+
+  const themeCounts = {}
+  for (const r of rows) {
+    const t = interviewText(r)
+    for (const [name, kws] of THEMES) if (kws.some((k) => t.includes(k))) themeCounts[name] = (themeCounts[name] || 0) + 1
+  }
+  const themes = Object.entries(themeCounts).sort((a, b) => b[1] - a[1])
+
+  const seg = {}
+  for (const r of rows) {
+    const s = (r.bullseye || '').trim() || 'untagged'
+    const tb = (r.top_benefit || '').trim()
+    if (!seg[s]) seg[s] = { count: 0, benefits: {} }
+    seg[s].count++
+    if (tb) seg[s].benefits[tb] = (seg[s].benefits[tb] || 0) + 1
+  }
+  const segments = Object.entries(seg).sort((a, b) => b[1].count - a[1].count)
+
+  return (
+    <>
+      <div style={{ marginTop: 6 }}>
+        <div className="eyebrow">From the interviews</div>
+        <p className="lede" style={{ fontSize: 13, margin: '2px 0 0' }}>Patterns the survey cannot capture, pulled from the conversations.</p>
+      </div>
+      <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 16 }}>
+        <DonutCard title="Bullseye segment" note="who we are hearing from" data={bullseye} empty="No segments tagged yet." unit="interviews" />
+        <div className="card">
+          <div className="hd"><h2>Recurring themes</h2><span className="note">auto-tagged from interviews</span></div>
+          <div className="bd"><Bars data={themes} total={n} empty="No themes yet." /></div>
+        </div>
+      </div>
+      <div className="card">
+        <div className="hd"><h2>Top benefit by segment</h2><span className="note">which benefits matter to whom</span></div>
+        <div className="tablewrap">
+          <table>
+            <thead><tr><th>Segment</th><th>Interviews</th><th>Top benefits</th></tr></thead>
+            <tbody>
+              {segments.map(([s, v]) => (
+                <tr key={s} style={{ cursor: 'default' }}>
+                  <td><span className="tag b">{s}</span></td>
+                  <td style={{ fontVariantNumeric: 'tabular-nums' }}>{v.count}</td>
+                  <td>{Object.entries(v.benefits).sort((a, b) => b[1] - a[1]).map(([b, c]) => `${b} (${c})`).join(', ') || '—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </>
+  )
+}
 
 // Fields rendered as a dropdown, each tied to its option list.
 const SELECTS = {
@@ -112,6 +185,8 @@ export default function Interviews() {
           </div>
         )}
       </div>
+
+      {rows.length > 0 && <Synthesis rows={rows} />}
 
       {editing && (
         <InterviewForm
