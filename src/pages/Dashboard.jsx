@@ -56,7 +56,7 @@ function interviewText(r) {
     .map((x) => x || '').join(' ').toLowerCase()
 }
 
-function Bars({ data, empty, total }) {
+function Bars({ data, empty, total, color }) {
   if (!data.length) return <div className="empty">{empty}</div>
   const max = data[0][1]
   return (
@@ -64,7 +64,7 @@ function Bars({ data, empty, total }) {
       {data.map(([label, n]) => (
         <div className="bar" key={label}>
           <span style={{ minWidth: 0, overflowWrap: 'anywhere' }}>{label}</span>
-          <div className="track"><div className="fill" style={{ width: Math.max(6, (n / max) * 100) + '%' }} /></div>
+          <div className="track"><div className="fill" style={{ width: Math.max(6, (n / max) * 100) + '%', background: color || 'var(--accent)' }} /></div>
           <span className="v">{total ? `${n} · ${Math.round((n / total) * 100)}%` : n}</span>
         </div>
       ))}
@@ -105,8 +105,10 @@ function SplitBars({ data, source, iTotal, sTotal, empty }) {
 // Categorical slice colors for the interview-only donuts. Cool tones only — no
 // amber or orange, so orange stays reserved for "survey" across the whole page.
 const SLICE = ['#14b8a6', '#6366f1', '#0ea5e9', '#8b5cf6', '#22c55e', '#94a3b8']
+// Warm palette for the survey-only charts, led by the survey orange.
+const SLICE_SV = ['#e0792e', '#eab308', '#c2410c', '#9333ea', '#be123c', '#a16207']
 
-function Donut({ data, total, size = 148 }) {
+function Donut({ data, total, size = 148, palette = SLICE }) {
   const r = 56, sw = 22, C = 2 * Math.PI * r, cx = size / 2, cy = size / 2
   const tot = total || data.reduce((s, [, nn]) => s + nn, 0) || 1
   let off = 0
@@ -116,7 +118,7 @@ function Donut({ data, total, size = 148 }) {
       {data.map(([label, nn], i) => {
         const f = nn / tot
         const el = (
-          <circle key={label} cx={cx} cy={cy} r={r} fill="none" stroke={SLICE[i % SLICE.length]} strokeWidth={sw}
+          <circle key={label} cx={cx} cy={cy} r={r} fill="none" stroke={palette[i % palette.length]} strokeWidth={sw}
             strokeDasharray={`${f * C} ${C - f * C}`} strokeDashoffset={-off * C} transform={`rotate(-90 ${cx} ${cy})`} />
         )
         off += f
@@ -128,14 +130,14 @@ function Donut({ data, total, size = 148 }) {
   )
 }
 
-function Legend({ data, total }) {
+function Legend({ data, total, palette = SLICE }) {
   const tot = total || data.reduce((s, [, n]) => s + n, 0) || 1
   return (
     <div style={{ display: 'grid', gap: 9, minWidth: 0, flex: 1 }}>
       {data.map(([label, n], i) => (
         <div key={label} className="row" style={{ justifyContent: 'space-between', gap: 10, flexWrap: 'nowrap' }}>
           <span className="row" style={{ gap: 8, minWidth: 0, flexWrap: 'nowrap' }}>
-            <span style={{ width: 11, height: 11, borderRadius: 3, background: SLICE[i % SLICE.length], flex: 'none' }} />
+            <span style={{ width: 11, height: 11, borderRadius: 3, background: palette[i % palette.length], flex: 'none' }} />
             <span style={{ overflowWrap: 'anywhere', fontSize: 13 }}>{label}</span>
           </span>
           <span style={{ color: 'var(--muted)', fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap', fontSize: 12.5 }}>{n} &middot; {Math.round((n / tot) * 100)}%</span>
@@ -145,15 +147,15 @@ function Legend({ data, total }) {
   )
 }
 
-function DonutCard({ title, note, data, total, empty }) {
+function DonutCard({ title, note, data, total, empty, palette }) {
   return (
     <div className="card">
       <div className="hd"><h2>{title}</h2>{note && <span className="note">{note}</span>}</div>
       <div className="bd">
         {data.length === 0 ? <div className="empty">{empty}</div> : (
           <div style={{ display: 'flex', gap: 18, alignItems: 'center', flexWrap: 'wrap' }}>
-            <Donut data={data} total={total} />
-            <Legend data={data} total={total} />
+            <Donut data={data} total={total} palette={palette} />
+            <Legend data={data} total={total} palette={palette} />
           </div>
         )}
       </div>
@@ -385,6 +387,29 @@ export default function Dashboard() {
                   <div style={{ fontSize: 12, color: 'var(--faint)', marginTop: 3 }}>{r.who ? r.who.slice(0, 80) : 'unknown'}{r.plan ? ` · ${r.plan}` : ''}</div>
                 </div>
               ))}
+            </div>
+          </div>
+        </>
+      )}
+
+      {survey.responses > 0 && source !== 'interviews' && (
+        <>
+          <div>
+            <div className="eyebrow">From the survey</div>
+            <p className="lede" style={{ fontSize: 13, margin: '2px 0 0' }}>Questions only the survey asks, across {survey.responses} responses.</p>
+          </div>
+          <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 16 }}>
+            <DonutCard title="If the plan had $300 to spend" note="set benefit vs. flexible allowance" data={survey.flex} total={survey.responses} palette={SLICE_SV} empty="No responses yet." />
+            <DonutCard title="Do benefits sway plan choice" note="when cost and coverage are equal" data={survey.influence} total={survey.responses} palette={SLICE_SV} empty="No responses yet." />
+          </div>
+          <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 16 }}>
+            <div className="card">
+              <div className="hd"><h2>Why it&rsquo;s their top choice</h2><span className="note">share of {survey.responses}, pick several</span></div>
+              <div className="bd"><Bars data={survey.why} total={survey.responses} color="var(--sv)" empty="No responses yet." /></div>
+            </div>
+            <div className="card">
+              <div className="hd"><h2>Reason they might not use it</h2><span className="note">even if it were free</span></div>
+              <div className="bd"><Bars data={survey.barrier} total={survey.responses} color="var(--sv)" empty="No responses yet." /></div>
             </div>
           </div>
         </>

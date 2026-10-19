@@ -2,6 +2,45 @@ import { useEffect, useMemo, useState } from 'react'
 import { snapBenefits } from '../data/pool.js'
 import { coverageBucket, situationBucket, useBucket, choiceBucket } from '../data/buckets.js'
 
+// Short display labels for the survey's single-select questions, matched by a
+// keyword in the full option text so the charts stay readable.
+const FLEX_MAP = [
+  ['predetermined', 'One set benefit for all'],
+  ['choose one benefit', 'Pick one from a list'],
+  ['flexible allowance', 'Flexible allowance'],
+  ['combination', 'Standard plus some choice'],
+  ['no preference', 'No preference'],
+]
+const INFLUENCE_MAP = [
+  ['major factor', 'A major factor'],
+  ['somewhat', 'Somewhat'],
+  ['minor factor', 'A minor factor'],
+  ['would not influence', 'No influence'],
+  ['not sure', 'Not sure'],
+]
+const BARRIER_MAP = [
+  ['not need it', 'Would not need it'],
+  ['not know how', 'Would not know how'],
+  ['not have enough time', 'Not enough time'],
+  ['not cover enough', 'Would not cover enough'],
+  ['too complicated', 'Process too complicated'],
+  ['another provider', 'Prefer another provider'],
+  ['quality', 'Quality or privacy worry'],
+  ['nothing significant', 'Nothing would stop me'],
+]
+// "Why top choice" is multi-select, so count each option as a substring, which
+// is robust to how Google joins multiple answers in one cell.
+const WHY_OPTS = [
+  ['already spend', 'Already spend on it'],
+  ['currently have this need', 'Have the need, still unmet'],
+  ['prevent future', 'Prevents future problems'],
+  ['save me time', 'Saves time or is easier'],
+  ['reduce financial stress', 'Reduces financial stress'],
+  ['realistically use', 'Would realistically use it'],
+  ['quality of life', 'Improves quality of life'],
+  ['does not adequately', 'Plan does not cover it well'],
+]
+
 /* Turn any Google Sheets URL into a CSV endpoint the browser can fetch. */
 export function csvEndpoint(url) {
   const u = (url || '').trim()
@@ -77,6 +116,10 @@ export function useSurvey(csvUrl) {
       choose: find(['includes your number one supplemental benefit']),
       coverage: find(['currently receive health insurance', 'how are you covered']),
       situation: find(['current situation', 'best describes your current']),
+      flex: find(['300 per year', 'additional health or wellness support', '$300']),
+      influence: find(['influence your plan choice', 'how much would supplemental benefits']),
+      barrier: find(['biggest reason you might not use', 'not use your number one benefit']),
+      why: find(['why is that benefit your top choice']),
     }
     const vals = (i) => (i < 0 || !raw) ? [] : raw.rows.map((r) => (r[i] || '').trim()).filter(Boolean)
     const tally = (arr) => { const m = {}; for (const v of arr) m[v] = (m[v] || 0) + 1; return Object.entries(m).sort((x, y) => y[1] - x[1]) }
@@ -84,6 +127,19 @@ export function useSurvey(csvUrl) {
     const bucketTally = (i, fn) => {
       const m = {}
       for (const v of vals(i)) { const b = fn(v); if (b) m[b] = (m[b] || 0) + 1 }
+      return Object.entries(m).sort((x, y) => y[1] - x[1])
+    }
+    // Single-select: map each answer to a short label, then count.
+    const short = (v, map) => { const t = (v || '').toLowerCase(); for (const [kw, l] of map) if (t.includes(kw)) return l; return (v || '').trim() }
+    const labelTally = (i, map) => {
+      const m = {}
+      for (const v of vals(i)) { const l = short(v, map); if (l) m[l] = (m[l] || 0) + 1 }
+      return Object.entries(m).sort((x, y) => y[1] - x[1])
+    }
+    // Multi-select: count every option whose keyword appears in the cell.
+    const multiTally = (i, opts) => {
+      const m = {}
+      for (const v of vals(i)) { const t = (v || '').toLowerCase(); for (const [kw, l] of opts) if (t.includes(kw)) m[l] = (m[l] || 0) + 1 }
       return Object.entries(m).sort((x, y) => y[1] - x[1])
     }
 
@@ -102,6 +158,10 @@ export function useSurvey(csvUrl) {
       choose: bucketTally(col.choose, choiceBucket),
       coverage: bucketTally(col.coverage, coverageBucket),
       situation: bucketTally(col.situation, situationBucket),
+      flex: labelTally(col.flex, FLEX_MAP),
+      influence: labelTally(col.influence, INFLUENCE_MAP),
+      barrier: labelTally(col.barrier, BARRIER_MAP),
+      why: multiTally(col.why, WHY_OPTS),
     }
   }, [raw])
 
