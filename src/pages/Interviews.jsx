@@ -1,5 +1,5 @@
 import { Fragment, useMemo, useState } from 'react'
-import { FIELDS, BULLSEYE_TAGS, STATUS_TAGS, EXTRACT_PROMPT, BENEFITS, snapBenefits, snapTopBenefit } from '../data/pool.js'
+import { FIELDS, BULLSEYE_TAGS, STATUS_TAGS, EXTRACT_PROMPT, BENEFITS, snapBenefits, snapTopBenefit, USE_OPTIONS, CHOICE_OPTIONS } from '../data/pool.js'
 import { useInterviews, addInterview, updateInterview, deleteInterview } from '../lib/data.js'
 import { useAuth } from '../lib/auth.jsx'
 import { Modal, useToast, copyText } from '../components/ui.jsx'
@@ -12,6 +12,7 @@ const LABEL_MAP = [
   [/^current plan|^plan/, 'plan'], [/^how they got|^got/, 'got_it'],
   [/^coverage awareness|^awareness/, 'awareness'], [/^last/, 'last_use'],
   [/^services/, 'services'], [/^benefits/, 'benefits_want'], [/^top benefit/, 'top_benefit'],
+  [/^would use/, 'would_use'], [/^pick the plan|^plan with|^would pick/, 'plan_choice'],
   [/^workaround/, 'workaround'], [/^friction|^pain/, 'friction'],
   [/^one surprise|^surprise/, 'surprise'], [/^best quote|^quote/, 'quote'],
   [/^follow/, 'followup'],
@@ -231,6 +232,18 @@ function InterviewForm({ record, onClose, onSaved, onError }) {
                 </select>
               </div>
             )
+            if (key === 'would_use' || key === 'plan_choice') {
+              const opts = key === 'would_use' ? USE_OPTIONS : CHOICE_OPTIONS
+              return (
+                <div className="field" key={key}>
+                  <label htmlFor={key}>{label} {hint && <span className="hint">{hint}</span>}</label>
+                  <select id={key} className="inp" value={form[key] || ''} onChange={(e) => set(key, e.target.value)}>
+                    <option value="">—</option>
+                    {opts.map((o) => <option key={o} value={o}>{o}</option>)}
+                  </select>
+                </div>
+              )
+            }
             return (
               <div className="field" key={key} style={LONG.has(key) ? { gridColumn: '1 / -1' } : undefined}>
                 <label htmlFor={key}>{label} {hint && <span className="hint">{hint}</span>}</label>

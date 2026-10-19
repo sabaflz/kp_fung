@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { snapBenefits } from '../data/pool.js'
+import { coverageBucket, situationBucket, useBucket, choiceBucket } from '../data/buckets.js'
 
 /* Turn any Google Sheets URL into a CSV endpoint the browser can fetch. */
 export function csvEndpoint(url) {
@@ -74,9 +75,17 @@ export function useSurvey(csvUrl) {
       top: find(['number one priority', 'your number one']),
       use: find(['no additional cost', 'how likely would you be to use']),
       choose: find(['includes your number one supplemental benefit']),
+      coverage: find(['currently receive health insurance', 'how are you covered']),
+      situation: find(['current situation', 'best describes your current']),
     }
     const vals = (i) => (i < 0 || !raw) ? [] : raw.rows.map((r) => (r[i] || '').trim()).filter(Boolean)
     const tally = (arr) => { const m = {}; for (const v of arr) m[v] = (m[v] || 0) + 1; return Object.entries(m).sort((x, y) => y[1] - x[1]) }
+    // Bucket a column's values into shared categories, counted per bucket.
+    const bucketTally = (i, fn) => {
+      const m = {}
+      for (const v of vals(i)) { const b = fn(v); if (b) m[b] = (m[b] || 0) + 1 }
+      return Object.entries(m).sort((x, y) => y[1] - x[1])
+    }
 
     const topMap = {}
     for (const v of vals(col.top)) { const c = snapBenefits(v)[0]; if (c) topMap[c] = (topMap[c] || 0) + 1 }
@@ -89,8 +98,10 @@ export function useSurvey(csvUrl) {
       top: Object.entries(topMap).sort((x, y) => y[1] - x[1]),
       want: Object.entries(wantMap).sort((x, y) => y[1] - x[1]),
       age: tally(vals(col.age)),
-      use: tally(vals(col.use)),
-      choose: tally(vals(col.choose)),
+      use: bucketTally(col.use, useBucket),
+      choose: bucketTally(col.choose, choiceBucket),
+      coverage: bucketTally(col.coverage, coverageBucket),
+      situation: bucketTally(col.situation, situationBucket),
     }
   }, [raw])
 
