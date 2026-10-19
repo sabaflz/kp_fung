@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useSettings, setSetting, useInterviews } from '../lib/data.js'
 import { useSurvey } from '../lib/survey.js'
 import { useToast } from '../components/ui.jsx'
@@ -44,12 +44,6 @@ export default function Survey() {
       toast('Saved for the team')
     } catch (e) { toast(e.message || 'Could not save') }
   }
-
-  const combined = useMemo(() => {
-    const m = { ...(s.topMap || {}) }
-    for (const r of interviews) { const c = (r.top_benefit || '').trim(); if (c) m[c] = (m[c] || 0) + 1 }
-    return Object.entries(m).sort((a, b) => b[1] - a[1])
-  }, [s.topMap, interviews])
 
   return (
     <div className="grid" style={{ gap: 18 }}>
@@ -100,11 +94,6 @@ export default function Survey() {
       <div className="tiles">
         <div className="tile"><div className="n">{s.responses}</div><div className="l">survey responses</div></div>
         <div className="tile"><div className="n">{interviews.length}</div><div className="l">interviews logged</div></div>
-      </div>
-
-      <div className="card">
-        <div className="hd"><h2>Top benefit, survey + interviews</h2><span className="note">same ten categories</span></div>
-        <div className="bd"><Bars data={combined} empty="Connect the survey or log interviews to see this." /></div>
       </div>
 
       {s.state === 'ok' && (

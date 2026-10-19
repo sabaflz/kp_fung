@@ -1,6 +1,6 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { FIELDS } from '../data/pool.js'
-import { useInterviews, useSettings, useShares } from '../lib/data.js'
+import { useInterviews, useSettings } from '../lib/data.js'
 import { useSurvey } from '../lib/survey.js'
 import { useToast, copyText } from '../components/ui.jsx'
 
@@ -118,35 +118,13 @@ function DonutCard({ title, note, data, total, empty }) {
   )
 }
 
-// One benefit category: interview share (teal) over survey share (amber),
-// each scaled to its own source so the two are comparable despite different n.
-function CmpRow({ label, i, s, iTotal, sTotal }) {
-  const w = (v, t) => Math.max(2, (t ? v / t : 0) * 100) + '%'
-  const track = { flex: 1, height: 9, background: 'var(--surface-2)', borderRadius: 999, overflow: 'hidden' }
-  const num = { fontSize: 12, color: 'var(--muted)', minWidth: 26, textAlign: 'right', fontVariantNumeric: 'tabular-nums' }
-  return (
-    <div style={{ display: 'grid', gap: 5 }}>
-      <div style={{ fontSize: 13, fontWeight: 500, overflowWrap: 'anywhere' }}>{label}</div>
-      <div className="row" style={{ gap: 10, flexWrap: 'nowrap' }}>
-        <div style={track}><div style={{ height: '100%', width: w(i, iTotal), background: 'var(--accent)', borderRadius: 999 }} /></div>
-        <span style={num}>{i}</span>
-      </div>
-      <div className="row" style={{ gap: 10, flexWrap: 'nowrap' }}>
-        <div style={track}><div style={{ height: '100%', width: w(s, sTotal), background: '#f59e0b', borderRadius: 999 }} /></div>
-        <span style={num}>{s}</span>
-      </div>
-    </div>
-  )
-}
-
 export default function Dashboard() {
   const { rows, loading } = useInterviews()
   const { map } = useSettings()
   const survey = useSurvey(map.survey_csv_url)
-  const { rows: shares } = useShares()
   const toast = useToast()
+  const [source, setSource] = useState('both') // both | interviews | survey
 
-  const placesShared = shares.filter((r) => r.status === 'posted').length
   const n = rows.length
   const totalResponses = n + survey.responses
 
@@ -213,6 +191,14 @@ export default function Dashboard() {
     return { topBenefit, wants, plans, bullseye, needs, done, quotes, awareness, lowPartial, themes, segments }
   }, [rows])
 
+  // Benefit charts respond to the Both / Interviews / Survey toggle.
+  const wantData = source === 'survey' ? (survey.want || []) : source === 'interviews' ? stats.wants.slice(0, 10) : combinedWants
+  const topData = source === 'survey' ? (survey.top || []) : source === 'interviews' ? stats.topBenefit : combined
+  const srcTotal = source === 'survey' ? survey.responses : source === 'interviews' ? n : totalResponses
+  const srcNote = source === 'survey' ? `share of ${survey.responses} survey responses`
+    : source === 'interviews' ? `share of ${n} interviews`
+    : `share of all ${totalResponses} responses`
+
   const COLS = [...FIELDS.map(([k, l]) => [k, l]), ['bullseye', 'Bullseye'], ['status', 'Status']]
 
   function table(sep) {
@@ -263,61 +249,48 @@ export default function Dashboard() {
         <div className="tile"><div className="n">{n}</div><div className="l">interviews logged</div></div>
         <div className="tile"><div className="n">{survey.responses}</div><div className="l">survey responses</div></div>
         <div className="tile"><div className="n">{totalResponses}</div><div className="l">total responses</div></div>
-        <div className="tile"><div className="n">{placesShared}</div><div className="l">places shared</div></div>
         <div className="tile"><div className="n">{n ? Math.round((stats.lowPartial / n) * 100) + '%' : '—'}</div><div className="l">low/partial awareness</div></div>
         <div className="tile"><div className="n">{stats.quotes.length}</div><div className="l">quotes captured</div></div>
       </div>
 
       {totalResponses > 0 && (
-        <div className="eyebrow" style={{ marginTop: 2 }}>Both sources &middot; everyone we have heard from</div>
-      )}
-
-      {combinedWants.length > 0 && (
-        <div className="card">
-          <div className="hd"><h2>Benefits wanted, survey + interviews</h2><span className="note">share of all {totalResponses} responses</span></div>
-          <div className="bd"><Bars data={combinedWants} total={totalResponses} empty="No benefits recorded yet." /></div>
-        </div>
-      )}
-
-      {(combined.length > 0) && (
-        <div className="card">
-          <div className="hd"><h2>Top benefit, survey + interviews</h2><span className="note">share of all {totalResponses} responses</span></div>
-          <div className="bd"><Bars data={combined} total={totalResponses} empty="Connect the survey or log interviews to see this." /></div>
-        </div>
-      )}
-
-      {(n > 0 || survey.responses > 0) && compare.length > 0 && (
-        <div className="card">
-          <div className="hd">
-            <h2>Survey vs interviews</h2>
-            <span className="note">benefits wanted, share of each source</span>
-          </div>
-          <div className="bd" style={{ display: 'grid', gap: 14 }}>
-            <div className="row" style={{ gap: 18, fontSize: 12, color: 'var(--muted)' }}>
-              <span className="row" style={{ gap: 6 }}><span style={{ width: 11, height: 11, borderRadius: 3, background: 'var(--accent)' }} /> Interviews (n = {n})</span>
-              <span className="row" style={{ gap: 6 }}><span style={{ width: 11, height: 11, borderRadius: 3, background: '#f59e0b' }} /> Survey (n = {survey.responses})</span>
+        <>
+          <div className="row" style={{ justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+            <div className="eyebrow">What people want</div>
+            <div className="row" style={{ gap: 6 }}>
+              {[['both', 'Both'], ['interviews', 'Interviews'], ['survey', 'Survey']].map(([v, l]) => (
+                <button key={v} type="button" className={'chip' + (source === v ? ' on' : '')} onClick={() => setSource(v)}>{l}</button>
+              ))}
             </div>
-            {compare.map(({ cat, i, s }) => (
-              <CmpRow key={cat} label={cat} i={i} s={s} iTotal={n} sTotal={survey.responses} />
-            ))}
           </div>
-        </div>
+
+          <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 16 }}>
+            <div className="card">
+              <div className="hd"><h2>Benefits wanted</h2><span className="note">{srcNote}</span></div>
+              <div className="bd"><Bars data={wantData} total={srcTotal} empty="Nothing recorded yet." /></div>
+            </div>
+            <div className="card">
+              <div className="hd"><h2>Top benefit</h2><span className="note">{srcNote}</span></div>
+              <div className="bd"><Bars data={topData} total={srcTotal} empty="Nothing recorded yet." /></div>
+            </div>
+          </div>
+
+          <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 16 }}>
+            <DonutCard
+              title="Responses by source"
+              note="interviews + survey"
+              data={[['Interviews', n], ['Survey', survey.responses]].filter(([, v]) => v > 0)}
+              total={totalResponses}
+              empty="No responses yet." />
+          </div>
+        </>
       )}
 
-      {totalResponses > 0 && (
-        <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 16 }}>
-          <DonutCard
-            title="Responses by source"
-            note="interviews + survey"
-            data={[['Interviews', n], ['Survey', survey.responses]].filter(([, v]) => v > 0)}
-            total={totalResponses}
-            empty="No responses yet." />
-        </div>
+      {totalResponses === 0 && (
+        <div className="card"><div className="empty">No data yet. The charts fill in as interviews and survey responses come in.</div></div>
       )}
 
-      {n === 0 ? (
-        <div className="card"><div className="empty">No data yet. The charts fill in as interviews are logged.</div></div>
-      ) : (
+      {n > 0 && (
         <>
           <div>
             <div className="eyebrow">From interviews only</div>
@@ -329,14 +302,6 @@ export default function Dashboard() {
           </div>
 
           <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 16 }}>
-            <div className="card">
-              <div className="hd"><h2>Top benefit named</h2><span className="note">the one that matters most</span></div>
-              <div className="bd"><Bars data={stats.topBenefit} total={n} empty="No top benefit recorded yet." /></div>
-            </div>
-            <div className="card">
-              <div className="hd"><h2>Benefits wanted</h2><span className="note">share of interviews</span></div>
-              <div className="bd"><Bars data={stats.wants.slice(0, 10)} total={n} empty="Nothing recorded yet." /></div>
-            </div>
             <div className="card">
               <div className="hd"><h2>Recurring themes</h2><span className="note">auto-tagged from interviews</span></div>
               <div className="bd"><Bars data={stats.themes} total={n} empty="No themes yet." /></div>
