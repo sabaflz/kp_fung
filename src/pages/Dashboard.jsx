@@ -4,7 +4,7 @@ import { useInterviews, useSettings } from '../lib/data.js'
 import { useSurvey } from '../lib/survey.js'
 import { coverageBucket, situationBucket, choiceBucket } from '../data/buckets.js'
 import { useToast, copyText } from '../components/ui.jsx'
-import { tally, splitMany, combineTriples, SplitBars, TwoRingDonutCard } from '../components/charts.jsx'
+import { tally, splitMany, combineTriples, SplitBars, DonutCard } from '../components/charts.jsx'
 
 function GroupLabel({ children }) {
   return <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--muted)' }}>{children}</div>
@@ -35,6 +35,10 @@ export default function Dashboard() {
   // Pick-the-plan is near-unanimous, so it is a headline number, not a chart.
   const choTri = combineTriples(tally(rows.map((r) => choiceBucket(r.plan_choice))), survey.choose || [])
   const pickN = (i, s) => source === 'interviews' ? i : source === 'survey' ? s : i + s
+
+  // A triple -> one combined (cumulative) [label, count] list for a donut.
+  // In Both, each slice is interviews + survey; the center shows the total.
+  const donutData = (tri) => tri.map(([l, i, s]) => [l, pickN(i, s)]).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1])
 
   // Headline stat: share who would pick the plan with their benefit.
   const withRow = choTri.find(([l]) => l === 'With the benefit')
@@ -121,7 +125,7 @@ export default function Dashboard() {
             <div className="row" style={{ gap: 16, fontSize: 12.5, color: 'var(--muted)', marginTop: -4 }}>
               <span className="row" style={{ gap: 7 }}><span className="swatch" style={{ background: 'var(--iv)' }} />Interviews ({n})</span>
               <span className="row" style={{ gap: 7 }}><span className="swatch" style={{ background: 'var(--sv)' }} />Survey ({survey.responses})</span>
-              <span style={{ color: 'var(--faint)' }}>bars stack both sources; donuts show interviews (inner ring) and survey (outer)</span>
+              <span style={{ color: 'var(--faint)' }}>bars stack both sources; donuts show the combined total of both</span>
             </div>
           )}
 
@@ -139,14 +143,14 @@ export default function Dashboard() {
 
           <GroupLabel>What would move them</GroupLabel>
           <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 16 }}>
-            <TwoRingDonutCard title="Do benefits sway plan choice" note="how much it weighs" data={inflTri} source={source} empty="Nothing recorded yet." />
-            <TwoRingDonutCard title="If the plan had $300 to spend" note="set benefit vs. flexible allowance" data={flexTri} source={source} empty="Nothing recorded yet." />
+            <DonutCard title="Do benefits sway plan choice" note="how much it weighs" data={donutData(inflTri)} empty="Nothing recorded yet." />
+            <DonutCard title="If the plan had $300 to spend" note="set benefit vs. flexible allowance" data={donutData(flexTri)} empty="Nothing recorded yet." />
           </div>
 
           <GroupLabel>Who we heard from</GroupLabel>
           <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 16 }}>
-            <TwoRingDonutCard title="How they are covered" data={covTri} source={source} empty="Nothing recorded yet." />
-            <TwoRingDonutCard title="Student or working" data={sitTri} source={source} empty="Nothing recorded yet." />
+            <DonutCard title="How they are covered" data={donutData(covTri)} empty="Nothing recorded yet." />
+            <DonutCard title="Student or working" data={donutData(sitTri)} empty="Nothing recorded yet." />
           </div>
         </>
       )}
