@@ -2,9 +2,9 @@ import { useState } from 'react'
 import { FIELDS } from '../data/pool.js'
 import { useInterviews, useSettings } from '../lib/data.js'
 import { useSurvey } from '../lib/survey.js'
-import { coverageBucket, situationBucket, useBucket, choiceBucket } from '../data/buckets.js'
+import { coverageBucket, situationBucket, choiceBucket } from '../data/buckets.js'
 import { useToast, copyText } from '../components/ui.jsx'
-import { tally, splitMany, combineTriples, SplitBars, DonutCard } from '../components/charts.jsx'
+import { tally, splitMany, combineTriples, SplitBars } from '../components/charts.jsx'
 
 function GroupLabel({ children }) {
   return <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--muted)' }}>{children}</div>
@@ -26,17 +26,15 @@ export default function Dashboard() {
   const wantTri = combineTriples(Object.entries(iWant), survey.want || []).slice(0, 10)
   const topTri = combineTriples(tally(rows.map((r) => r.top_benefit)), survey.top || [])
 
-  // Compositions (donuts of the combined, or selected, mix).
-  const choTri = combineTriples(tally(rows.map((r) => choiceBucket(r.plan_choice))), survey.choose || [])
+  // Stacked-bar dimensions (each shows interviews + survey together).
   const inflTri = combineTriples(tally(rows.map((r) => r.influence)), survey.influence || [])
   const flexTri = combineTriples(tally(rows.map((r) => r.flex_pref)), survey.flex || [])
-  const useTri = combineTriples(tally(rows.map((r) => useBucket(r.would_use))), survey.use || [])
   const covTri = combineTriples(tally(rows.map((r) => coverageBucket(r.plan))), survey.coverage || [])
   const sitTri = combineTriples(tally(rows.map((r) => situationBucket(r.who))), survey.situation || [])
 
-  // A triple -> [label, count] for a donut, following the toggle.
+  // Pick-the-plan is near-unanimous, so it is a headline number, not a chart.
+  const choTri = combineTriples(tally(rows.map((r) => choiceBucket(r.plan_choice))), survey.choose || [])
   const pickN = (i, s) => source === 'interviews' ? i : source === 'survey' ? s : i + s
-  const donutData = (tri) => tri.map(([l, i, s]) => [l, pickN(i, s)]).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1])
 
   // Headline stat: share who would pick the plan with their benefit.
   const withRow = choTri.find(([l]) => l === 'With the benefit')
@@ -123,7 +121,7 @@ export default function Dashboard() {
             <div className="row" style={{ gap: 16, fontSize: 12.5, color: 'var(--muted)', marginTop: -4 }}>
               <span className="row" style={{ gap: 7 }}><span className="swatch" style={{ background: 'var(--iv)' }} />Interviews ({n})</span>
               <span className="row" style={{ gap: 7 }}><span className="swatch" style={{ background: 'var(--sv)' }} />Survey ({survey.responses})</span>
-              <span style={{ color: 'var(--faint)' }}>bars stack both sources; donuts show the combined mix</span>
+              <span style={{ color: 'var(--faint)' }}>every bar stacks both sources</span>
             </div>
           )}
 
@@ -139,22 +137,28 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <GroupLabel>Would it move them</GroupLabel>
+          <GroupLabel>What would move them</GroupLabel>
           <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 16 }}>
-            <DonutCard title="Pick the plan with the benefit" note="same cost and coverage" data={donutData(choTri)} empty="Nothing recorded yet." />
-            <DonutCard title="Do benefits sway plan choice" note="how much it weighs" data={donutData(inflTri)} empty="Nothing recorded yet." />
-          </div>
-
-          <GroupLabel>How to design and adopt it</GroupLabel>
-          <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 16 }}>
-            <DonutCard title="If the plan had $300 to spend" note="set benefit vs. flexible allowance" data={donutData(flexTri)} empty="Nothing recorded yet." />
-            <DonutCard title="Would use it if free" note="honest likelihood" data={donutData(useTri)} empty="Nothing recorded yet." />
+            <div className="card">
+              <div className="hd"><h2>Do benefits sway plan choice</h2><span className="note">how much it weighs</span></div>
+              <div className="bd"><SplitBars data={inflTri} source={source} iTotal={n} sTotal={survey.responses} empty="Nothing recorded yet." /></div>
+            </div>
+            <div className="card">
+              <div className="hd"><h2>If the plan had $300 to spend</h2><span className="note">set benefit vs. flexible allowance</span></div>
+              <div className="bd"><SplitBars data={flexTri} source={source} iTotal={n} sTotal={survey.responses} empty="Nothing recorded yet." /></div>
+            </div>
           </div>
 
           <GroupLabel>Who we heard from</GroupLabel>
           <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 16 }}>
-            <DonutCard title="How they are covered" data={donutData(covTri)} empty="Nothing recorded yet." />
-            <DonutCard title="Student or working" data={donutData(sitTri)} empty="Nothing recorded yet." />
+            <div className="card">
+              <div className="hd"><h2>How they are covered</h2><span className="note">share of each source</span></div>
+              <div className="bd"><SplitBars data={covTri} source={source} iTotal={n} sTotal={survey.responses} empty="Nothing recorded yet." /></div>
+            </div>
+            <div className="card">
+              <div className="hd"><h2>Student or working</h2><span className="note">share of each source</span></div>
+              <div className="bd"><SplitBars data={sitTri} source={source} iTotal={n} sTotal={survey.responses} empty="Nothing recorded yet." /></div>
+            </div>
           </div>
         </>
       )}
