@@ -121,6 +121,7 @@ export function useSurvey(csvUrl) {
       influence: find(['influence your plan choice', 'how much would supplemental benefits']),
       barrier: find(['biggest reason you might not use', 'not use your number one benefit']),
       why: find(['why is that benefit your top choice']),
+      open: find(['anything else', 'additional comments', 'other thoughts', 'in your own words', 'tell us more', 'final thoughts', 'anything you', 'share anything']),
     }
     const vals = (i) => (i < 0 || !raw) ? [] : raw.rows.map((r) => (r[i] || '').trim()).filter(Boolean)
     const tally = (arr) => { const m = {}; for (const v of arr) m[v] = (m[v] || 0) + 1; return Object.entries(m).sort((x, y) => y[1] - x[1]) }
@@ -163,6 +164,8 @@ export function useSurvey(csvUrl) {
       influence: labelTally(col.influence, INFLUENCE_MAP),
       barrier: labelTally(col.barrier, BARRIER_MAP),
       why: multiTally(col.why, WHY_OPTS),
+      // Open-text answers, if the form has such a question, for the quote wall.
+      quotes: vals(col.open).filter((v) => v.length >= 20 && v.includes(' ')),
     }
   }, [raw])
 

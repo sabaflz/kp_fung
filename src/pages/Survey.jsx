@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useSettings, setSetting, useInterviews } from '../lib/data.js'
-import { useSurvey } from '../lib/survey.js'
+import { useSurvey, WHY_OPTS } from '../lib/survey.js'
 import { useToast } from '../components/ui.jsx'
+import { combineTriples, SplitBars, tally } from '../components/charts.jsx'
 import Outreach from './Outreach.jsx'
 
 function Bars({ data, empty, limit = 12 }) {
@@ -33,6 +34,15 @@ export default function Survey() {
   useEffect(() => {
     setFormUrl(map.form_url || ''); setSheetUrl(map.sheet_url || ''); setCsvUrl(map.survey_csv_url || '')
   }, [map.form_url, map.sheet_url, map.survey_csv_url])
+
+  // Why / barrier, combined with interviews (teal) on top of the survey (orange).
+  const whyBucket = (texts) => {
+    const m = {}
+    for (const v of texts) { const t = (v || '').toLowerCase(); for (const [kw, l] of WHY_OPTS) if (t.includes(kw)) m[l] = (m[l] || 0) + 1 }
+    return Object.entries(m).sort((a, b) => b[1] - a[1])
+  }
+  const whyTri = combineTriples(whyBucket(interviews.map((r) => r.why_top)), s.why || [])
+  const barrTri = combineTriples(tally(interviews.map((r) => r.barrier)), s.barrier || [])
 
   async function saveLinks() {
     try {
@@ -115,6 +125,26 @@ export default function Survey() {
             <div className="bd"><Bars data={s.choose} empty="No responses yet." /></div>
           </div>
         </div>
+      )}
+
+      {s.state === 'ok' && (
+        <>
+          <div style={{ marginTop: 6 }}>
+            <div className="eyebrow">Choice and reasons</div>
+            <h2 style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 20, margin: '4px 0 2px' }}>Why, and what stops them</h2>
+            <p className="lede">Survey and interviews combined. Teal is interviews, orange is survey.</p>
+          </div>
+          <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 16 }}>
+            <div className="card">
+              <div className="hd"><h2>Why it&rsquo;s their top choice</h2><span className="note">pick several</span></div>
+              <div className="bd"><SplitBars data={whyTri} source="both" iTotal={interviews.length} sTotal={s.responses} empty="No responses yet." /></div>
+            </div>
+            <div className="card">
+              <div className="hd"><h2>Reason they might not use it</h2><span className="note">even if it were free</span></div>
+              <div className="bd"><SplitBars data={barrTri} source="both" iTotal={interviews.length} sTotal={s.responses} empty="No responses yet." /></div>
+            </div>
+          </div>
+        </>
       )}
 
       <div style={{ marginTop: 6 }}>
