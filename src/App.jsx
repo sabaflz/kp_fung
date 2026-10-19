@@ -28,22 +28,24 @@ export default function App() {
     <>
       <header className="topbar">
         <div className="inner">
-          <div className="brand">
-            <span className="mark">Benefits Interview Kit</span>
-            <span className="sub">Fung &times; KP Benefits</span>
+          <div className="topline">
+            <div className="brand">
+              <span className="mark">Benefits Interview Kit</span>
+              <span className="sub">Fung &times; KP Benefits</span>
+            </div>
+            <div className="right">
+              <span className="who-badge" title={email}>{email}</span>
+              <ThemeToggle />
+              <button className="icon-btn" type="button" onClick={signOut} title="Sign out" aria-label="Sign out">
+                <ExitIcon />
+              </button>
+            </div>
           </div>
           <nav className="nav">
             {TABS.map(([to, label]) => (
               <NavLink key={to} to={to} end={to === '/'}>{label}</NavLink>
             ))}
           </nav>
-          <div className="right">
-            <span className="who-badge" title={email}>{email}</span>
-            <ThemeToggle />
-            <button className="icon-btn" type="button" onClick={signOut} title="Sign out" aria-label="Sign out">
-              <ExitIcon />
-            </button>
-          </div>
         </div>
       </header>
 

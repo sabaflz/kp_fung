@@ -44,13 +44,15 @@ button{font-family:inherit}
   padding-left:16px;padding-right:16px}
 .topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);
   border-bottom:1px solid var(--line)}
-.topbar .inner{max-width:1080px;margin:0 auto;display:flex;align-items:center;
-  justify-content:space-between;gap:14px;flex-wrap:wrap;padding:12px 16px}
+.topbar .inner{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;
+  gap:10px;padding:12px 16px}
+.topbar .topline{display:flex;align-items:center;justify-content:space-between;
+  gap:14px;flex-wrap:wrap}
 .brand{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
 .brand .mark{font-family:var(--serif);font-weight:600;font-size:21px;letter-spacing:-.01em}
 .brand .sub{font-size:11px;color:var(--faint);letter-spacing:.14em;text-transform:uppercase}
 .nav{display:flex;gap:4px;background:var(--surface-2);border:1px solid var(--line);
-  border-radius:999px;padding:4px;overflow:auto;max-width:100%}
+  border-radius:999px;padding:4px;overflow:auto;max-width:100%;align-self:flex-start}
 .nav a{text-decoration:none;color:var(--muted);padding:8px 14px;border-radius:999px;
   font-size:13px;font-weight:500;white-space:nowrap}
 .nav a.active{background:var(--surface);color:var(--fg);box-shadow:var(--shadow)}
