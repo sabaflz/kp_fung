@@ -2,6 +2,7 @@ import { Fragment, useMemo, useState } from 'react'
 import { FIELDS, BULLSEYE_TAGS, STATUS_TAGS, EXTRACT_PROMPT, BENEFITS, snapBenefits, snapTopBenefit, USE_OPTIONS, CHOICE_OPTIONS, FLEX_OPTIONS, INFLUENCE_OPTIONS, BARRIER_OPTIONS } from '../data/pool.js'
 import { useInterviews, addInterview, updateInterview, deleteInterview } from '../lib/data.js'
 import { useAuth } from '../lib/auth.jsx'
+import { isViewer } from '../lib/team.js'
 import { Modal, useToast, copyText } from '../components/ui.jsx'
 import { tally, Bars, DonutCard } from '../components/charts.jsx'
 
@@ -126,6 +127,7 @@ function parseDate(s) {
 export default function Interviews() {
   const { rows, loading } = useInterviews()
   const { session } = useAuth()
+  const readOnly = isViewer(session?.user?.email || '')
   const toast = useToast()
   const [editing, setEditing] = useState(null) // record object (new has no id)
   const [viewing, setViewing] = useState(null)
@@ -154,7 +156,7 @@ export default function Interviews() {
           </h1>
           <p className="lede">Every interview the team logs, in one shared place. Paste a transcript and pull the fields out with AI, or fill them in by hand.</p>
         </div>
-        <button className="btn" onClick={startNew}>+ Log interview</button>
+        {!readOnly && <button className="btn" onClick={startNew}>+ Log interview</button>}
       </div>
 
       <div className="card">
@@ -200,6 +202,7 @@ export default function Interviews() {
       {viewing && (
         <DetailView
           record={viewing}
+          readOnly={readOnly}
           onClose={() => setViewing(null)}
           onEdit={() => { setEditing(viewing); setViewing(null) }}
           onDelete={async () => {
@@ -359,7 +362,7 @@ function InterviewForm({ record, onClose, onSaved, onError }) {
   )
 }
 
-function DetailView({ record, onClose, onEdit, onDelete }) {
+function DetailView({ record, onClose, onEdit, onDelete, readOnly }) {
   const r = record
   const pairs = [
     ...FIELDS.map(([key, label]) => [label, r[key]]),
@@ -390,10 +393,12 @@ function DetailView({ record, onClose, onEdit, onDelete }) {
             <div className="out" style={{ marginTop: 8 }}>{r.transcript}</div>
           </details>
         )}
-        <div className="row" style={{ justifyContent: 'space-between' }}>
-          <button className="btn danger sm" onClick={onDelete}>Delete</button>
-          <button className="btn" onClick={onEdit}>Edit</button>
-        </div>
+        {!readOnly && (
+          <div className="row" style={{ justifyContent: 'space-between' }}>
+            <button className="btn danger sm" onClick={onDelete}>Delete</button>
+            <button className="btn" onClick={onEdit}>Edit</button>
+          </div>
+        )}
       </div>
     </Modal>
   )
