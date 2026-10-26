@@ -9,7 +9,7 @@
 // who is not on the team regardless of the UI. Add a viewer's EXACT sign-in
 // email (lowercased) below to switch them into read-only mode.
 export const VIEWER_EMAILS = [
-  // 'sheila-REPLACE-with-her-exact-email@example.com',
+  'Sheila.X.Baxter@kp.org',
 ].map((e) => e.toLowerCase())
 
 export function isViewer(email) {
