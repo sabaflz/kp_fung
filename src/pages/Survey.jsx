@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useSettings, setSetting, useInterviews } from '../lib/data.js'
 import { useSurvey, WHY_OPTS } from '../lib/survey.js'
+import { useAuth } from '../lib/auth.jsx'
+import { isViewer } from '../lib/team.js'
 import { useToast } from '../components/ui.jsx'
 import { combineTriples, SplitBars, tally } from '../components/charts.jsx'
 import Outreach from './Outreach.jsx'
@@ -25,6 +27,8 @@ export default function Survey() {
   const { map } = useSettings()
   const { rows: interviews } = useInterviews()
   const s = useSurvey(map.survey_csv_url)
+  const { session } = useAuth()
+  const readOnly = isViewer(session?.user?.email || '')
   const toast = useToast()
 
   const [formUrl, setFormUrl] = useState('')
@@ -65,6 +69,7 @@ export default function Survey() {
         <p className="lede">The form, the sheet, and the responses, pulled in live and lined up with the interviews on the same benefit categories.</p>
       </div>
 
+      {!readOnly && (
       <div className="card">
         <div className="hd"><h2>Links &amp; sync</h2>
           {s.state === 'ok' && <span className="note">{s.responses} responses pulled in</span>}
@@ -100,6 +105,7 @@ export default function Survey() {
           )}
         </div>
       </div>
+      )}
 
       <div className="tiles">
         <div className="tile"><div className="n">{s.responses}</div><div className="l">survey responses</div></div>
