@@ -52,6 +52,29 @@ That is it. Share the Vercel URL with the team. Everyone signs in with their ema
 
 ---
 
+## Giving someone read-only access (e.g. a partner)
+
+By default, anyone who signs in can edit. To let someone view the dashboard and
+data without being able to change anything:
+
+1. **Lock writes to the team (database).** In the Supabase **SQL Editor**, first run
+   `select email from auth.users order by email;` to see the exact sign-in emails.
+   Open `supabase_viewer_access.sql`, put every teammate's exact email in the
+   `is_team()` list, then paste the whole file in and **Run**. After this, only the
+   team can add, edit, or delete; everyone else is read-only, enforced by the
+   database. (The file also has an optional block to limit *who can read*, and a
+   rollback block.)
+2. **Give the viewer a clean view (app).** Add the viewer's exact sign-in email to
+   `VIEWER_EMAILS` in `src/lib/team.js` and redeploy. They will land on the Dashboard
+   and see the Survey and Interviews as read-only, with the interviewing tools and
+   edit buttons hidden.
+3. **Share the URL.** The viewer opens the Vercel link and signs in with that email.
+
+Step 1 is the real protection. Step 2 is the polish, so the viewer never sees a
+button that would just fail.
+
+---
+
 ## Run it locally (optional)
 
 ```bash
