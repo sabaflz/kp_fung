@@ -8,6 +8,7 @@ import Interviews from './pages/Interviews.jsx'
 import Sets from './pages/Sets.jsx'
 import Dashboard from './pages/Dashboard.jsx'
 import Survey from './pages/Survey.jsx'
+import Market from './pages/Market.jsx'
 
 // Full workspace for the team.
 const TABS = [
@@ -16,12 +17,14 @@ const TABS = [
   ['/sets', 'Question sets'],
   ['/survey', 'Survey'],
   ['/dashboard', 'Dashboard'],
+  ['/market', 'Market'],
 ]
 // Read-only viewers see only the finished views (no interviewing tools).
 const VIEWER_TABS = [
   ['/dashboard', 'Dashboard'],
   ['/survey', 'Survey'],
   ['/interviews', 'Interviews'],
+  ['/market', 'Market'],
 ]
 
 export default function App() {
@@ -71,6 +74,7 @@ export default function App() {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/survey" element={<Survey />} />
               <Route path="/interviews" element={<Interviews />} />
+              <Route path="/market" element={<Market />} />
               <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </>
           ) : (
@@ -80,6 +84,7 @@ export default function App() {
               <Route path="/sets" element={<Sets />} />
               <Route path="/survey" element={<Survey />} />
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/market" element={<Market />} />
               <Route path="/outreach" element={<Navigate to="/survey" replace />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </>
