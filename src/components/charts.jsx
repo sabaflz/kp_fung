@@ -26,7 +26,7 @@ export function combineTriples(iT, sT) {
     .sort((a, b) => (b[1] + b[2]) - (a[1] + a[2]))
 }
 
-// Plain bars for a single source. Optional color (defaults to the teal accent).
+// Plain bars for a single source. Optional color (defaults to the blue accent).
 export function Bars({ data, empty, total, color, limit = 100 }) {
   if (!data.length) return <div className="empty">{empty}</div>
   const max = data[0][1]
@@ -43,7 +43,7 @@ export function Bars({ data, empty, total, color, limit = 100 }) {
   )
 }
 
-// Stacked bars for rankings: teal = interviews, orange = survey, per the toggle.
+// Stacked bars for rankings: blue = interviews, orange = survey, per the toggle.
 export function SplitBars({ data, source, iTotal, sTotal, empty }) {
   const value = (i, s) => source === 'interviews' ? i : source === 'survey' ? s : i + s
   const visible = data.filter(([, i, s]) => value(i, s) > 0)
@@ -71,7 +71,7 @@ export function SplitBars({ data, source, iTotal, sTotal, empty }) {
   )
 }
 
-// Donut slice colors: no teal or orange, so those stay reserved for source.
+// Donut slice colors: no blue or orange, so those stay reserved for source.
 export const SLICE = ['#6366f1', '#0ea5e9', '#8b5cf6', '#22c55e', '#f43f5e', '#94a3b8']
 
 export function Donut({ data, size = 148, palette = SLICE, unit = 'responses' }) {
