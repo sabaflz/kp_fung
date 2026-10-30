@@ -10,6 +10,8 @@
 // email (lowercased) below to switch them into read-only mode.
 export const VIEWER_EMAILS = [
   'Sheila.X.Baxter@kp.org',
+  'Amy.L.Benisch@kp.org',
+  'Tamer.M.Barakat@kp.org',
 ].map((e) => e.toLowerCase())
 
 export function isViewer(email) {
