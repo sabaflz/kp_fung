@@ -1,11 +1,11 @@
 /* Benefits Interview Kit — theme tokens + shared UI.
-   Warm clinical neutral, one teal accent. Light + dark. */
+   Warm neutral, Kaiser blue accent. Light + dark. */
 :root{
   --bg:#f6f5f2; --surface:#ffffff; --surface-2:#efede8;
   --fg:#1c1f26; --muted:#5e636e; --faint:#8b909b;
   --line:#e3e0d8; --line-strong:#cfcbc1;
-  --accent:#0f766e; --accent-soft:#d7ebe8; --accent-ink:#0a544e;
-  --iv:#0f766e; --sv:#e0792e;
+  --accent:#0067a8; --accent-soft:#dbeaf4; --accent-ink:#003e7e;
+  --iv:#0067a8; --sv:#e0792e;
   --warn:#b45309; --good:#15803d; --bad:#b91c1c;
   --radius:14px; --shadow:0 1px 2px rgba(28,31,38,.05),0 8px 24px rgba(28,31,38,.06);
   --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
@@ -17,8 +17,8 @@
   --bg:#15171c; --surface:#1e2127; --surface-2:#262a31;
   --fg:#edeef1; --muted:#a4a9b4; --faint:#767c88;
   --line:#2f333b; --line-strong:#3c414b;
-  --accent:#4fd1c5; --accent-soft:#17352f; --accent-ink:#8fe3da;
-  --iv:#4fd1c5; --sv:#fb923c;
+  --accent:#3e9bdb; --accent-soft:#102a4c; --accent-ink:#a3cfef;
+  --iv:#4fa8e0; --sv:#fb923c;
   --warn:#f59e0b; --good:#4ade80; --bad:#f87171;
   --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
   color-scheme:dark;
@@ -27,8 +27,8 @@
   --bg:#15171c; --surface:#1e2127; --surface-2:#262a31;
   --fg:#edeef1; --muted:#a4a9b4; --faint:#767c88;
   --line:#2f333b; --line-strong:#3c414b;
-  --accent:#4fd1c5; --accent-soft:#17352f; --accent-ink:#8fe3da;
-  --iv:#4fd1c5; --sv:#fb923c;
+  --accent:#3e9bdb; --accent-soft:#102a4c; --accent-ink:#a3cfef;
+  --iv:#4fa8e0; --sv:#fb923c;
   --warn:#f59e0b; --good:#4ade80; --bad:#f87171;
   --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
   color-scheme:dark;

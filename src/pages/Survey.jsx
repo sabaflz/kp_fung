@@ -39,7 +39,7 @@ export default function Survey() {
     setFormUrl(map.form_url || ''); setSheetUrl(map.sheet_url || ''); setCsvUrl(map.survey_csv_url || '')
   }, [map.form_url, map.sheet_url, map.survey_csv_url])
 
-  // Why / barrier, combined with interviews (teal) on top of the survey (orange).
+  // Why / barrier, combined with interviews (blue) on top of the survey (orange).
   const whyBucket = (texts) => {
     const m = {}
     for (const v of texts) { const t = (v || '').toLowerCase(); for (const [kw, l] of WHY_OPTS) if (t.includes(kw)) m[l] = (m[l] || 0) + 1 }
