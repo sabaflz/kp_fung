@@ -28,6 +28,13 @@ export default function Bet2() {
 
   const { ranking, topCombos, respondents, screens } = useMemo(() => tallyResponses(rows), [rows])
   const winners = ranking.slice(0, 3)
+  const ageCounts = useMemo(() => {
+    const m = {}
+    for (const r of rows) { const a = r.age || 'Not given'; m[a] = (m[a] || 0) + 1 }
+    const order = ['Under 18', '18–20', '21–23', '24–26', '27–30', 'Over 30', 'Not given']
+    return order.map((a) => [a, m[a] || 0]).filter(([, n]) => n > 0)
+  }, [rows])
+  const ageMax = Math.max(1, ...ageCounts.map(([, n]) => n))
 
   return (
     <div className="b2">
@@ -69,6 +76,20 @@ export default function Bet2() {
               ))}
             </div>
             <span className="b2-winner-note">The three benefits with the highest win rates.</span>
+          </div>
+
+          <div className="b2-card">
+            <h3 className="b2-h3">Who answered</h3>
+            <ul className="b2-bars">
+              {ageCounts.map(([a, n]) => (
+                <li key={a} className="b2-bar">
+                  <span className="b2-bar-name">{a}</span>
+                  <span className="b2-bar-track"><span className="b2-bar-fill" style={{ width: `${Math.max((n / ageMax) * 100, 3)}%` }} /></span>
+                  <span className="b2-bar-pct">{n}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="b2-fine">Age of the {respondents} {respondents === 1 ? 'person' : 'people'} who took the survey.</p>
           </div>
 
           <div className="b2-card">

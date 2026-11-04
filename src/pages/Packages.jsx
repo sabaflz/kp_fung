@@ -5,6 +5,8 @@ import BenefitIcon from '../components/BenefitIcon.jsx'
 
 const Icon = ({ name }) => <BenefitIcon name={name} />
 
+const AGE_RANGES = ['Under 18', '18–20', '21–23', '24–26', '27–30', 'Over 30']
+
 function Package({ side, ids, onPick }) {
   return (
     <button type="button" className="pk-card" onClick={() => onPick(side)}>
@@ -30,7 +32,8 @@ function Package({ side, ids, onPick }) {
 export default function Packages() {
   const session = useMemo(() => buildSession(), [])
   const respondent = useMemo(() => newRespondentId(), [])
-  const [stage, setStage] = useState('intro') // intro | q | done
+  const [stage, setStage] = useState('intro') // intro | age | q | done
+  const [age, setAge] = useState('')
   const [i, setI] = useState(0)
   const [choices, setChoices] = useState([])
   const [saving, setSaving] = useState(false)
@@ -42,6 +45,7 @@ export default function Packages() {
     try {
       await supabase.from('bet2_responses').insert({
         respondent,
+        age,
         choices: all,
       })
     } catch { /* best-effort: never block the thank-you screen */ }
@@ -85,8 +89,21 @@ export default function Packages() {
                 </div>
               ))}
             </div>
-            <button type="button" className="pk-start" onClick={() => setStage('q')}>Start</button>
+            <button type="button" className="pk-start" onClick={() => setStage('age')}>Start</button>
             <p className="pk-fine">Anonymous. No sign-in, no personal information collected.</p>
+          </div>
+        )}
+
+        {stage === 'age' && (
+          <div className="pk-panel">
+            <span className="pk-eyebrow">One quick question first</span>
+            <h2 className="pk-prompt">How old are you?</h2>
+            <p className="pk-sub">This just lets us group the answers. We do not collect anything else about you.</p>
+            <div className="pk-age-grid">
+              {AGE_RANGES.map((a) => (
+                <button key={a} type="button" className="pk-age-btn" onClick={() => { setAge(a); setStage('q') }}>{a}</button>
+              ))}
+            </div>
           </div>
         )}
 

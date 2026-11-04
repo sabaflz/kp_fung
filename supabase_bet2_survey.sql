@@ -15,8 +15,12 @@ create table if not exists public.bet2_responses (
   id         uuid primary key default gen_random_uuid(),
   created_at timestamptz not null default now(),
   respondent text,
+  age        text,
   choices    jsonb not null
 );
+
+-- Add the age column if the table was created before age was added.
+alter table public.bet2_responses add column if not exists age text;
 
 alter table public.bet2_responses enable row level security;
 
