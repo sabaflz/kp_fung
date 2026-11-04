@@ -1,7 +1,8 @@
-import { NavLink, Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom'
+import { useState } from 'react'
+import { Link, NavLink, Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom'
 import { useAuth, signOut } from './lib/auth.jsx'
 import { isViewer } from './lib/team.js'
-import { ThemeToggle, ExitIcon } from './components/ui.jsx'
+import { ThemeToggle, ExitIcon, useToast, copyText } from './components/ui.jsx'
 import Login from './pages/Login.jsx'
 import Goal from './pages/Goal.jsx'
 import Bets from './pages/Bets.jsx'
@@ -15,25 +16,42 @@ import Survey from './pages/Survey.jsx'
 import Market from './pages/Market.jsx'
 import Packages from './pages/Packages.jsx'
 
-// Left-sidebar sections (same for team and viewers; the viewer differences live
-// inside the Interviews sub-tabs, where Run and Question sets are team-only).
-const SECTIONS = [
-  ['/', 'Goal'],
-  ['/bets', 'Bets'],
-  ['/interviews', 'Interviews'],
-  ['/findings', 'Findings'],
-  ['/market', 'Market'],
-]
+/* Section icons + hamburger (no icon library). */
+const ICON = {
+  goal: <><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="5" /><circle cx="12" cy="12" r="1.5" /></>,
+  bets: <><path d="M3 17l6-6 4 4 7-7" /><path d="M17 8h4v4" /></>,
+  interviews: <path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z" />,
+  findings: <><path d="M3 3v18h18" /><path d="M7 16v2M12 11v7M17 7v11" /></>,
+  market: <path d="M3 21h18M5 21V8l7-5 7 5v13M10 21v-6h4v6" />,
+  burger: <path d="M4 6h16M4 12h16M4 18h16" />,
+}
+function Ico({ name, size = 18 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{ICON[name]}</svg>
+  )
+}
 
-// Secondary nav shown at the top of a section's content.
+const SECTIONS = [
+  ['/', 'Goal', 'goal'],
+  ['/bets', 'Bets', 'bets'],
+  ['/interviews', 'Interviews', 'interviews'],
+  ['/findings', 'Findings', 'findings'],
+  ['/market', 'Market', 'market'],
+]
+const titleFor = (p) =>
+  p === '/' ? 'Goal' :
+  p.startsWith('/bets') ? 'Bets' :
+  p.startsWith('/interviews') ? 'Interviews' :
+  p.startsWith('/findings') ? 'Findings' :
+  p.startsWith('/market') ? 'Market' : ''
+
 function SectionNav({ tabs }) {
   if (tabs.length < 2) return <Outlet />
   return (
     <>
       <nav className="subnav">
-        {tabs.map(([to, label]) => (
-          <NavLink key={to} to={to} end>{label}</NavLink>
-        ))}
+        {tabs.map(([to, label]) => (<NavLink key={to} to={to} end>{label}</NavLink>))}
       </nav>
       <Outlet />
     </>
@@ -43,9 +61,10 @@ function SectionNav({ tabs }) {
 export default function App() {
   const { session, loading } = useAuth()
   const location = useLocation()
+  const toast = useToast()
+  const [navOpen, setNavOpen] = useState(() => (typeof window !== 'undefined' ? window.innerWidth > 860 : true))
 
-  // Public, standalone package-choice survey. Renders with no app navigation and
-  // needs no sign-in, so a shared link exposes only the survey.
+  // Public, standalone package-choice survey: no nav, no sign-in.
   if (location.pathname.startsWith('/packages')) return <Packages />
 
   if (loading) return <div className="center"><span className="spin" /></div>
@@ -53,6 +72,11 @@ export default function App() {
 
   const email = session.user?.email || ''
   const viewer = isViewer(email)
+  const closeOnMobile = () => { if (typeof window !== 'undefined' && window.innerWidth <= 860) setNavOpen(false) }
+  const copySurvey = async () => {
+    const url = (typeof window !== 'undefined' ? window.location.origin : '') + '/packages'
+    toast((await copyText(url)) ? 'Survey link copied' : 'Copy failed')
+  }
 
   const interviewTabs = viewer
     ? [['/interviews/log', 'Log']]
@@ -60,30 +84,43 @@ export default function App() {
   const findingsTabs = [['/findings', 'Overview'], ['/findings/synthesis', 'Synthesis'], ['/findings/survey', 'Survey']]
 
   return (
-    <div className="layout">
+    <div className={'layout' + (navOpen ? '' : ' nav-closed')}>
+      {navOpen && <div className="nav-scrim" onClick={() => setNavOpen(false)} />}
+
       <aside className="sidebar">
-        <div className="side-brand">
+        <Link to="/" className="side-brand" onClick={closeOnMobile}>
           <span className="side-mark">KP Benefits</span>
           <span className="side-sub">Fung &times; KP research</span>
-        </div>
+        </Link>
         <nav className="side-nav">
-          {SECTIONS.map(([to, label]) => (
-            <NavLink key={to} to={to} end={to === '/'} className="side-link">{label}</NavLink>
+          {SECTIONS.map(([to, label, icon]) => (
+            <NavLink key={to} to={to} end={to === '/'} className="side-link" onClick={closeOnMobile}>
+              <Ico name={icon} /><span>{label}</span>
+            </NavLink>
           ))}
         </nav>
-        <div className="side-foot">
-          {viewer && <span className="who-badge view-badge">View only</span>}
-          <span className="who-badge" title={email}>{email}</span>
-          <div className="side-foot-actions">
+      </aside>
+
+      <main className="main">
+        <header className="topbar2">
+          <button className="burger" type="button" onClick={() => setNavOpen((v) => !v)}
+            title={navOpen ? 'Hide menu' : 'Show menu'} aria-label="Toggle menu">
+            <Ico name="burger" size={20} />
+          </button>
+          <span className="topbar2-title">{titleFor(location.pathname)}</span>
+          <div className="topbar2-actions">
+            <button className="pill-btn" type="button" onClick={copySurvey} title="Copy the public survey link">
+              Copy survey link
+            </button>
+            {viewer && <span className="who-badge view-badge">View only</span>}
+            <span className="who-badge email-badge" title={email}>{email}</span>
             <ThemeToggle />
             <button className="icon-btn" type="button" onClick={signOut} title="Sign out" aria-label="Sign out">
               <ExitIcon />
             </button>
           </div>
-        </div>
-      </aside>
+        </header>
 
-      <main className="main">
         <div className="main-inner">
           <Routes>
             <Route path="/" element={<Goal />} />
