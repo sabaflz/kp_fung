@@ -298,3 +298,93 @@ footer.foot{margin-top:26px;padding-top:16px;border-top:1px solid var(--line);co
 .b2-share{display:flex; align-items:center; gap:10px; flex-wrap:wrap; font-size:13px; color:var(--muted)}
 .b2-share code{font-family:var(--mono); font-size:12.5px; background:var(--surface-2); border:1px solid var(--line); padding:5px 9px; border-radius:8px; color:var(--fg)}
 @media (max-width:560px){ .b2-bar{grid-template-columns:110px 1fr 38px} .b2-bar-name{font-size:12.5px} }
+
+/* ============================================================
+   Left-sidebar layout + sections (replaces the top tab bar)
+   ============================================================ */
+.layout{display:flex;min-height:100vh;min-height:100dvh}
+.sidebar{width:230px;flex:none;display:flex;flex-direction:column;gap:14px;
+  padding:18px 16px;border-right:1px solid var(--line);background:var(--surface);
+  position:sticky;top:0;height:100vh;height:100dvh}
+.side-brand{display:flex;flex-direction:column;gap:2px;padding:6px 8px}
+.side-mark{font-family:var(--serif);font-weight:600;font-size:19px;color:var(--fg)}
+.side-sub{font-size:11px;color:var(--faint);letter-spacing:.12em;text-transform:uppercase}
+.side-nav{display:flex;flex-direction:column;gap:3px;flex:1}
+.side-link{text-decoration:none;color:var(--muted);padding:10px 12px;border-radius:10px;font-size:14.5px;font-weight:500}
+.side-link:hover{background:var(--surface-2);color:var(--fg)}
+.side-link.active{background:var(--accent-soft);color:var(--accent-ink);font-weight:600}
+.side-foot{display:flex;flex-direction:column;gap:8px;padding:8px;border-top:1px solid var(--line)}
+.side-foot .who-badge{max-width:100%}
+.side-foot-actions{display:flex;gap:8px;align-items:center}
+.view-badge{background:var(--accent-soft);color:var(--accent-ink);font-weight:600;border-radius:999px;padding:3px 9px;width:fit-content}
+.main{flex:1;min-width:0}
+.main-inner{max-width:1000px;margin:0 auto;padding:clamp(16px,3vw,28px) clamp(14px,3vw,22px)}
+@media (max-width:860px){
+  .layout{flex-direction:column}
+  .sidebar{width:auto;height:auto;position:sticky;top:0;z-index:20;border-right:none;
+    border-bottom:1px solid var(--line);flex-direction:row;align-items:center;gap:10px;padding:10px 14px}
+  .side-brand{flex:none}
+  .side-nav{flex-direction:row;overflow-x:auto;gap:2px;flex:1}
+  .side-link{white-space:nowrap;padding:8px 11px;font-size:13.5px}
+  .side-foot{flex-direction:row;align-items:center;border-top:none;padding:0;gap:8px}
+  .side-foot .who-badge{display:none}
+}
+
+.subnav{display:flex;gap:4px;background:var(--surface-2);border:1px solid var(--line);
+  border-radius:999px;padding:4px;margin-bottom:20px;overflow:auto;width:fit-content;max-width:100%}
+.subnav a{text-decoration:none;color:var(--muted);padding:7px 14px;border-radius:999px;font-size:13px;font-weight:500;white-space:nowrap}
+.subnav a.active{background:var(--surface);color:var(--fg);box-shadow:var(--shadow)}
+
+/* Goal (home) */
+.goal-hero h1{font-family:var(--serif);font-weight:600;font-size:clamp(26px,5vw,38px);letter-spacing:-.01em;margin:4px 0 8px;max-width:22ch}
+.goal-best .bd{display:flex;flex-direction:column;align-items:flex-start}
+.goal-best-chips,.fo-best-chips{display:flex;flex-wrap:wrap;gap:8px}
+.goal-bets{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.goal-bet{text-decoration:none;display:flex;flex-direction:column;gap:8px;background:var(--surface);
+  border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+.goal-bet:hover{border-color:var(--accent)}
+.goal-bet-top{display:flex;justify-content:space-between;align-items:center}
+.goal-bet-week{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent-ink)}
+.goal-bet-title{font-size:15px;font-weight:600;color:var(--fg)}
+.goal-bet-status{font-size:11px;font-weight:700;border-radius:999px;padding:2px 9px}
+
+/* Bets hub */
+.bet-list{display:grid;gap:16px}
+.bet-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow)}
+.bet-card-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.bet-week{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent-ink)}
+.bet-status,.goal-bet-status{font-weight:700}
+.bet-status{font-size:11.5px;border-radius:999px;padding:3px 10px}
+.s-supported{background:#e7f6ee;color:#15803d}
+.s-collecting{background:var(--accent-soft);color:var(--accent-ink)}
+:root[data-theme="dark"] .s-supported{background:#12351f;color:#4ade80}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .s-supported{background:#12351f;color:#4ade80}}
+.bet-title{font-family:var(--serif);font-weight:600;font-size:21px;margin-bottom:12px}
+.bet-field{margin-bottom:12px}
+.bet-k{display:block;font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+.bet-field p{margin:0;font-size:14.5px;color:var(--fg);line-height:1.5}
+.bet-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.bet-next{border-style:dashed;background:transparent;box-shadow:none}
+
+/* Findings overview triangulation */
+.fo-best{background:var(--accent-soft);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px}
+.fo-best-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent-ink)}
+.fo-best-chips{margin:10px 0 6px}
+.fo-chip{display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:14px;font-weight:600;color:var(--fg)}
+.fo-chip svg{color:var(--accent)}
+.fo-best-note{font-size:12.5px;color:var(--accent-ink)}
+.fo-legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12.5px;color:var(--muted);margin-bottom:16px}
+.fo-legend span{display:inline-flex;align-items:center;gap:6px}
+.fo-dot{width:10px;height:10px;border-radius:3px;flex:none}
+.fo-table{display:flex;flex-direction:column;gap:2px;overflow-x:auto}
+.fo-head,.fo-row{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;align-items:center;gap:12px;min-width:480px}
+.fo-head{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--faint);padding-bottom:8px;border-bottom:1px solid var(--line);margin-bottom:6px}
+.fo-row{padding:7px 0}
+.fo-name{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600}
+.fo-name svg{color:var(--accent);flex:none}
+.fo-cell{display:flex;align-items:center;gap:8px}
+.fo-cell-track{flex:1;height:12px;background:var(--surface-2);border-radius:999px;overflow:hidden;min-width:0}
+.fo-cell-fill{display:block;height:100%;border-radius:999px}
+.fo-cell-pct{font-size:12.5px;font-weight:700;color:var(--fg);width:38px;text-align:right;font-variant-numeric:tabular-nums}
+.fo-fine{font-size:12.5px;color:var(--muted);margin-top:14px}
+@media (max-width:620px){ .fo-legend{flex-direction:column;gap:6px} }

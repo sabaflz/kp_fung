@@ -9,18 +9,21 @@
 // Framing is intentionally generic (no insurer named), so brand does not sway
 // the choice, and every benefit is spelled out so no one is left guessing.
 
+// `canonical` matches the shared benefit labels in data/pool.js (BENEFITS),
+// so Bet 2 win rates line up with the interview and survey charts for the
+// combined Findings view.
 export const BENEFITS = [
-  { id: 'dental',    name: 'Dental',                 icon: 'dental',
+  { id: 'dental',    name: 'Dental',                 icon: 'dental',    canonical: 'Expanded dental coverage',
     blurb: 'Cleanings, X-rays, and money toward fillings or other dental work.' },
-  { id: 'mental',    name: 'Therapy & mental health', icon: 'mind',
+  { id: 'mental',    name: 'Therapy & mental health', icon: 'mind',     canonical: 'Additional mental health support',
     blurb: 'A set number of covered therapy or counseling sessions.' },
-  { id: 'fitness',   name: 'Gym & fitness',          icon: 'fitness',
+  { id: 'fitness',   name: 'Gym & fitness',          icon: 'fitness',   canonical: 'Fitness reimbursement',
     blurb: 'A monthly credit toward a gym membership or fitness classes.' },
-  { id: 'vision',    name: 'Vision',                 icon: 'vision',
+  { id: 'vision',    name: 'Vision',                 icon: 'vision',    canonical: 'Enhanced vision allowance',
     blurb: 'An eye exam plus money toward glasses or contacts.' },
-  { id: 'everyday',  name: 'Everyday health',        icon: 'everyday',
+  { id: 'everyday',  name: 'Everyday health',        icon: 'everyday',  canonical: 'Everyday health allowance',
     blurb: 'Over-the-counter items insurance usually skips: cold medicine, vitamins, first aid.' },
-  { id: 'nutrition', name: 'Nutrition',              icon: 'nutrition',
+  { id: 'nutrition', name: 'Nutrition',              icon: 'nutrition', canonical: 'Personalized nutrition support',
     blurb: 'Sessions with a registered dietitian and support for healthy eating.' },
 ]
 
