@@ -1,4 +1,4 @@
-import { NavLink, Navigate, Route, Routes } from 'react-router-dom'
+import { NavLink, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { useAuth, signOut } from './lib/auth.jsx'
 import { isViewer } from './lib/team.js'
 import { ThemeToggle, ExitIcon } from './components/ui.jsx'
@@ -9,6 +9,8 @@ import Sets from './pages/Sets.jsx'
 import Dashboard from './pages/Dashboard.jsx'
 import Survey from './pages/Survey.jsx'
 import Market from './pages/Market.jsx'
+import Bet2 from './pages/Bet2.jsx'
+import Packages from './pages/Packages.jsx'
 
 // Full workspace for the team.
 const TABS = [
@@ -18,6 +20,7 @@ const TABS = [
   ['/survey', 'Survey'],
   ['/dashboard', 'Dashboard'],
   ['/market', 'Market'],
+  ['/bet2', 'Bet 2'],
 ]
 // Read-only viewers see only the finished views (no interviewing tools).
 const VIEWER_TABS = [
@@ -25,10 +28,18 @@ const VIEWER_TABS = [
   ['/survey', 'Survey'],
   ['/interviews', 'Interviews'],
   ['/market', 'Market'],
+  ['/bet2', 'Bet 2'],
 ]
 
 export default function App() {
   const { session, loading } = useAuth()
+  const location = useLocation()
+
+  // Public, standalone package-choice survey. Renders with no app navigation and
+  // needs no sign-in, so anyone with the link sees only the survey. Every other
+  // route stays behind the auth gate below, and the database rules protect the
+  // real data regardless.
+  if (location.pathname.startsWith('/packages')) return <Packages />
 
   if (loading) return <div className="center"><span className="spin" /></div>
   if (!session) return <Login />
@@ -75,6 +86,7 @@ export default function App() {
               <Route path="/survey" element={<Survey />} />
               <Route path="/interviews" element={<Interviews />} />
               <Route path="/market" element={<Market />} />
+              <Route path="/bet2" element={<Bet2 />} />
               <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </>
           ) : (
@@ -85,6 +97,7 @@ export default function App() {
               <Route path="/survey" element={<Survey />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/market" element={<Market />} />
+              <Route path="/bet2" element={<Bet2 />} />
               <Route path="/outreach" element={<Navigate to="/survey" replace />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </>
