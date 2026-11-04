@@ -4,19 +4,17 @@
 const UPDATED = 'October 2026'
 
 function Stat({ n, l }) {
-  return (
-    <div className="tile"><div className="n">{n}</div><div className="l">{l}</div></div>
-  )
+  return <div className="tile"><div className="n">{n}</div><div className="l">{l}</div></div>
 }
 
-function Table({ head, rows }) {
+function Table({ head, rows, highlight }) {
   return (
-    <div className="tablewrap">
+    <div className="tablewrap mk-table">
       <table>
         <thead><tr>{head.map((h) => <th key={h}>{h}</th>)}</tr></thead>
         <tbody>
           {rows.map((r, i) => (
-            <tr key={i} style={{ cursor: 'default' }}>
+            <tr key={i} className={highlight === i ? 'mk-hl' : undefined}>
               {r.map((c, j) => <td key={j}>{c}</td>)}
             </tr>
           ))}
@@ -26,11 +24,37 @@ function Table({ head, rows }) {
   )
 }
 
-// Theme-safe status label for the survey-mapping table.
-function St({ k }) {
-  const color = k === 'Included' ? 'var(--accent)' : k === 'Partial' ? '#d97706' : 'var(--muted)'
-  return <span style={{ color, fontWeight: 700, fontSize: 12.5 }}>{k}</span>
+function Pill({ k }) {
+  const cls = k === 'Included' ? 'good' : k === 'Partial' ? 'warn' : 'muted'
+  return <span className={'mk-badge ' + cls}>{k}</span>
 }
+
+function TargetBadge({ v }) {
+  const opening = /opening/i.test(v)
+  const none = /^none/i.test(v)
+  const cls = opening ? 'good' : none ? 'bad' : 'warn'
+  return <span className={'mk-badge ' + cls}>{v}</span>
+}
+
+function Section({ id, title, note, children, flush }) {
+  return (
+    <div id={id} className="card mk-sec">
+      <div className="hd"><h2>{title}</h2>{note && <span className="note">{note}</span>}</div>
+      <div className="bd" style={flush ? { paddingTop: 0 } : undefined}>{children}</div>
+    </div>
+  )
+}
+
+const JUMP = [
+  ['opportunity', 'Gaps'],
+  ['national', 'National'],
+  ['california', 'California'],
+  ['pricing', 'Pricing'],
+  ['works', 'What works'],
+  ['survey', 'Survey fit'],
+  ['recommend', 'Recommendation'],
+  ['sources', 'Sources'],
+]
 
 const GAPS = [
   ['No life-event onboarding', 'No insurer sells a "you just turned 26" experience, even though aging off a parent’s plan is a predictable, dated trigger.'],
@@ -140,8 +164,7 @@ const SOURCES = [
 
 export default function Market() {
   return (
-    <div className="grid" style={{ gap: 20 }}>
-      {/* Header */}
+    <div className="grid" style={{ gap: 18 }}>
       <div>
         <div className="eyebrow">Competitive market assessment</div>
         <h1 style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 'clamp(24px,4vw,32px)', margin: '4px 0 6px' }}>
@@ -152,9 +175,13 @@ export default function Market() {
         </p>
       </div>
 
-      {/* Headline finding */}
-      <div className="notice" style={{ borderColor: 'var(--accent)', background: 'var(--accent-soft)', color: 'var(--accent-ink)' }}>
-        <b>The opening:</b> No major US insurer sells a supplemental package built for 18-to-30-year-olds. Every competitor offers roughly the same generic extras, and none organizes them around life events like aging off a parent&rsquo;s plan at 26. Aetna has left the individual market and Cigna leaves on January 1, 2027, so the field is shrinking.
+      <nav className="mk-jump">
+        {JUMP.map(([id, label]) => <a key={id} href={'#' + id}>{label}</a>)}
+      </nav>
+
+      <div className="mk-headline">
+        <span className="mk-headline-tag">The opening</span>
+        No major US insurer sells a supplemental package built for 18-to-30-year-olds. Every competitor offers roughly the same generic extras, and none organizes them around life events like aging off a parent&rsquo;s plan at 26. Aetna has left the individual market and Cigna leaves on January 1, 2027, so the field is shrinking.
       </div>
 
       <div className="tiles">
@@ -164,145 +191,114 @@ export default function Market() {
         <Stat n={'$10–$25'} l="proposed KP add-on, per month" />
       </div>
 
-      {/* Gaps */}
-      <div className="card">
-        <div className="hd"><h2>The opportunity: four open gaps</h2><span className="note">where KP can win</span></div>
-        <div className="bd">
-          <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))', gap: 14 }}>
-            {GAPS.map(([t, d]) => (
-              <div key={t} style={{ border: '1px solid var(--line)', borderLeft: '3px solid var(--accent)', borderRadius: 10, padding: '14px 16px' }}>
-                <div style={{ fontWeight: 700, marginBottom: 6 }}>{t}</div>
-                <div style={{ fontSize: 13.5, color: 'var(--muted)', lineHeight: 1.45 }}>{d}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* National landscape */}
-      <div className="card">
-        <div className="hd"><h2>National competitor landscape</h2><span className="note">individual-market extras, 2026</span></div>
-        <div className="bd" style={{ paddingTop: 0 }}>
-          <Table head={['Competitor', 'Footprint', 'Key extras', 'Rewards / yr', 'Targets 18–30?']} rows={NATIONAL} />
-          <p className="lede" style={{ fontSize: 13, marginTop: 10 }}>
-            Oscar has the youth brand but aims its new products at chronic conditions and menopause. UnitedHealthcare has the richest extras but no youth focus. Cigna is the only one selling virtual dermatology, and it is on the way out.
-          </p>
-        </div>
-      </div>
-
-      {/* California market */}
-      <div className="card">
-        <div className="hd"><h2>California market</h2><span className="note">our core market</span></div>
-        <div className="bd" style={{ display: 'grid', gap: 12 }}>
-          {CA.map(([name, offer, insight]) => (
-            <div key={name} style={{ border: '1px solid var(--line)', borderRadius: 10, padding: '13px 15px' }}>
-              <div style={{ fontWeight: 700, marginBottom: 4 }}>{name}</div>
-              <div style={{ fontSize: 13.5, lineHeight: 1.45 }}>{offer}</div>
-              <div style={{ fontSize: 12.5, color: 'var(--accent-ink)', marginTop: 6 }}><b>Takeaway:</b> {insight}</div>
+      <Section id="opportunity" title="The opportunity: four open gaps" note="where KP can win">
+        <div className="mk-gaps">
+          {GAPS.map(([t, d], i) => (
+            <div key={t} className="mk-gap">
+              <span className="mk-gap-num">{i + 1}</span>
+              <div><div className="mk-gap-t">{t}</div><div className="mk-gap-d">{d}</div></div>
             </div>
           ))}
         </div>
+      </Section>
+
+      <Section id="national" title="National competitor landscape" note="individual-market extras, 2026" flush>
+        <Table
+          head={['Competitor', 'Footprint', 'Key extras', 'Rewards / yr', 'Targets 18–30?']}
+          rows={NATIONAL.map((r) => [...r.slice(0, 4), <TargetBadge key={r[0]} v={r[4]} />])}
+          highlight={5}
+        />
+        <p className="lede" style={{ fontSize: 13, marginTop: 10 }}>
+          Oscar has the youth brand but aims its new products at chronic conditions and menopause. UnitedHealthcare has the richest extras but no youth focus. Cigna is the only one selling virtual dermatology, and it is on the way out.
+        </p>
+      </Section>
+
+      <Section id="california" title="California market" note="our core market">
+        <div className="mk-ca">
+          {CA.map(([name, offer, insight]) => (
+            <div key={name} className="mk-ca-card">
+              <div className="mk-ca-name">{name}</div>
+              <div className="mk-ca-offer">{offer}</div>
+              <div className="mk-ca-take"><b>Takeaway:</b> {insight}</div>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      <div id="pricing" className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(320px,1fr))', gap: 16, scrollMarginTop: 110 }}>
+        <Section title="California price points" note="reference, not apples-to-apples" flush>
+          <Table head={['Carrier', 'Offering', 'Price', 'What it is']} rows={CA_PRICES} />
+        </Section>
+        <Section title="What young adults already pay" note="direct-to-consumer anchors" flush>
+          <Table head={['Category', 'Service', 'Price']} rows={DTC} />
+        </Section>
       </div>
 
-      {/* Pricing */}
-      <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(320px,1fr))', gap: 16 }}>
-        <div className="card">
-          <div className="hd"><h2>California price points</h2><span className="note">reference, not apples-to-apples</span></div>
-          <div className="bd" style={{ paddingTop: 0 }}>
-            <Table head={['Carrier', 'Offering', 'Price', 'What it is']} rows={CA_PRICES} />
-          </div>
+      <Section id="works" title="What is demonstrably working" note="evidence to borrow from">
+        <ul className="mk-list">
+          <li><b>Flexible dollars beat discounts.</b> Even as MA plans trim OTC benefits, flex cards spread to half of plans because members value choosing how to spend. One flexible wallet beats several narrow allowances.</li>
+          <li><b>Wearable-linked rewards change behavior.</b> A RAND study of 400,000+ people found Vitality plus Apple Watch drove a 34% sustained rise in activity. John Hancock members can earn an Apple Watch for as little as $25.</li>
+          <li><b>Low-friction daily earning wins.</b> UnitedHealthcare reports 92% of first-time participants registered and earned a reward, against an industry backdrop where only 23% use well-being programs.</li>
+          <li><b>Subscription pricing sets expectations.</b> One Medical at $9/mo, ClassPass from $19, and Hims at $25 have taught young adults to judge value in single-digit-to-$25 monthly amounts.</li>
+        </ul>
+        <div style={{ marginTop: 16 }}>
+          <div className="eyebrow" style={{ marginBottom: 6 }}>Medicare Advantage as the template</div>
+          <Table head={['Benefit', 'Prevalence', 'Typical value']} rows={MA} />
+          <p className="lede" style={{ fontSize: 12.5, marginTop: 8 }}>KP already tailors a rich supplemental package for members over 65. The young-adult equivalent does not exist yet.</p>
         </div>
-        <div className="card">
-          <div className="hd"><h2>What young adults already pay</h2><span className="note">direct-to-consumer anchors</span></div>
-          <div className="bd" style={{ paddingTop: 0 }}>
-            <Table head={['Category', 'Service', 'Price']} rows={DTC} />
-          </div>
-        </div>
-      </div>
+      </Section>
 
-      {/* What works */}
-      <div className="card">
-        <div className="hd"><h2>What is demonstrably working</h2><span className="note">evidence to borrow from</span></div>
-        <div className="bd">
-          <ul style={{ margin: 0, paddingLeft: 18, display: 'grid', gap: 8, fontSize: 14, lineHeight: 1.5 }}>
-            <li><b>Flexible dollars beat discounts.</b> Even as MA plans trim OTC benefits, flex cards spread to half of plans because members value choosing how to spend. One flexible wallet beats several narrow allowances.</li>
-            <li><b>Wearable-linked rewards change behavior.</b> A RAND study of 400,000+ people found Vitality plus Apple Watch drove a 34% sustained rise in activity. John Hancock members can earn an Apple Watch for as little as $25.</li>
-            <li><b>Low-friction daily earning wins.</b> UnitedHealthcare reports 92% of first-time participants registered and earned a reward, against an industry backdrop where only 23% use well-being programs.</li>
-            <li><b>Subscription pricing sets expectations.</b> One Medical at $9/mo, ClassPass from $19, and Hims at $25 have taught young adults to judge value in single-digit-to-$25 monthly amounts.</li>
-          </ul>
-          <div style={{ marginTop: 14 }}>
-            <div className="eyebrow" style={{ marginBottom: 6 }}>Medicare Advantage as the template</div>
-            <Table head={['Benefit', 'Prevalence', 'Typical value']} rows={MA} />
-            <p className="lede" style={{ fontSize: 12.5, marginTop: 8 }}>KP already tailors a rich supplemental package for members over 65. The young-adult equivalent does not exist yet.</p>
-          </div>
+      <Section id="survey" title="How it maps to our survey" note="keep breadth, test delivery" flush>
+        <Table
+          head={['Offering or model', 'Status', 'Add or change?', 'Rationale']}
+          rows={SURVEY.map((r) => [r[0], <Pill k={r[1]} key={r[1] + r[0]} />, r[2], r[3]])}
+        />
+        <div className="mk-callout">
+          <b>The biggest gap is navigation, not more categories.</b> Competitors differentiate through how members discover, access, and use support. Our survey does not yet measure confidence in understanding and using current coverage, so we should add one benefit-navigation question and test delivery models (allowance vs covered visits vs discounts vs digital platform vs navigator vs rewards). Community-resource navigation is the most promising new concept, but validate the need before leading with it.
         </div>
-      </div>
+      </Section>
 
-      {/* Survey mapping */}
-      <div className="card">
-        <div className="hd"><h2>How it maps to our survey</h2><span className="note">keep breadth, test delivery</span></div>
-        <div className="bd" style={{ paddingTop: 0 }}>
-          <Table
-            head={['Offering or model', 'Status', 'Add or change?', 'Rationale']}
-            rows={SURVEY.map((r) => [r[0], <St k={r[1]} key={r[1] + r[0]} />, r[2], r[3]])}
-          />
-          <div className="notice" style={{ marginTop: 12 }}>
-            <b>The biggest gap is navigation, not more categories.</b> Competitors differentiate through how members discover, access, and use support. Our survey does not yet measure confidence in understanding and using current coverage, so we should add one benefit-navigation question and test delivery models (allowance vs covered visits vs discounts vs digital platform vs navigator vs rewards). Community-resource navigation is the most promising new concept, but validate the need before leading with it.
-          </div>
-        </div>
-      </div>
-
-      {/* Recommendation */}
-      <div className="card">
-        <div className="hd"><h2>Recommendation: the "KP Launch" package</h2><span className="note">a life-event product</span></div>
-        <div className="bd" style={{ display: 'grid', gap: 16 }}>
+      <Section id="recommend" title={'Recommendation: the "KP Launch" package'} note="a life-event product">
+        <div style={{ display: 'grid', gap: 16 }}>
           <div>
             <div className="eyebrow" style={{ marginBottom: 6 }}>Triggered by a life event</div>
             <div className="row" style={{ flexWrap: 'wrap', gap: 6 }}>
-              {TRIGGERS.map((t) => <span key={t} className="tag b">{t}</span>)}
+              {TRIGGERS.map((t) => <span key={t} className="mk-trigger">{t}</span>)}
             </div>
           </div>
           <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: 16 }}>
             <div>
               <div className="eyebrow" style={{ marginBottom: 6 }}>Table stakes (KP mostly has these)</div>
-              <ul style={{ margin: 0, paddingLeft: 18, display: 'grid', gap: 5, fontSize: 13.5, lineHeight: 1.45 }}>
-                {STAKES.map((s) => <li key={s}>{s}</li>)}
-              </ul>
+              <ul className="mk-list sm">{STAKES.map((s) => <li key={s}>{s}</li>)}</ul>
             </div>
             <div>
               <div className="eyebrow" style={{ marginBottom: 6 }}>Differentiators (where KP can win)</div>
               <div style={{ display: 'grid', gap: 8 }}>
                 {DIFF.map(([t, d]) => (
-                  <div key={t} style={{ fontSize: 13.5, lineHeight: 1.45 }}>
-                    <b>{t}.</b> <span style={{ color: 'var(--muted)' }}>{d}</span>
-                  </div>
+                  <div key={t} style={{ fontSize: 13.5, lineHeight: 1.45 }}><b>{t}.</b> <span style={{ color: 'var(--muted)' }}>{d}</span></div>
                 ))}
               </div>
             </div>
           </div>
-          <div className="notice" style={{ borderColor: 'var(--accent)' }}>
+          <div className="mk-callout brand">
             <b>Price target:</b> $10 to $25 per member per month as a rider, or built into a "Launch" bronze or catastrophic design. That sits above voluntary accident coverage ($6 to $13/mo) and well below the standalone apps young adults already pay for. Validate willingness to pay in Fung user testing with a conjoint or a three-price test. De-prioritize transportation and hearing.
           </div>
         </div>
-      </div>
+      </Section>
 
-      {/* Sources */}
-      <div className="card">
-        <div className="hd"><h2>Sources</h2><span className="note">key references</span></div>
-        <div className="bd">
-          <details>
-            <summary style={{ cursor: 'pointer', fontSize: 13, color: 'var(--muted)', fontWeight: 600 }}>Show source list</summary>
-            <ul style={{ marginTop: 10, paddingLeft: 18, display: 'grid', gap: 6, fontSize: 13 }}>
-              {SOURCES.map(([t, u]) => (
-                <li key={u}><a href={u} target="_blank" rel="noreferrer" style={{ color: 'var(--accent)' }}>{t}</a></li>
-              ))}
-            </ul>
-            <p className="lede" style={{ fontSize: 12, marginTop: 10 }}>
-              Caveats: UnitedHealthcare&rsquo;s reward cap appears as $150, $250, and $275 in different sources. Oscar&rsquo;s age data is from 2019. Some consumer prices come from aggregator sites. 2027 catastrophic-plan and subsidy rules are still unsettled. Check current plan documents before quoting a specific figure.
-            </p>
-          </details>
-        </div>
-      </div>
+      <Section id="sources" title="Sources" note="key references">
+        <details>
+          <summary style={{ cursor: 'pointer', fontSize: 13, color: 'var(--brand-ink)', fontWeight: 600 }}>Show source list</summary>
+          <ul style={{ marginTop: 10, paddingLeft: 18, display: 'grid', gap: 6, fontSize: 13 }}>
+            {SOURCES.map(([t, u]) => (
+              <li key={u}><a href={u} target="_blank" rel="noreferrer" style={{ color: 'var(--accent)' }}>{t}</a></li>
+            ))}
+          </ul>
+          <p className="lede" style={{ fontSize: 12, marginTop: 10 }}>
+            Caveats: UnitedHealthcare&rsquo;s reward cap appears as $150, $250, and $275 in different sources. Oscar&rsquo;s age data is from 2019. Some consumer prices come from aggregator sites. 2027 catastrophic-plan and subsidy rules are still unsettled. Check current plan documents before quoting a specific figure.
+          </p>
+        </details>
+      </Section>
     </div>
   )
 }
