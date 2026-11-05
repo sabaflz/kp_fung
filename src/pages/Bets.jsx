@@ -15,7 +15,7 @@ export default function Bets() {
           </h1>
           <p className="lede" style={{ margin: 0 }}>Each week we place one small, testable bet and use what we learn to sharpen the package. The newest is on top.</p>
         </div>
-        <Link className="btn sm bets-present" to="/present?s=0">&#9658; Present</Link>
+        <Link className="btn sm bets-present" to="/present/bet1">&#9658; Present Bet #1</Link>
       </div>
 
       <div className="bet-list">

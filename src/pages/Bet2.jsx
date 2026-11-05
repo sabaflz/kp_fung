@@ -51,9 +51,8 @@ export default function Bet2({ embedded = false }) {
       </div>
       {!embedded && (
         <div className="bp-nav bp-nav-top">
-          <Link className="btn ghost sm" to="/bets/1">&larr; Bet #1</Link>
-          <Link className="btn ghost sm" to="/bets">All bets</Link>
-          <Link className="btn ghost sm" to="/present?s=1">&#9658; Present</Link>
+          <Link className="btn ghost sm" to="/bets">&larr; All bets</Link>
+          <Link className="btn ghost sm" to="/present/bet1">Present Bet #1</Link>
         </div>
       )}
 

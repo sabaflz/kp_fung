@@ -6,7 +6,6 @@ import { ThemeToggle, ExitIcon, useToast, copyText } from './components/ui.jsx'
 import Login from './pages/Login.jsx'
 import Goal from './pages/Goal.jsx'
 import Bets from './pages/Bets.jsx'
-import Bet1 from './pages/Bet1.jsx'
 import Bet2 from './pages/Bet2.jsx'
 import Run from './pages/Run.jsx'
 import Sets from './pages/Sets.jsx'
@@ -16,7 +15,7 @@ import Dashboard from './pages/Dashboard.jsx'
 import Survey from './pages/Survey.jsx'
 import Market from './pages/Market.jsx'
 import Packages from './pages/Packages.jsx'
-import Present from './pages/Present.jsx'
+import Deck from './pages/Deck.jsx'
 
 /* Section icons + nav controls (no icon library). */
 const ICON = {
@@ -95,7 +94,10 @@ export default function App() {
   const viewer = isViewer(email)
 
   // Full-screen present mode: no sidebar or top bar, just the slides.
-  if (location.pathname.startsWith('/present')) return <Present />
+  if (location.pathname.startsWith('/present')) {
+    const deckId = location.pathname.split('/')[2] || 'bet1'
+    return <Deck deckId={deckId} />
+  }
 
   const closeDrawer = () => setDrawerOpen(false)
   // The sidebar toggle and the top-bar icon both act: open/close the drawer on
@@ -201,7 +203,6 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Goal />} />
             <Route path="/bets" element={<Bets />} />
-            <Route path="/bets/1" element={<Bet1 />} />
             <Route path="/bets/2" element={<Bet2 />} />
 
             <Route path="/interviews" element={<SectionNav tabs={interviewTabs} />}>
