@@ -341,13 +341,27 @@ footer.foot{margin-top:26px;padding-top:16px;border-top:1px solid var(--line);co
 
 /* Full-screen present mode */
 .present{position:fixed;inset:0;z-index:200;background:var(--bg);display:flex;flex-direction:column}
-.present-stage{flex:1;overflow:auto;padding:clamp(24px,4vw,56px) clamp(16px,4vw,48px)}
-.present-slide{max-width:1040px;margin:0 auto}
+.present-stage{flex:1;position:relative;overflow:hidden;background:#e9e9e4}
+.deck-viewport{position:absolute;inset:0}
+.deck-canvas{position:absolute;left:50%;top:50%;width:1280px;height:720px;transform-origin:center center;background:#fff;box-shadow:0 12px 50px rgba(0,0,0,.22)}
+.sld{width:1280px;height:720px;position:relative;overflow:hidden;box-sizing:border-box}
+.deck-notes{position:absolute;left:0;right:0;bottom:0;max-height:38%;overflow:auto;background:#0E1E3A;color:#D6E2F4;padding:16px 26px;border-top:3px solid #6FB0EC}
+.deck-notes-k{display:block;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#6FB0EC;margin-bottom:6px}
+.deck-notes p{margin:0;font-size:16px;line-height:1.5}
 .present-bar{flex:none;display:flex;align-items:center;justify-content:space-between;gap:12px;
   padding:12px clamp(16px,4vw,32px);border-top:1px solid var(--line);background:var(--surface)}
 .present-mid{display:flex;align-items:center;gap:12px}
 .present-count{font-size:14px;font-weight:600;color:var(--muted);font-variant-numeric:tabular-nums;min-width:48px;text-align:center}
 .btn.sm:disabled{opacity:.4;cursor:default}
+.deck-print{display:none}
+@media print{
+  @page{size:1280px 720px;margin:0}
+  html,body{background:#fff !important;margin:0}
+  .present{position:static !important;height:auto !important}
+  .present-stage,.present-bar{display:none !important}
+  .deck-print{display:block !important}
+  .deck-print .sld{page-break-after:always;break-after:page}
+}
 .b2-bars{list-style:none; margin:0; padding:0; display:grid; gap:14px}
 .b2-bar{display:grid; grid-template-columns:180px 1fr 44px; align-items:center; gap:12px}
 .b2-bar-name{display:flex; align-items:center; gap:8px; font-size:14px; font-weight:600}

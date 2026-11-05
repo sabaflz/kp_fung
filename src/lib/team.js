@@ -12,6 +12,7 @@ export const VIEWER_EMAILS = [
   'Sheila.X.Baxter@kp.org',
   'Amy.L.Benisch@kp.org',
   'Tamer.M.Barakat@kp.org',
+  'saba.feilizadeh@gmail.com', // Saffron's screen-share account: view-only, presentation only
 ].map((e) => e.toLowerCase())
 
 export function isViewer(email) {
