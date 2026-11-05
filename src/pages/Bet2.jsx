@@ -5,7 +5,7 @@ import { BENEFITS, BENEFIT_BY_ID, tallyResponses } from '../data/packages.js'
 import BenefitIcon from '../components/BenefitIcon.jsx'
 
 /* Bet #2 results: live win rates from the public package-choice survey. */
-export default function Bet2() {
+export default function Bet2({ embedded = false }) {
   const [rows, setRows] = useState([])
   const [state, setState] = useState('loading') // loading | ok | error | unconfigured
 
@@ -49,10 +49,13 @@ export default function Bet2() {
           ))}
         </div>
       </div>
-      <div className="bp-nav bp-nav-top">
-        <Link className="btn ghost sm" to="/bets/1">&larr; Bet #1</Link>
-        <Link className="btn ghost sm" to="/bets">All bets</Link>
-      </div>
+      {!embedded && (
+        <div className="bp-nav bp-nav-top">
+          <Link className="btn ghost sm" to="/bets/1">&larr; Bet #1</Link>
+          <Link className="btn ghost sm" to="/bets">All bets</Link>
+          <Link className="btn ghost sm" to="/present?s=1">&#9658; Present</Link>
+        </div>
+      )}
 
       <div className="b2-head">
         <div>

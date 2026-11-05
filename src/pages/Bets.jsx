@@ -7,12 +7,15 @@ export default function Bets() {
 
   return (
     <div className="grid" style={{ gap: 18 }}>
-      <div>
-        <div className="eyebrow">Journey</div>
-        <h1 style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 'clamp(24px,4vw,32px)', margin: '4px 0 6px' }}>
-          Our bets
-        </h1>
-        <p className="lede">Each week we place one small, testable bet and use what we learn to sharpen the package. The newest is on top.</p>
+      <div className="bets-intro">
+        <div>
+          <div className="eyebrow">Journey</div>
+          <h1 style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 'clamp(24px,4vw,32px)', margin: '4px 0 6px' }}>
+            Our bets
+          </h1>
+          <p className="lede" style={{ margin: 0 }}>Each week we place one small, testable bet and use what we learn to sharpen the package. The newest is on top.</p>
+        </div>
+        <Link className="btn sm bets-present" to="/present?s=0">&#9658; Present</Link>
       </div>
 
       <div className="bet-list">
