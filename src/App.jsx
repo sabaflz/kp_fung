@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, NavLink, Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom'
+import { Link, NavLink, Navigate, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth, signOut } from './lib/auth.jsx'
 import { isViewer } from './lib/team.js'
 import { ThemeToggle, ExitIcon, useToast, copyText } from './components/ui.jsx'
@@ -16,14 +16,15 @@ import Survey from './pages/Survey.jsx'
 import Market from './pages/Market.jsx'
 import Packages from './pages/Packages.jsx'
 
-/* Section icons + hamburger (no icon library). */
+/* Section icons + nav controls (no icon library). */
 const ICON = {
   goal: <><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="5" /><circle cx="12" cy="12" r="1.5" /></>,
   bets: <><path d="M3 17l6-6 4 4 7-7" /><path d="M17 8h4v4" /></>,
   interviews: <path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z" />,
   findings: <><path d="M3 3v18h18" /><path d="M7 16v2M12 11v7M17 7v11" /></>,
   market: <path d="M3 21h18M5 21V8l7-5 7 5v13M10 21v-6h4v6" />,
-  burger: <path d="M4 6h16M4 12h16M4 18h16" />,
+  chevronLeft: <path d="M15 18l-6-6 6-6" />,
+  chevronRight: <path d="M9 18l6-6-6-6" />,
 }
 function Ico({ name, size = 18 }) {
   return (
@@ -39,12 +40,26 @@ const SECTIONS = [
   ['/findings', 'Findings', 'findings'],
   ['/market', 'Market', 'market'],
 ]
-const titleFor = (p) =>
-  p === '/' ? 'Goal' :
-  p.startsWith('/bets') ? 'Bets' :
-  p.startsWith('/interviews') ? 'Interviews' :
-  p.startsWith('/findings') ? 'Findings' :
-  p.startsWith('/market') ? 'Market' : ''
+
+// The in-page Market sections, mirrored as left-nav shortcuts (ids match Market.jsx).
+const MARKET_NAV = [
+  ['opportunity', 'Gaps'],
+  ['national', 'National'],
+  ['california', 'California'],
+  ['pricing', 'Pricing'],
+  ['works', 'What works'],
+  ['survey', 'Survey fit'],
+  ['recommend', 'Recommendation'],
+  ['sources', 'Sources'],
+]
+
+function sectionFor(p) {
+  if (p.startsWith('/bets')) return SECTIONS[1]
+  if (p.startsWith('/interviews')) return SECTIONS[2]
+  if (p.startsWith('/findings')) return SECTIONS[3]
+  if (p.startsWith('/market')) return SECTIONS[4]
+  return SECTIONS[0]
+}
 
 function SectionNav({ tabs }) {
   if (tabs.length < 2) return <Outlet />
@@ -58,11 +73,15 @@ function SectionNav({ tabs }) {
   )
 }
 
+const isMobile = () => typeof window !== 'undefined' && window.innerWidth <= 860
+
 export default function App() {
   const { session, loading } = useAuth()
   const location = useLocation()
+  const navigate = useNavigate()
   const toast = useToast()
-  const [navOpen, setNavOpen] = useState(() => (typeof window !== 'undefined' ? window.innerWidth > 860 : true))
+  const [collapsed, setCollapsed] = useState(false)   // desktop: shrink sidebar to an icon rail
+  const [drawerOpen, setDrawerOpen] = useState(false)  // mobile: slide-over drawer
 
   // Public, standalone package-choice survey: no nav, no sign-in.
   if (location.pathname.startsWith('/packages')) return <Packages />
@@ -72,10 +91,24 @@ export default function App() {
 
   const email = session.user?.email || ''
   const viewer = isViewer(email)
-  const closeOnMobile = () => { if (typeof window !== 'undefined' && window.innerWidth <= 860) setNavOpen(false) }
+
+  const closeDrawer = () => setDrawerOpen(false)
+  // The sidebar toggle and the top-bar icon both act: open/close the drawer on
+  // mobile, collapse/expand the rail on desktop.
+  const toggleNav = () => { if (isMobile()) setDrawerOpen((v) => !v); else setCollapsed((v) => !v) }
+  const openNav = () => { if (isMobile()) setDrawerOpen(true); else setCollapsed((v) => !v) }
+
   const copySurvey = async () => {
     const url = (typeof window !== 'undefined' ? window.location.origin : '') + '/packages'
     toast((await copyText(url)) ? 'Survey link copied' : 'Copy failed')
+  }
+
+  // Jump to a Market section from the sidebar, navigating there first if needed.
+  const goMarket = (id) => {
+    closeDrawer()
+    const scroll = () => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    if (location.pathname !== '/market') { navigate('/market'); setTimeout(scroll, 90) }
+    else scroll()
   }
 
   const interviewTabs = viewer
@@ -83,31 +116,69 @@ export default function App() {
     : [['/interviews/run', 'Run'], ['/interviews/sets', 'Question sets'], ['/interviews/log', 'Log']]
   const findingsTabs = [['/findings', 'Overview'], ['/findings/synthesis', 'Synthesis'], ['/findings/survey', 'Survey']]
 
+  const activeTo = sectionFor(location.pathname)[0]
+  const currentIcon = sectionFor(location.pathname)[2]
+  const currentTitle = sectionFor(location.pathname)[1]
+
   return (
-    <div className={'layout' + (navOpen ? '' : ' nav-closed')}>
-      {navOpen && <div className="nav-scrim" onClick={() => setNavOpen(false)} />}
+    <div className={'layout' + (collapsed ? ' nav-collapsed' : '') + (drawerOpen ? ' drawer-open' : '')}>
+      {drawerOpen && <div className="nav-scrim" onClick={closeDrawer} />}
 
       <aside className="sidebar">
-        <Link to="/" className="side-brand" onClick={closeOnMobile}>
-          <span className="side-mark">KP Benefits</span>
-          <span className="side-sub">Fung &times; KP research</span>
-        </Link>
+        <div className="side-top">
+          <Link to="/" className="side-brand" onClick={closeDrawer}>
+            <span className="side-mark">KP Benefits</span>
+            <span className="side-sub">Fung &times; KP research</span>
+          </Link>
+          <button className="side-toggle" type="button" onClick={toggleNav}
+            title={collapsed ? 'Expand menu' : 'Collapse menu'} aria-label="Toggle menu">
+            <Ico name={collapsed ? 'chevronRight' : 'chevronLeft'} size={18} />
+          </button>
+        </div>
+
         <nav className="side-nav">
-          {SECTIONS.map(([to, label, icon]) => (
-            <NavLink key={to} to={to} end={to === '/'} className="side-link" onClick={closeOnMobile}>
-              <Ico name={icon} /><span>{label}</span>
-            </NavLink>
-          ))}
+          {SECTIONS.map(([to, label, icon]) => {
+            const active = activeTo === to
+            return (
+              <div key={to} className="side-item">
+                <NavLink to={to} end={to === '/'} className="side-link" onClick={closeDrawer} title={label}>
+                  <Ico name={icon} /><span className="side-label">{label}</span>
+                </NavLink>
+
+                {active && to === '/interviews' && (
+                  <div className="side-subnav">
+                    {interviewTabs.map(([t, l]) => (
+                      <NavLink key={t} to={t} end className="side-sublink" onClick={closeDrawer}>{l}</NavLink>
+                    ))}
+                  </div>
+                )}
+                {active && to === '/findings' && (
+                  <div className="side-subnav">
+                    {findingsTabs.map(([t, l]) => (
+                      <NavLink key={t} to={t} end className="side-sublink" onClick={closeDrawer}>{l}</NavLink>
+                    ))}
+                  </div>
+                )}
+                {active && to === '/market' && (
+                  <div className="side-subnav">
+                    {MARKET_NAV.map(([id, l]) => (
+                      <button key={id} type="button" className="side-sublink" onClick={() => goMarket(id)}>{l}</button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )
+          })}
         </nav>
       </aside>
 
       <main className="main">
         <header className="topbar2">
-          <button className="burger" type="button" onClick={() => setNavOpen((v) => !v)}
-            title={navOpen ? 'Hide menu' : 'Show menu'} aria-label="Toggle menu">
-            <Ico name="burger" size={20} />
+          <button className="topbar2-ico" type="button" onClick={openNav}
+            title={currentTitle} aria-label="Menu">
+            <Ico name={currentIcon} size={20} />
           </button>
-          <span className="topbar2-title">{titleFor(location.pathname)}</span>
+          <span className="topbar2-title">{currentTitle}</span>
           <div className="topbar2-actions">
             <button className="pill-btn" type="button" onClick={copySurvey} title="Copy the public survey link">
               Copy survey link
