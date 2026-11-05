@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { supabase, isConfigured } from '../lib/supabase.js'
-import { BENEFITS, BENEFIT_BY_ID, buildSession, newRespondentId } from '../data/packages.js'
+import { BENEFITS, BENEFIT_BY_ID, buildSession, newRespondentId, tallyResponses } from '../data/packages.js'
 import BenefitIcon from '../components/BenefitIcon.jsx'
 
 const Icon = ({ name }) => <BenefitIcon name={name} />
@@ -40,15 +40,28 @@ export default function Packages() {
 
   const total = session.length
 
+  // The respondent's own result, computed from just their 10 choices (client-side,
+  // so it always shows even if the database save is unavailable).
+  const mine = useMemo(() => (choices.length ? tallyResponses([{ choices }]) : null), [choices])
+
   async function submit(all) {
-    if (!isConfigured) return // local preview without keys: skip save
+    if (!isConfigured) {
+      // No Supabase keys on this build: the response can't be stored. Flag it in
+      // the console so the team can see why results are not appearing.
+      console.warn('[survey] Supabase not configured — response was NOT saved. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.')
+      return
+    }
     try {
-      await supabase.from('bet2_responses').insert({
-        respondent,
-        age,
-        choices: all,
-      })
-    } catch { /* best-effort: never block the thank-you screen */ }
+      let { error } = await supabase.from('bet2_responses').insert({ respondent, age, choices: all })
+      // If the table predates the age column, don't lose the response — save it without age.
+      if (error && /age/i.test(error.message || '')) {
+        console.warn('[survey] age column missing — run supabase_bet2_survey.sql. Saving without age for now.')
+        ;({ error } = await supabase.from('bet2_responses').insert({ respondent, choices: all }))
+      }
+      if (error) console.error('[survey] save failed:', error.message)
+    } catch (e) {
+      console.error('[survey] save threw:', e?.message || e)
+    }
   }
 
   function pick(side) {
@@ -129,7 +142,45 @@ export default function Packages() {
               <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
             </div>
             <h1>Thank you</h1>
-            <p className="pk-lead">Your choices were recorded. That is everything, you can close this tab.</p>
+
+            {mine && mine.ranking.length > 0 && (
+              <>
+                <p className="pk-lead pk-result-lead">
+                  Based on the 10 choices you just made, here is what you leaned toward. It looks like
+                  {' '}<b>{BENEFIT_BY_ID[mine.ranking[0].id].name.toLowerCase()}</b> matters most to you.
+                </p>
+
+                <div className="pk-result">
+                  <div className="pk-result-head">Your ideal package</div>
+                  <div className="pk-result-chips">
+                    {mine.ranking.slice(0, 3).map((r) => (
+                      <span key={r.id} className="pk-result-chip">
+                        <BenefitIcon name={BENEFIT_BY_ID[r.id].icon} size={16} />
+                        {BENEFIT_BY_ID[r.id].name}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="pk-result-head pk-result-head-2">How often you picked each benefit</div>
+                  <ul className="pk-result-bars">
+                    {mine.ranking.map((r) => {
+                      const b = BENEFIT_BY_ID[r.id]
+                      const pct = Math.round(r.rate * 100)
+                      return (
+                        <li key={r.id} className="pk-result-bar">
+                          <span className="pk-result-name"><BenefitIcon name={b.icon} size={15} />{b.name}</span>
+                          <span className="pk-result-track"><span className="pk-result-fill" style={{ width: `${Math.max(pct, 3)}%` }} /></span>
+                          <span className="pk-result-pct">{pct}%</span>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                  <p className="pk-fine pk-result-fine">Out of 10 head-to-head choices, how often each benefit was in the package you picked.</p>
+                </div>
+              </>
+            )}
+
+            <p className="pk-lead" style={{ marginTop: 18 }}>That is everything. Thanks for helping, you can close this tab.</p>
             {saving && <p className="pk-fine">Saving your responses…</p>}
           </div>
         )}
