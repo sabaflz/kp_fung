@@ -32,13 +32,28 @@ export const POOL = [
   ['Q29','Decision','If your top one were free starting tomorrow, how likely are you to actually use it this year? Be honest with me.'],
   ['Q30','Friction','What is the most likely reason you would NOT end up using it, even for free? (would not know how, no time, too complicated, would not cover enough, a quality or privacy worry)'],
   ['Q31','Decision','Say that benefit added five dollars a month to your plan. Still worth it to you? What about fifteen?'],
+  // --- Package-comparison interview: the protocol for testing the two generic $300 packages one-on-one ---
+  ['P1','Package · Context','Before we look at anything, how involved are you in choosing, understanding, and actually using your current health coverage?'],
+  ['P2','Package · Impressions','Here is the first package on its own. In your own words, what does it seem to offer you? (then show the second and ask the same)'],
+  ['P3','Package · Impressions','Which one or two benefits in these packages stand out as genuinely useful to you, and why?'],
+  ['P4','Package · Gaps','Which benefits feel least useful to you, or is there anything you expected to see that is missing?'],
+  ['P5','Package · Choice','If these were your only two options, which would you pick: Package A, Package B, neither, or not sure?'],
+  ['P6','Package · Choice','What is the main reason behind that choice?'],
+  ['P7','Package · Trade-off','What is the biggest thing you give up by picking that one over the other?'],
+  ['P8','Package · Priorities','Across both packages, which one or two benefits matter most to you personally, regardless of which package they are in?'],
+  ['P9','Package · Change','If you could change one thing about either package to make it more useful to you, what would it be?'],
+  ['P10','Package · Use','If your chosen package were real, how likely are you to actually use at least one benefit this year, and which would you reach for first?'],
+  ['P11','Package · Barriers','What might make it hard to understand, access, or actually use these benefits?'],
+  ['P12','Package · Choice','Now that you have looked at both closely, which would you choose, and did that change from your first instinct?'],
+  ['P13','Package · Takeaway','What is the single most important thing we should understand about designing supplemental benefits for people your age?'],
 ]
 
 export const BY_ID = Object.fromEntries(POOL.map(q => [q[0], q]))
 
 // Built-in starter sets (always available, not stored in the DB).
 export const BUILTIN_SETS = [
-  { id:'builtin-discovery', name:'Discovery (default)', question_ids:['Q1','Q2','Q3','Q4','Q6','Q10','Q11','Q12','Q21','Q22'], note:'First talk with someone new. Understand their real relationship with coverage. Do not pitch.', builtin:true },
+  { id:'builtin-package', name:'Package comparison (default)', question_ids:['Q2','P1','P2','P3','P4','P5','P6','P7','P8','P9','P10','P11','P12','P13'], note:'Our current method: show the two generic $300 packages, then walk through first impressions, the choice, the trade-off, and what they would change. The live mirror of the choice survey. Show the packages, do not pitch them.', builtin:true },
+  { id:'builtin-discovery', name:'Discovery', question_ids:['Q1','Q2','Q3','Q4','Q6','Q10','Q11','Q12','Q21','Q22'], note:'First talk with someone new. Understand their real relationship with coverage. Do not pitch.', builtin:true },
   { id:'builtin-aging', name:'Aging-off focus', question_ids:['Q1','Q2','Q7','Q8','Q9','Q10','Q12','Q21'], note:'For people near or past 26, or on a parent’s plan. Digs into the transition trigger.', builtin:true },
   { id:'builtin-ranking', name:'Benefit-ranking round', question_ids:['Q1','Q2','Q13','Q23','Q24','Q16','Q18','Q25'], note:'Second-round. Tests which of the five benefits actually moves them.', builtin:true },
   { id:'builtin-deepdive', name:'Benefit deep-dive (survey-aligned)', question_ids:['Q1','Q2','Q26','Q27','Q28','Q14','Q24','Q29','Q30','Q31','Q22'], note:'Mirrors the team survey funnel in a live conversation: current coverage, unmet needs, the ten-benefit menu, would-they-use-it, the barrier, and the five-dollar test.', builtin:true },

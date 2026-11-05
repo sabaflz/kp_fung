@@ -185,7 +185,7 @@ export default function Market() {
       </div>
 
       <div className="tiles">
-        <Stat n="0" l={'insurers with a package built for 18–30'} />
+        <Stat n={'$280+'} l="young adults already pay out of pocket for online therapy alone, per month" />
         <Stat n="$178" l="avg 2026 marketplace net premium (up 58%)" />
         <Stat n="$1,398" l="avg MA flex-card value, the model to borrow" />
         <Stat n={'$10–$25'} l="proposed KP add-on, per month" />
