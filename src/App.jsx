@@ -6,6 +6,7 @@ import { ThemeToggle, ExitIcon, useToast, copyText } from './components/ui.jsx'
 import Login from './pages/Login.jsx'
 import Goal from './pages/Goal.jsx'
 import Bets from './pages/Bets.jsx'
+import Bet1 from './pages/Bet1.jsx'
 import Bet2 from './pages/Bet2.jsx'
 import Run from './pages/Run.jsx'
 import Sets from './pages/Sets.jsx'
@@ -196,6 +197,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Goal />} />
             <Route path="/bets" element={<Bets />} />
+            <Route path="/bets/1" element={<Bet1 />} />
             <Route path="/bets/2" element={<Bet2 />} />
 
             <Route path="/interviews" element={<SectionNav tabs={interviewTabs} />}>
