@@ -16,6 +16,7 @@ import Dashboard from './pages/Dashboard.jsx'
 import Survey from './pages/Survey.jsx'
 import Market from './pages/Market.jsx'
 import Packages from './pages/Packages.jsx'
+import Present from './pages/Present.jsx'
 
 /* Section icons + nav controls (no icon library). */
 const ICON = {
@@ -92,6 +93,9 @@ export default function App() {
 
   const email = session.user?.email || ''
   const viewer = isViewer(email)
+
+  // Full-screen present mode: no sidebar or top bar, just the slides.
+  if (location.pathname.startsWith('/present')) return <Present />
 
   const closeDrawer = () => setDrawerOpen(false)
   // The sidebar toggle and the top-bar icon both act: open/close the drawer on

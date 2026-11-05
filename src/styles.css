@@ -334,6 +334,20 @@ footer.foot{margin-top:26px;padding-top:16px;border-top:1px solid var(--line);co
 .bp-nav-top{border-top:none;padding-top:0;margin-bottom:4px}
 .bp-next{margin-left:auto}
 @media (max-width:680px){ .bp-hero{grid-template-columns:1fr} }
+
+/* Bets hub intro row */
+.bets-intro{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.bets-present{flex:none;white-space:nowrap}
+
+/* Full-screen present mode */
+.present{position:fixed;inset:0;z-index:200;background:var(--bg);display:flex;flex-direction:column}
+.present-stage{flex:1;overflow:auto;padding:clamp(24px,4vw,56px) clamp(16px,4vw,48px)}
+.present-slide{max-width:1040px;margin:0 auto}
+.present-bar{flex:none;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:12px clamp(16px,4vw,32px);border-top:1px solid var(--line);background:var(--surface)}
+.present-mid{display:flex;align-items:center;gap:12px}
+.present-count{font-size:14px;font-weight:600;color:var(--muted);font-variant-numeric:tabular-nums;min-width:48px;text-align:center}
+.btn.sm:disabled{opacity:.4;cursor:default}
 .b2-bars{list-style:none; margin:0; padding:0; display:grid; gap:14px}
 .b2-bar{display:grid; grid-template-columns:180px 1fr 44px; align-items:center; gap:12px}
 .b2-bar-name{display:flex; align-items:center; gap:8px; font-size:14px; font-weight:600}

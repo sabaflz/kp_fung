@@ -12,7 +12,7 @@ const Star = () => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2l3 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.9 21l1.2-6.8-5-4.9 6.9-1L12 2Z" /></svg>
 )
 
-export default function Bet1() {
+export default function Bet1({ embedded = false }) {
   return (
     <div className="bp">
       <div className="bp-top">
@@ -46,11 +46,14 @@ export default function Bet1() {
         &ldquo;Package B makes people reserve money for something they might not need. That&rsquo;s why I prefer A. It gives you much more flexibility.&rdquo;
       </blockquote>
 
-      <div className="bp-nav">
-        <Link className="btn ghost sm" to="/bets">&larr; All bets</Link>
-        <Link className="btn ghost sm" to="/interviews/log">See the 5 interviews</Link>
-        <Link className="btn sm bp-next" to="/bets/2">Next: Bet #2 &rarr;</Link>
-      </div>
+      {!embedded && (
+        <div className="bp-nav">
+          <Link className="btn ghost sm" to="/bets">&larr; All bets</Link>
+          <Link className="btn ghost sm" to="/interviews/log">See the 5 interviews</Link>
+          <Link className="btn ghost sm" to="/present?s=0">&#9658; Present</Link>
+          <Link className="btn sm bp-next" to="/bets/2">Next: Bet #2 &rarr;</Link>
+        </div>
+      )}
     </div>
   )
 }
