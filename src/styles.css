@@ -261,10 +261,27 @@ footer.foot{margin-top:26px;padding-top:16px;border-top:1px solid var(--line);co
 .pk-check{width:58px; height:58px; margin:0 auto 14px; border-radius:999px; background:#e7f8ef;
   color:#15803d; display:grid; place-items:center}
 .pk-done h1{font-size:26px; font-weight:800; margin-bottom:8px}
+/* Respondent-facing results shown on the thank-you screen */
+.pk-result-lead{margin-top:4px}
+.pk-result{text-align:left; margin:18px 0 4px; padding:18px; border:1px solid var(--pk-line); border-radius:14px; background:#fafbff}
+.pk-result-head{font-size:12px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--pk-accent-ink); margin-bottom:10px}
+.pk-result-head-2{margin-top:18px}
+.pk-result-chips{display:flex; flex-wrap:wrap; gap:8px}
+.pk-result-chip{display:inline-flex; align-items:center; gap:7px; background:var(--pk-accent-soft); color:var(--pk-accent-ink); border-radius:999px; padding:7px 13px; font-size:14px; font-weight:700}
+.pk-result-chip svg{color:var(--pk-accent)}
+.pk-result-bars{list-style:none; margin:0; padding:0; display:grid; gap:10px}
+.pk-result-bar{display:grid; grid-template-columns:150px 1fr 40px; align-items:center; gap:10px}
+.pk-result-name{display:flex; align-items:center; gap:7px; font-size:13px; font-weight:600; color:var(--pk-fg)}
+.pk-result-name svg{color:var(--pk-accent); flex:none}
+.pk-result-track{height:12px; background:var(--pk-accent-soft); border-radius:999px; overflow:hidden}
+.pk-result-fill{display:block; height:100%; background:var(--pk-accent); border-radius:999px}
+.pk-result-pct{font-size:13px; font-weight:700; text-align:right; color:var(--pk-accent-ink); font-variant-numeric:tabular-nums}
+.pk-result-fine{text-align:left; margin-top:12px}
 @media (max-width:620px){
   .pk-grid{grid-template-columns:1fr}
   .pk-vs{padding:2px 0}
   .pk-benefit-key{grid-template-columns:1fr}
+  .pk-result-bar{grid-template-columns:104px 1fr 36px}
 }
 
 .b2{display:flex; flex-direction:column; gap:18px}
