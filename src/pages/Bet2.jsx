@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { supabase, isConfigured } from '../lib/supabase.js'
-import { BENEFIT_BY_ID, tallyResponses } from '../data/packages.js'
+import { BENEFITS, BENEFIT_BY_ID, tallyResponses } from '../data/packages.js'
 import BenefitIcon from '../components/BenefitIcon.jsx'
 
 /* Bet #2 results: live win rates from the public package-choice survey. */
@@ -38,6 +39,21 @@ export default function Bet2() {
 
   return (
     <div className="b2">
+      <div className="bp-top">
+        <span className="bp-eyebrow">Bet #2 <span className="bp-dot">·</span> <span className="bp-live">Collecting</span></span>
+        <h1 className="bp-title">Which benefits win head-to-head</h1>
+        <p className="bp-lede">We show two $300 packages, ten times, and let people pick. Every benefit meets every other an equal number of times, so each one earns a clean win rate. The results below update live.</p>
+        <div className="bp-chips">
+          {BENEFITS.map((bn) => (
+            <span key={bn.id} className="bp-benefit"><BenefitIcon name={bn.icon} size={16} />{bn.name}</span>
+          ))}
+        </div>
+      </div>
+      <div className="bp-nav bp-nav-top">
+        <Link className="btn ghost sm" to="/bets/1">&larr; Bet #1</Link>
+        <Link className="btn ghost sm" to="/bets">All bets</Link>
+      </div>
+
       <div className="b2-head">
         <div>
           <h2 className="b2-title">Bet #2 &middot; Package preference</h2>

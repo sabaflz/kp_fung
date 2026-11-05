@@ -14,7 +14,10 @@ export const BETS = [
       '5 of 5 named a clear priority, and all 5 chose the flexible wallet over the pre-split bundle, across both presentation orders.',
     learning:
       'Young adults want a flexible allowance they control, not a bundle decided for them. The real barrier is comprehension: they could not tell what several benefits meant or what the allowance covers.',
-    links: [{ label: 'See the 5 interviews', to: '/interviews/log' }],
+    links: [
+      { label: 'Open Bet #1', to: '/bets/1' },
+      { label: 'See the 5 interviews', to: '/interviews/log' },
+    ],
   },
   {
     id: 2,
