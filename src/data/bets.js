@@ -30,6 +30,7 @@ export const BETS = [
     result: '',
     learning: '',
     links: [
+      { label: 'Present Bet #2', to: '/present/bet2' },
       { label: 'Open live results', to: '/bets/2' },
       { label: 'Public survey link', to: '/packages', external: true },
     ],
