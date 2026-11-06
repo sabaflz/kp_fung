@@ -348,6 +348,12 @@ footer.foot{margin-top:26px;padding-top:16px;border-top:1px solid var(--line);co
 .deck-notes{position:absolute;left:0;right:0;bottom:0;max-height:38%;overflow:auto;background:#0E1E3A;color:#D6E2F4;padding:16px 26px;border-top:3px solid #6FB0EC}
 .deck-notes-k{display:block;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#6FB0EC;margin-bottom:6px}
 .deck-notes p{margin:0;font-size:16px;line-height:1.5}
+.deck-ed{outline:1px dashed rgba(0,103,168,.55);outline-offset:2px;border-radius:3px;cursor:text;transition:background .1s}
+.deck-ed:hover{background:rgba(0,103,168,.09)}
+.deck-ed:focus{outline:2px solid #0067A8;background:rgba(0,103,168,.12)}
+.deck-edithint{position:absolute;left:50%;top:14px;transform:translateX(-50%);z-index:6;
+  background:rgba(14,30,58,.92);color:#dbe7f7;font-size:13px;font-weight:600;padding:8px 16px;
+  border-radius:999px;border:1px solid rgba(255,255,255,.14)}
 .present-bar{flex:none;display:flex;align-items:center;justify-content:space-between;gap:12px;
   padding:9px clamp(16px,4vw,28px);border-top:1px solid rgba(255,255,255,.08);background:#121c30}
 .present-mid{display:flex;align-items:center;gap:10px}
