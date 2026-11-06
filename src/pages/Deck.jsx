@@ -2,7 +2,9 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../lib/auth.jsx'
 import { canEdit } from '../lib/team.js'
+import { supabase, isConfigured } from '../lib/supabase.js'
 import { DECKS } from '../decks/index.js'
+import { DeckContentCtx, T } from '../decks/content.jsx'
 
 /* Scales a fixed 1280x720 slide canvas to fit its container, so each slide is
    one screen with no scrolling. */
@@ -28,16 +30,51 @@ function DeckStage({ children }) {
   )
 }
 
-/* Full-screen present mode for one deck: arrow keys move between slides, the
-   team can toggle presenter notes, and anyone can download the deck as a PDF. */
+/* Full-screen present mode for one deck. The team can edit the slide text in
+   place; everyone else sees presentation only. */
 export default function Deck({ deckId = 'bet1' }) {
   const deck = DECKS[deckId] || DECKS.bet1
   const navigate = useNavigate()
   const { session } = useAuth()
-  const team = canEdit(session?.user?.email || '')
+  const email = session?.user?.email || ''
+  const team = canEdit(email) && isConfigured
   const n = deck.slides.length
+
   const [i, setI] = useState(0)
   const [notes, setNotes] = useState(false)
+  const [editing, setEditing] = useState(false)
+  const [overrides, setOverrides] = useState({})
+  const [dirty, setDirty] = useState(false)
+  const [saveState, setSaveState] = useState('idle') // idle | saving | saved | error
+
+  // Load saved text for this deck.
+  useEffect(() => {
+    let alive = true
+    if (!isConfigured) return
+    supabase.from('deck_content').select('content').eq('deck_id', deckId).maybeSingle()
+      .then(({ data }) => { if (alive && data?.content) setOverrides(data.content) })
+      .catch(() => {})
+    return () => { alive = false }
+  }, [deckId])
+
+  const setField = useCallback((path, value) => {
+    setOverrides((prev) => {
+      if ((prev[path] ?? '') === value) return prev
+      setDirty(true)
+      setSaveState('idle')
+      return { ...prev, [path]: value }
+    })
+  }, [])
+
+  const save = useCallback(async () => {
+    if (!isConfigured) return
+    setSaveState('saving')
+    const { error } = await supabase.from('deck_content')
+      .upsert({ deck_id: deckId, content: overrides, updated_by: email, updated_at: new Date().toISOString() })
+    if (error) { setSaveState('error'); return }
+    setDirty(false)
+    setSaveState('saved')
+  }, [deckId, overrides, email])
 
   const go = useCallback((x) => setI((c) => Math.min(Math.max(x, 0), n - 1)), [n])
   const exit = useCallback(() => {
@@ -47,52 +84,71 @@ export default function Deck({ deckId = 'bet1' }) {
 
   useEffect(() => {
     const onKey = (e) => {
+      if (editing) { if (e.key === 'Escape') document.activeElement?.blur?.(); return }
       if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); go(i + 1) }
       else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); go(i - 1) }
       else if (e.key === 'Escape') { if (notes) setNotes(false); else exit() }
-      else if ((e.key === 'n' || e.key === 'N') && team) { setNotes((v) => !v) }
+      else if ((e.key === 'n' || e.key === 'N') && team) setNotes((v) => !v)
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [i, go, exit, notes, team])
+  }, [i, go, exit, notes, team, editing])
 
   const toggleFull = () => {
     if (!document.fullscreenElement) document.documentElement.requestFullscreen?.().catch(() => {})
     else document.exitFullscreen?.().catch(() => {})
   }
+  const doneEditing = async () => { if (dirty) await save(); setEditing(false) }
 
   const slide = deck.slides[i]
+  const ctx = { overrides, editing, setField }
 
   return (
-    <div className="present">
-      <div className="present-stage">
-        <DeckStage><div className="sld">{slide.node}</div></DeckStage>
-        {team && notes && (
-          <div className="deck-notes">
-            <span className="deck-notes-k">Presenter notes &middot; slide {i + 1}</span>
-            <p>{slide.notes || 'No notes for this slide.'}</p>
+    <DeckContentCtx.Provider value={ctx}>
+      <div className={'present' + (editing ? ' editing' : '')}>
+        {editing && (
+          <div className="deck-edithint">Click any text to edit. {dirty ? 'Unsaved changes.' : saveState === 'saved' ? 'All changes saved.' : 'Changes save for the whole team.'}</div>
+        )}
+        <div className="present-stage">
+          <DeckStage><div className="sld">{slide.node}</div></DeckStage>
+          {team && notes && (
+            <div className="deck-notes">
+              <span className="deck-notes-k">Presenter notes · slide {i + 1}</span>
+              <p><T p={`${slide.id}.notes`}>{slide.notes}</T></p>
+            </div>
+          )}
+        </div>
+
+        <div className="present-bar">
+          <button className="btn ghost sm" type="button" onClick={exit}>× Exit</button>
+          <div className="present-mid">
+            <button className="btn ghost sm" type="button" onClick={() => go(i - 1)} disabled={i === 0 || editing}>← Prev</button>
+            <span className="present-count">{i + 1} / {n}</span>
+            <button className="btn ghost sm" type="button" onClick={() => go(i + 1)} disabled={i === n - 1 || editing}>Next →</button>
+          </div>
+          <div className="present-mid">
+            {team && !editing && <button className="btn ghost sm" type="button" onClick={() => setEditing(true)}>Edit text</button>}
+            {team && editing && (
+              <>
+                <button className="btn ghost sm" type="button" onClick={save} disabled={!dirty || saveState === 'saving'}>
+                  {saveState === 'saving' ? 'Saving…' : saveState === 'saved' && !dirty ? 'Saved' : 'Save'}
+                </button>
+                <button className="btn sm" type="button" onClick={doneEditing}>Done</button>
+              </>
+            )}
+            {team && <button className="btn ghost sm" type="button" onClick={() => setNotes((v) => !v)}>{notes ? 'Hide notes' : 'Notes'}</button>}
+            {!editing && <button className="btn ghost sm" type="button" onClick={() => window.print()}>Download PDF</button>}
+            {!editing && <button className="btn ghost sm" type="button" onClick={toggleFull}>Full screen</button>}
+          </div>
+        </div>
+
+        {/* Printed/exported as PDF: all slides, one per page (view mode only). */}
+        {!editing && (
+          <div className="deck-print">
+            {deck.slides.map((s) => (<div className="sld" key={s.id}>{s.node}</div>))}
           </div>
         )}
       </div>
-
-      <div className="present-bar">
-        <button className="btn ghost sm" type="button" onClick={exit}>&times; Exit</button>
-        <div className="present-mid">
-          <button className="btn ghost sm" type="button" onClick={() => go(i - 1)} disabled={i === 0}>&larr; Prev</button>
-          <span className="present-count">{i + 1} / {n}</span>
-          <button className="btn ghost sm" type="button" onClick={() => go(i + 1)} disabled={i === n - 1}>Next &rarr;</button>
-        </div>
-        <div className="present-mid">
-          {team && <button className="btn ghost sm" type="button" onClick={() => setNotes((v) => !v)}>{notes ? 'Hide notes' : 'Notes'}</button>}
-          <button className="btn ghost sm" type="button" onClick={() => window.print()}>Download PDF</button>
-          <button className="btn ghost sm" type="button" onClick={toggleFull}>Full screen</button>
-        </div>
-      </div>
-
-      {/* Printed/exported as PDF: all slides, one per page. */}
-      <div className="deck-print">
-        {deck.slides.map((s) => (<div className="sld" key={s.id}>{s.node}</div>))}
-      </div>
-    </div>
+    </DeckContentCtx.Provider>
   )
 }
