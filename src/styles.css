@@ -353,7 +353,8 @@ footer.foot{margin-top:26px;padding-top:16px;border-top:1px solid var(--line);co
 .deck-ed:focus{outline:2px solid #0067A8;background:rgba(0,103,168,.12)}
 .deck-edithint{position:absolute;left:50%;top:14px;transform:translateX(-50%);z-index:6;
   background:rgba(14,30,58,.92);color:#dbe7f7;font-size:13px;font-weight:600;padding:8px 16px;
-  border-radius:999px;border:1px solid rgba(255,255,255,.14)}
+  border-radius:999px;border:1px solid rgba(255,255,255,.14);max-width:min(90vw,560px);text-align:center}
+.deck-edithint.error{background:rgba(120,20,20,.95);color:#ffe3e0;border-color:rgba(255,120,110,.35)}
 .present-bar{flex:none;display:flex;align-items:center;justify-content:space-between;gap:12px;
   padding:9px clamp(16px,4vw,28px);border-top:1px solid rgba(255,255,255,.08);background:#121c30}
 .present-mid{display:flex;align-items:center;gap:10px}
