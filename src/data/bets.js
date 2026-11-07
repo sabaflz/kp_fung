@@ -15,7 +15,7 @@ export const BETS = [
     learning:
       'Young adults want a flexible allowance they control, not a bundle decided for them. The real barrier is comprehension: they could not tell what several benefits meant or what the allowance covers.',
     links: [
-      { label: 'Present Bet #1', to: '/present/bet1' },
+      { label: 'Present Bet #1', to: '/present/bet1', primary: true },
       { label: 'See the 5 interviews', to: '/interviews/log' },
     ],
   },
@@ -30,7 +30,7 @@ export const BETS = [
     result: '',
     learning: '',
     links: [
-      { label: 'Present Bet #2', to: '/present/bet2' },
+      { label: 'Present Bet #2', to: '/present/bet2', primary: true },
       { label: 'Open live results', to: '/bets/2' },
       { label: 'Public survey link', to: '/packages', external: true },
     ],

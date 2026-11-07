@@ -19,7 +19,7 @@ const base = (bg, fg) => ({
 const S1 = (
   <div style={{ ...base('#0E1E3A', '#EEF3FA'), justifyContent: 'space-between' }}>
     <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid #2B4A73', paddingBottom: 14 }}>
-      <span style={{ fontSize: 15, fontWeight: 700, letterSpacing: '2.5px', color: '#6FB0EC' }}><T p="title.ey1">FUNG FELLOWSHIP</T></span>
+      <span style={{ fontSize: 15, fontWeight: 700, letterSpacing: '2.5px', color: '#6FB0EC' }}><T p="title.ey1">FUNG × KP BENEFITS</T></span>
       <span style={{ fontSize: 15, fontWeight: 700, letterSpacing: '2.5px', color: '#8FA6C6' }}><T p="title.ey2">BET #2</T></span>
     </div>
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>

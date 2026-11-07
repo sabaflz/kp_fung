@@ -1,9 +1,12 @@
 import { Link } from 'react-router-dom'
 import { BETS } from '../data/bets.js'
+import { DECKS } from '../decks/index.js'
 import { useFindings } from '../lib/findings.js'
 
 export default function Bets() {
   const { counts } = useFindings()
+  // The most recent bet that has a deck, so the top button follows where we are.
+  const latest = [...BETS].reverse().find((b) => DECKS['bet' + b.id])
 
   return (
     <div className="grid" style={{ gap: 18 }}>
@@ -15,7 +18,7 @@ export default function Bets() {
           </h1>
           <p className="lede" style={{ margin: 0 }}>Each week we place one small, testable bet and use what we learn to sharpen the package. The newest is on top.</p>
         </div>
-        <Link className="btn sm bets-present" to="/present/bet1">&#9658; Present Bet #1</Link>
+        {latest && <Link className="btn sm bets-present" to={`/present/bet${latest.id}`}>&#9658; Present Bet #{latest.id}</Link>}
       </div>
 
       <div className="bet-list">
@@ -41,7 +44,7 @@ export default function Bets() {
                 {b.links.map((l) =>
                   l.external
                     ? <a key={l.to} className="btn ghost sm" href={l.to} target="_blank" rel="noreferrer">{l.label}</a>
-                    : <Link key={l.to} className="btn ghost sm" to={l.to}>{l.label}</Link>
+                    : <Link key={l.to} className={l.primary ? 'btn sm' : 'btn ghost sm'} to={l.to}>{l.label}</Link>
                 )}
               </div>
             )}
