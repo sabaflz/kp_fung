@@ -46,14 +46,20 @@ export default function Deck({ deckId = 'bet1' }) {
   const [overrides, setOverrides] = useState({})
   const [dirty, setDirty] = useState(false)
   const [saveState, setSaveState] = useState('idle') // idle | saving | saved | error
+  const [saveError, setSaveError] = useState('')
+  const [loadError, setLoadError] = useState('')
 
   // Load saved text for this deck.
   useEffect(() => {
     let alive = true
     if (!isConfigured) return
     supabase.from('deck_content').select('content').eq('deck_id', deckId).maybeSingle()
-      .then(({ data }) => { if (alive && data?.content) setOverrides(data.content) })
-      .catch(() => {})
+      .then(({ data, error }) => {
+        if (!alive) return
+        if (error) { setLoadError(error.message || 'Could not load saved edits.'); return }
+        if (data?.content) setOverrides(data.content)
+      })
+      .catch((e) => { if (alive) setLoadError(e?.message || 'Could not load saved edits.') })
     return () => { alive = false }
   }, [deckId])
 
@@ -67,13 +73,19 @@ export default function Deck({ deckId = 'bet1' }) {
   }, [])
 
   const save = useCallback(async () => {
-    if (!isConfigured) return
+    if (!isConfigured) { setSaveState('error'); setSaveError('Not connected to Supabase yet.'); return }
     setSaveState('saving')
+    setSaveError('')
     const { error } = await supabase.from('deck_content')
-      .upsert({ deck_id: deckId, content: overrides, updated_by: email, updated_at: new Date().toISOString() })
-    if (error) { setSaveState('error'); return }
+      .upsert({ deck_id: deckId, content: overrides, updated_by: email, updated_at: new Date().toISOString() }, { onConflict: 'deck_id' })
+    if (error) {
+      setSaveState('error')
+      setSaveError(error.message || 'Save failed.')
+      return false
+    }
     setDirty(false)
     setSaveState('saved')
+    return true
   }, [deckId, overrides, email])
 
   const go = useCallback((x) => setI((c) => Math.min(Math.max(x, 0), n - 1)), [n])
@@ -98,7 +110,11 @@ export default function Deck({ deckId = 'bet1' }) {
     if (!document.fullscreenElement) document.documentElement.requestFullscreen?.().catch(() => {})
     else document.exitFullscreen?.().catch(() => {})
   }
-  const doneEditing = async () => { if (dirty) await save(); setEditing(false) }
+  const doneEditing = async () => {
+    const ok = dirty ? await save() : true
+    // Keep edit mode open if the save failed, so changes aren't lost silently.
+    if (ok) setEditing(false)
+  }
 
   const slide = deck.slides[i]
   const ctx = { overrides, editing, setField }
@@ -107,7 +123,14 @@ export default function Deck({ deckId = 'bet1' }) {
     <DeckContentCtx.Provider value={ctx}>
       <div className={'present' + (editing ? ' editing' : '')}>
         {editing && (
-          <div className="deck-edithint">Click any text to edit. {dirty ? 'Unsaved changes.' : saveState === 'saved' ? 'All changes saved.' : 'Changes save for the whole team.'}</div>
+          <div className={'deck-edithint' + (saveState === 'error' ? ' error' : '')}>
+            {saveState === 'error'
+              ? `Save failed: ${saveError}`
+              : `Click any text to edit. ${dirty ? 'Unsaved changes.' : saveState === 'saved' ? 'All changes saved.' : 'Changes save for the whole team.'}`}
+          </div>
+        )}
+        {team && loadError && !editing && (
+          <div className="deck-edithint error">Couldn't load saved edits: {loadError}</div>
         )}
         <div className="present-stage">
           <DeckStage><div className="sld">{slide.node}</div></DeckStage>
@@ -131,7 +154,7 @@ export default function Deck({ deckId = 'bet1' }) {
             {team && editing && (
               <>
                 <button className="btn ghost sm" type="button" onClick={save} disabled={!dirty || saveState === 'saving'}>
-                  {saveState === 'saving' ? 'Saving…' : saveState === 'saved' && !dirty ? 'Saved' : 'Save'}
+                  {saveState === 'saving' ? 'Saving…' : saveState === 'error' ? 'Retry save' : saveState === 'saved' && !dirty ? 'Saved' : 'Save'}
                 </button>
                 <button className="btn sm" type="button" onClick={doneEditing}>Done</button>
               </>
