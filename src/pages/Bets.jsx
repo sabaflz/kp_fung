@@ -54,7 +54,7 @@ export default function Bets() {
         <div className="bet-card bet-next">
           <div className="bet-card-head"><span className="bet-week">Next</span></div>
           <h2 className="bet-title">Bet #3, coming up</h2>
-          <p className="lede" style={{ margin: 0 }}>Once Bet #2 names the winning benefits, the next bet tests the details and whether people would enroll.</p>
+          <p className="lede" style={{ margin: 0 }}>Once Bet #2 names the winning benefits, we go specific on what people want inside them, then test willingness to pay and start the persona-driven mockup KP asked for.</p>
         </div>
       </div>
     </div>

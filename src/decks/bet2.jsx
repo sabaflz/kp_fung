@@ -56,7 +56,7 @@ const S2 = (
       <div style={{ width: 300, background: '#F5E7D4', border: '1px solid #EAD3AE', borderRadius: 16, padding: '28px 30px', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 8 }}>
         <span style={{ fontSize: 15, fontWeight: 700, letterSpacing: '2px', color: '#8A5A17' }}>STATUS</span>
         <span style={{ fontFamily: SERIF, fontSize: 40, fontWeight: 600, color: '#8A5A17', lineHeight: 1.05 }}><T p="bet.status">Collecting</T></span>
-        <p style={{ fontSize: 18, lineHeight: 1.4, color: '#7A5A2A', margin: 0 }}><T p="bet.statusDesc">The survey is live and gathering responses now.</T></p>
+        <p style={{ fontSize: 18, lineHeight: 1.4, color: '#7A5A2A', margin: 0 }}><T p="bet.statusDesc">Live now. Goal: 20 survey responses + 5 interviews by Mon, Nov 9.</T></p>
       </div>
     </div>
   </div>
@@ -172,9 +172,9 @@ const S6 = (
       <h2 style={{ fontFamily: SERIF, fontSize: 40, fontWeight: 600, lineHeight: 1.06, color: '#16233E', margin: '2px 0 0' }}><T p="next.h2">What happens next</T></h2>
     </div>
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12, flex: 1, justifyContent: 'center' }}>
-      <NextRow n="1" hp="next.r1h" h="Collect responses" pp="next.r1p" p="Push the survey toward about 50 so the win rates are callable." />
-      <NextRow n="2" hp="next.r2h" h="Name the package" pp="next.r2p" p="Lock the one or two strongest benefits into the flexible wallet." />
-      <NextRow n="3" hp="next.r3h" h="Run package interviews" pp="next.r3p" p="Pair the numbers with the reasons, using the standard protocol." />
+      <NextRow n="1" hp="next.r1h" h="Collect responses" pp="next.r1p" p="20 survey responses and 5 more interviews by Mon, Nov 9, so win rates are callable." />
+      <NextRow n="2" hp="next.r2h" h="Go specific on the winners" pp="next.r2p" p="Ask what people want inside each top category, not just which category wins (per KP's feedback on Nov 7)." />
+      <NextRow n="3" hp="next.r3h" h="Name the package" pp="next.r3p" p="Lock the one or two strongest benefits into the flexible wallet." />
       <NextRow n="4" hp="next.r4h" h="Test willingness to pay" pp="next.r4p" p="The $5-then-$15 question, toward a $10 to $25 per-month price." />
     </div>
     <div style={{ display: 'flex', gap: 14, alignItems: 'center', background: '#003087', borderRadius: 12, padding: '18px 26px' }}>
