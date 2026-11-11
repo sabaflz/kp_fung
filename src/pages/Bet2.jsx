@@ -8,6 +8,9 @@ import BenefitIcon from '../components/BenefitIcon.jsx'
 export default function Bet2({ embedded = false }) {
   const [rows, setRows] = useState([])
   const [state, setState] = useState('loading') // loading | ok | error | unconfigured
+  // Closing follow-ups. Readable by the team only, so this stays empty for
+  // invited viewers and the block below simply does not render for them.
+  const [followups, setFollowups] = useState([])
 
   const refresh = useCallback(async () => {
     if (!isConfigured) { setState('unconfigured'); return }
@@ -16,6 +19,10 @@ export default function Bet2({ embedded = false }) {
     if (error) { setState('error'); return }
     setRows(data || [])
     setState('ok')
+    // Separate query, and deliberately forgiving: if the table is not there yet
+    // or this account cannot read it, the results above still show.
+    const fu = await supabase.from('bet2_followups').select('wants_results, enabler')
+    setFollowups(fu.error ? [] : (fu.data || []))
   }, [])
 
   useEffect(() => {
@@ -36,6 +43,23 @@ export default function Bet2({ embedded = false }) {
     return order.map((a) => [a, m[a] || 0]).filter(([, n]) => n > 0)
   }, [rows])
   const ageMax = Math.max(1, ...ageCounts.map(([, n]) => n))
+
+  // Opt-in rate and what people said would make them use their top benefit.
+  // No addresses here on purpose: this page gets presented on a shared screen.
+  const fuStats = useMemo(() => {
+    if (!followups.length) return null
+    const optIns = followups.filter((r) => r.wants_results).length
+    const m = {}
+    for (const r of followups) { const e = (r.enabler || '').trim(); if (e) m[e] = (m[e] || 0) + 1 }
+    const enablers = Object.entries(m).sort((a, b) => b[1] - a[1])
+    return {
+      answered: followups.length,
+      optIns,
+      rate: respondents ? optIns / respondents : 0,
+      enablers,
+      max: Math.max(1, ...enablers.map(([, n]) => n)),
+    }
+  }, [followups, respondents])
 
   return (
     <div className="b2">
@@ -151,6 +175,37 @@ export default function Bet2({ embedded = false }) {
                   </li>
                 ))}
               </ul>
+            </div>
+          )}
+
+          {fuStats && (
+            <div className="b2-card">
+              <h3 className="b2-h3">Closing follow-up</h3>
+              <p className="b2-desc" style={{ marginBottom: 14 }}>
+                At the end of the survey people are asked what would make them actually use their
+                top benefit, and offered their results by email. {fuStats.optIns} of {respondents}{' '}
+                {respondents === 1 ? 'respondent' : 'respondents'} asked for their results, a{' '}
+                {Math.round(fuStats.rate * 100)}% opt-in rate.
+              </p>
+              {fuStats.enablers.length > 0 && (
+                <>
+                  <ul className="b2-bars">
+                    {fuStats.enablers.map(([label, n]) => (
+                      <li key={label} className="b2-bar">
+                        <span className="b2-bar-name">{label}</span>
+                        <span className="b2-bar-track">
+                          <span className="b2-bar-fill" style={{ width: `${Math.max((n / fuStats.max) * 100, 3)}%` }} />
+                        </span>
+                        <span className="b2-bar-pct">{n}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="b2-fine">
+                    What would make them use it, from the {fuStats.answered}{' '}
+                    {fuStats.answered === 1 ? 'person' : 'people'} who answered the closing question.
+                  </p>
+                </>
+              )}
             </div>
           )}
 

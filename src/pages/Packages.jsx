@@ -7,6 +7,19 @@ const Icon = ({ name }) => <BenefitIcon name={name} />
 
 const AGE_RANGES = ['Under 18', '18–20', '21–23', '24–26', '27–30', 'Over 30']
 
+// Closing question. These are the barriers from the Bet #1 interviews turned
+// around into what would remove them, so the answers line up with the barrier
+// categories we already code the interviews against.
+const ENABLERS = [
+  'Knowing exactly what is covered',
+  'A simple way to use it, no paperwork',
+  'Covering more of the cost',
+  'Being able to use someone I already see',
+  'Nothing, I would use it as it is',
+]
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
 function Package({ side, ids, onPick }) {
   return (
     <button type="button" className="pk-card" onClick={() => onPick(side)}>
@@ -38,11 +51,19 @@ export default function Packages() {
   const [choices, setChoices] = useState([])
   const [saving, setSaving] = useState(false)
 
+  // Closing follow-up: one question, plus an optional email for their results.
+  const [enabler, setEnabler] = useState('')
+  const [email, setEmail] = useState('')
+  const [fu, setFu] = useState('open') // open | saving | sent | skipped
+  const [fuErr, setFuErr] = useState('')
+  const [fuSentEmail, setFuSentEmail] = useState(false)
+
   const total = session.length
 
   // The respondent's own result, computed from just their 10 choices (client-side,
   // so it always shows even if the database save is unavailable).
   const mine = useMemo(() => (choices.length ? tallyResponses([{ choices }]) : null), [choices])
+  const topName = mine?.ranking?.length ? BENEFIT_BY_ID[mine.ranking[0].id].name : ''
 
   async function submit(all) {
     if (!isConfigured) {
@@ -62,6 +83,35 @@ export default function Packages() {
     } catch (e) {
       console.error('[survey] save threw:', e?.message || e)
     }
+  }
+
+  // Saved separately from the picks, in bet2_followups, so an email address is
+  // never stored in the same row as someone's answers.
+  async function sendFollowup({ withEmail = true } = {}) {
+    // withEmail:false is the "no thanks" path. Read from the argument rather than
+    // clearing state first, since a state update would not land before this runs.
+    const em = withEmail ? email.trim() : ''
+    if (em && !EMAIL_RE.test(em)) { setFuErr('That does not look like an email address.'); return }
+    setFuErr(''); setFu('saving')
+    if (isConfigured) {
+      try {
+        const { error } = await supabase.from('bet2_followups').insert({
+          respondent,
+          email: em || null,
+          top_benefit: topName || null,
+          enabler: enabler || null,
+          wants_results: !!em,
+        })
+        if (error) console.error('[survey] follow-up save failed:', error.message)
+      } catch (e) {
+        console.error('[survey] follow-up save threw:', e?.message || e)
+      }
+    } else {
+      console.warn('[survey] Supabase not configured — follow-up was NOT saved.')
+    }
+    // Either way the person is done, so never show them a failure for this.
+    setFuSentEmail(!!em)
+    setFu('sent')
   }
 
   function pick(side) {
@@ -103,7 +153,10 @@ export default function Packages() {
               ))}
             </div>
             <button type="button" className="pk-start" onClick={() => setStage('age')}>Start</button>
-            <p className="pk-fine">Anonymous. No sign-in, no personal information collected.</p>
+            <p className="pk-fine">
+              Your picks are anonymous and there is no sign-in. At the end you can choose to leave
+              an email if you want your results sent to you, but you do not have to.
+            </p>
           </div>
         )}
 
@@ -111,7 +164,7 @@ export default function Packages() {
           <div className="pk-panel">
             <span className="pk-eyebrow">One quick question first</span>
             <h2 className="pk-prompt">How old are you?</h2>
-            <p className="pk-sub">This just lets us group the answers. We do not collect anything else about you.</p>
+            <p className="pk-sub">This just lets us group the answers. Nothing here identifies you.</p>
             <div className="pk-age-grid">
               {AGE_RANGES.map((a) => (
                 <button key={a} type="button" className="pk-age-btn" onClick={() => { setAge(a); setStage('q') }}>{a}</button>
@@ -146,9 +199,34 @@ export default function Packages() {
             {mine && mine.ranking.length > 0 && (
               <>
                 <p className="pk-lead pk-result-lead">
-                  Based on the 10 choices you just made, here is what you leaned toward. It looks like
+                  Based on the 10 choices you just made, it looks like
                   {' '}<b>{BENEFIT_BY_ID[mine.ranking[0].id].name.toLowerCase()}</b> matters most to you.
                 </p>
+
+                {/* Asked before the breakdown, while they are still engaged. Once they
+                    have their result they feel finished and stop answering. */}
+                {(fu === 'open' || fu === 'saving') && (
+                  <div className="pk-fu">
+                    <div className="pk-fu-head">One quick question</div>
+                    <p className="pk-fu-q">
+                      If your plan added {topName.toLowerCase()}, what would make you actually use it?
+                    </p>
+                    <div className="pk-fu-opts pk-fu-opts-last">
+                      {ENABLERS.map((opt) => (
+                        <button
+                          key={opt}
+                          type="button"
+                          className="pk-fu-opt"
+                          aria-pressed={enabler === opt}
+                          onClick={() => setEnabler(enabler === opt ? '' : opt)}
+                        >
+                          <span className="pk-fu-dot" aria-hidden="true" />
+                          <span>{opt}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 <div className="pk-result">
                   <div className="pk-result-head">Your ideal package</div>
@@ -180,7 +258,63 @@ export default function Packages() {
               </>
             )}
 
-            <p className="pk-lead" style={{ marginTop: 18 }}>That is everything. Thanks for helping, you can close this tab.</p>
+            {fu === 'sent' && (
+              <div className="pk-fu pk-fu-sent">
+                <p>
+                  {fuSentEmail
+                    ? 'Got it. We will send your results to that address, and the overall results once the study wraps up.'
+                    : 'Thanks, that helps. That is everything, you can close this tab.'}
+                </p>
+              </div>
+            )}
+
+            {fu === 'skipped' && (
+              <p className="pk-lead" style={{ marginTop: 18 }}>That is everything. Thanks for helping, you can close this tab.</p>
+            )}
+
+            {(fu === 'open' || fu === 'saving') && (
+              <div className="pk-fu">
+                <label className="pk-fu-label" htmlFor="pk-email">Want your results by email?</label>
+                <p className="pk-fu-note">
+                  Optional. We will send you the summary above, and the overall results from everyone
+                  once the study wraps up. Leaving your email means it gets stored alongside your picks
+                  so we can send you the right ones. We will not use it for anything else, and you can
+                  ask us to delete it at any time.
+                </p>
+                <input
+                  id="pk-email"
+                  className="pk-fu-input"
+                  type="email"
+                  inputMode="email"
+                  autoComplete="email"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => { setEmail(e.target.value); if (fuErr) setFuErr('') }}
+                />
+                {fuErr && <p className="pk-fu-err">{fuErr}</p>}
+
+                <div className="pk-fu-actions">
+                  <button
+                    type="button"
+                    className="pk-fu-send"
+                    disabled={fu === 'saving' || (!email.trim() && !enabler)}
+                    onClick={sendFollowup}
+                  >
+                    {fu === 'saving' ? 'Sending…' : 'Done'}
+                  </button>
+                  {/* They answered the question above, so keep that even though
+                      they are declining the email. */}
+                  <button
+                    type="button"
+                    className="pk-fu-skip"
+                    onClick={() => { if (enabler) sendFollowup({ withEmail: false }); else setFu('skipped') }}
+                  >
+                    No thanks, I am finished
+                  </button>
+                </div>
+              </div>
+            )}
+
             {saving && <p className="pk-fine">Saving your responses…</p>}
           </div>
         )}
