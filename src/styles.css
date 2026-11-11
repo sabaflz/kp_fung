@@ -532,6 +532,50 @@ footer.foot{margin-top:26px;padding-top:16px;border-top:1px solid var(--line);co
 .pk-age-btn:hover{border-color:var(--pk-accent);background:var(--pk-accent-soft)}
 @media (max-width:620px){ .pk-age-grid{grid-template-columns:1fr} }
 
+/* Closing follow-up on the public survey: one question + optional email */
+.pk-fu{text-align:left; margin-top:18px; padding:18px; border:1px solid var(--pk-line);
+  border-radius:14px; background:var(--pk-surface)}
+.pk-fu-head{font-size:12px; font-weight:800; letter-spacing:.08em; text-transform:uppercase;
+  color:var(--pk-accent-ink); margin-bottom:10px}
+.pk-fu-q{font-size:15.5px; font-weight:700; margin:0 0 12px; line-height:1.45}
+.pk-fu-opts{display:grid; gap:9px; margin-bottom:22px}
+.pk-fu-opts-last{margin-bottom:0}
+.pk-fu-opt{appearance:none; text-align:left; cursor:pointer; font-family:inherit; min-width:0;
+  display:flex; align-items:center; gap:11px;
+  border:2px solid var(--pk-line); background:var(--pk-surface); color:var(--pk-fg);
+  border-radius:11px; padding:12px 14px; font-size:14.5px; font-weight:600;
+  transition:border-color .15s, background .15s, color .15s}
+/* Hover only tints the edge. The filled state below is reserved for the actual
+   choice, so the two can never be mistaken for each other. */
+.pk-fu-opt:hover{border-color:var(--pk-accent)}
+.pk-fu-dot{flex:none; width:19px; height:19px; border-radius:999px; box-sizing:border-box;
+  border:2px solid var(--pk-line); background:var(--pk-surface); position:relative;
+  transition:border-color .15s, background .15s}
+.pk-fu-opt:hover .pk-fu-dot{border-color:var(--pk-accent)}
+.pk-fu-opt[aria-pressed="true"]{border-color:var(--pk-accent); background:var(--pk-accent-soft);
+  color:var(--pk-accent-ink)}
+.pk-fu-opt[aria-pressed="true"] .pk-fu-dot{border-color:var(--pk-accent); background:var(--pk-accent)}
+.pk-fu-opt[aria-pressed="true"] .pk-fu-dot::after{content:""; position:absolute; inset:0;
+  margin:auto; width:7px; height:7px; border-radius:999px; background:#fff}
+.pk-fu-label{display:block; font-size:15px; font-weight:700; margin-bottom:5px}
+.pk-fu-note{font-size:12.5px; color:var(--pk-muted); line-height:1.5; margin:0 0 11px}
+.pk-fu-input{display:block; width:100%; box-sizing:border-box; font-family:inherit; font-size:15px;
+  color:var(--pk-fg); background:var(--pk-surface); border:2px solid var(--pk-line);
+  border-radius:11px; padding:12px 14px}
+.pk-fu-input:focus{outline:none; border-color:var(--pk-accent)}
+.pk-fu-err{font-size:12.5px; color:#b4232a; margin:8px 0 0}
+.pk-fu-actions{display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-top:15px}
+.pk-fu-send{appearance:none; border:none; cursor:pointer; font-family:inherit;
+  background:var(--pk-accent); color:#fff; font-size:15px; font-weight:700;
+  border-radius:11px; padding:12px 22px}
+.pk-fu-send:hover{background:var(--pk-accent-ink)}
+.pk-fu-send:disabled{opacity:.45; cursor:default; background:var(--pk-accent)}
+.pk-fu-skip{appearance:none; border:none; background:none; cursor:pointer; font-family:inherit;
+  font-size:13.5px; font-weight:600; color:var(--pk-muted); text-decoration:underline; padding:4px 0}
+.pk-fu-skip:hover{color:var(--pk-fg)}
+.pk-fu-sent{text-align:center; background:var(--pk-accent-soft); border-color:var(--pk-accent)}
+.pk-fu-sent p{margin:0; font-size:15px; line-height:1.55; color:var(--pk-accent-ink); font-weight:600}
+
 /* ============================================================
    Market page: color, jump nav, badges, readable tables
    ============================================================ */
