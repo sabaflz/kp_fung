@@ -42,7 +42,10 @@ function Package({ side, ids, onPick }) {
   )
 }
 
-export default function Packages() {
+/* `preview` is the owner-only test run: the exact same survey, but nothing is
+   ever written. Both save paths return early, so a test can never land in the
+   results, whatever the tester clicks. */
+export default function Packages({ preview = false, onRestart, onExit }) {
   const session = useMemo(() => buildSession(), [])
   const respondent = useMemo(() => newRespondentId(), [])
   const [stage, setStage] = useState('intro') // intro | age | q | done
@@ -51,7 +54,7 @@ export default function Packages() {
   const [choices, setChoices] = useState([])
   const [saving, setSaving] = useState(false)
 
-  // Closing follow-up: one question, plus an optional email for their results.
+  // Closing follow-up: one question, plus an optional email to join the interest list.
   const [enabler, setEnabler] = useState('')
   const [email, setEmail] = useState('')
   const [fu, setFu] = useState('open') // open | saving | sent | skipped
@@ -66,6 +69,7 @@ export default function Packages() {
   const topName = mine?.ranking?.length ? BENEFIT_BY_ID[mine.ranking[0].id].name : ''
 
   async function submit(all) {
+    if (preview) return // test run: never saved
     if (!isConfigured) {
       // No Supabase keys on this build: the response can't be stored. Flag it in
       // the console so the team can see why results are not appearing.
@@ -93,7 +97,9 @@ export default function Packages() {
     const em = withEmail ? email.trim() : ''
     if (em && !EMAIL_RE.test(em)) { setFuErr('That does not look like an email address.'); return }
     setFuErr(''); setFu('saving')
-    if (isConfigured) {
+    if (preview) {
+      // test run: show the same confirmation, write nothing
+    } else if (isConfigured) {
       try {
         const { error } = await supabase.from('bet2_followups').insert({
           respondent,
@@ -130,7 +136,16 @@ export default function Packages() {
   }
 
   return (
-    <div className="pk-root">
+    <div className={'pk-root' + (preview ? ' pk-preview' : '')}>
+      {preview && (
+        <div className="pk-testbar" role="status">
+          <span><b>Test run.</b> This is the real survey, but nothing you do here is saved.</span>
+          <span className="pk-testbar-actions">
+            <button type="button" onClick={onRestart}>Start over</button>
+            <button type="button" onClick={onExit}>Back to the app</button>
+          </span>
+        </div>
+      )}
       <div className="pk-shell">
         {stage === 'intro' && (
           <div className="pk-panel pk-intro">
@@ -155,7 +170,7 @@ export default function Packages() {
             <button type="button" className="pk-start" onClick={() => setStage('age')}>Start</button>
             <p className="pk-fine">
               Your picks are anonymous and there is no sign-in. At the end you can choose to leave
-              an email if you want your results sent to you, but you do not have to.
+              an email if you are interested in a package like this, but you do not have to.
             </p>
           </div>
         )}
@@ -262,7 +277,7 @@ export default function Packages() {
               <div className="pk-fu pk-fu-sent">
                 <p>
                   {fuSentEmail
-                    ? 'Got it. We will send your results to that address, and the overall results once the study wraps up.'
+                    ? 'Got it, you are on the list. We will be in touch with what we learn.'
                     : 'Thanks, that helps. That is everything, you can close this tab.'}
                 </p>
               </div>
@@ -274,12 +289,12 @@ export default function Packages() {
 
             {(fu === 'open' || fu === 'saving') && (
               <div className="pk-fu">
-                <label className="pk-fu-label" htmlFor="pk-email">Want your results by email?</label>
+                <label className="pk-fu-label" htmlFor="pk-email">Interested in a benefits package like this?</label>
                 <p className="pk-fu-note">
-                  Optional. We will send you the summary above, and the overall results from everyone
-                  once the study wraps up. Leaving your email means it gets stored alongside your picks
-                  so we can send you the right ones. We will not use it for anything else, and you can
-                  ask us to delete it at any time.
+                  Optional. Leave your email and we will add you to our list of people who want to hear
+                  more. We will share what we learn from this study, and we may reach out once with a
+                  follow-up question. Your email gets stored alongside your picks. We will not use it for
+                  anything else, and you can ask us to delete it at any time.
                 </p>
                 <input
                   id="pk-email"

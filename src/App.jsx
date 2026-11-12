@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import { Link, NavLink, Navigate, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth, signOut } from './lib/auth.jsx'
-import { isViewer } from './lib/team.js'
+import { isViewer, isOwner } from './lib/team.js'
 import { ThemeToggle, ExitIcon, useToast, copyText } from './components/ui.jsx'
 import Login from './pages/Login.jsx'
 import Goal from './pages/Goal.jsx'
 import Bets from './pages/Bets.jsx'
 import Bet2 from './pages/Bet2.jsx'
+import Bet3 from './pages/Bet3.jsx'
+import Meetings from './pages/Meetings.jsx'
 import Run from './pages/Run.jsx'
 import Sets from './pages/Sets.jsx'
 import Interviews from './pages/Interviews.jsx'
@@ -24,6 +26,7 @@ const ICON = {
   interviews: <path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z" />,
   findings: <><path d="M3 3v18h18" /><path d="M7 16v2M12 11v7M17 7v11" /></>,
   market: <path d="M3 21h18M5 21V8l7-5 7 5v13M10 21v-6h4v6" />,
+  meetings: <><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4" /></>,
   chevronLeft: <path d="M15 18l-6-6 6-6" />,
   chevronRight: <path d="M9 18l6-6-6-6" />,
 }
@@ -40,6 +43,7 @@ const SECTIONS = [
   ['/interviews', 'Interviews', 'interviews'],
   ['/findings', 'Findings', 'findings'],
   ['/market', 'Market', 'market'],
+  ['/meetings', 'Meetings', 'meetings'],
 ]
 
 // The in-page Market sections, mirrored as left-nav shortcuts (ids match Market.jsx).
@@ -54,11 +58,19 @@ const MARKET_NAV = [
   ['sources', 'Sources'],
 ]
 
+// Remounts the survey on "Start over" so every test run gets a fresh order.
+function SurveyTest() {
+  const [run, setRun] = useState(0)
+  const navigate = useNavigate()
+  return <Packages key={run} preview onRestart={() => setRun(run + 1)} onExit={() => navigate('/bets/2')} />
+}
+
 function sectionFor(p) {
   if (p.startsWith('/bets')) return SECTIONS[1]
   if (p.startsWith('/interviews')) return SECTIONS[2]
   if (p.startsWith('/findings')) return SECTIONS[3]
   if (p.startsWith('/market')) return SECTIONS[4]
+  if (p.startsWith('/meetings')) return SECTIONS[5]
   return SECTIONS[0]
 }
 
@@ -92,6 +104,11 @@ export default function App() {
 
   const email = session.user?.email || ''
   const viewer = isViewer(email)
+
+  // Owner-only test run of the public survey. Same screens, nothing saved.
+  if (location.pathname.startsWith('/survey-test')) {
+    return isOwner(email) ? <SurveyTest /> : <Navigate to="/" replace />
+  }
 
   // Full-screen present mode: no sidebar or top bar, just the slides.
   if (location.pathname.startsWith('/present')) {
@@ -144,7 +161,7 @@ export default function App() {
         </div>
 
         <nav className="side-nav">
-          {SECTIONS.map(([to, label, icon]) => {
+          {SECTIONS.filter(([to]) => !(viewer && to === '/meetings')).map(([to, label, icon]) => {
             const active = activeTo === to
             return (
               <div key={to} className="side-item">
@@ -204,6 +221,8 @@ export default function App() {
             <Route path="/" element={<Goal />} />
             <Route path="/bets" element={<Bets />} />
             <Route path="/bets/2" element={<Bet2 />} />
+            <Route path="/bets/3" element={<Bet3 />} />
+            <Route path="/flyer" element={<Navigate to="/bets/3" replace />} />
 
             <Route path="/interviews" element={<SectionNav tabs={interviewTabs} />}>
               <Route index element={<Navigate to={viewer ? 'log' : 'run'} replace />} />
@@ -221,6 +240,7 @@ export default function App() {
             </Route>
 
             <Route path="/market" element={<Market />} />
+            {!viewer && <Route path="/meetings" element={<Meetings />} />}
 
             {/* Redirects from the old flat paths */}
             <Route path="/run" element={<Navigate to="/interviews/run" replace />} />
