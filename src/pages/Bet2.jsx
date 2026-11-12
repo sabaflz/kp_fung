@@ -4,6 +4,15 @@ import { supabase, isConfigured } from '../lib/supabase.js'
 import { BENEFITS, BENEFIT_BY_ID, tallyResponses } from '../data/packages.js'
 import BenefitIcon from '../components/BenefitIcon.jsx'
 
+function fmtWhen(iso) {
+  if (!iso) return 'Unknown time'
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return 'Unknown time'
+  return d.toLocaleString(undefined, {
+    month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit',
+  })
+}
+
 /* Bet #2 results: live win rates from the public package-choice survey. */
 export default function Bet2({ embedded = false }) {
   const [rows, setRows] = useState([])
@@ -11,6 +20,9 @@ export default function Bet2({ embedded = false }) {
   // Closing follow-ups. Readable by the team only, so this stays empty for
   // invited viewers and the block below simply does not render for them.
   const [followups, setFollowups] = useState([])
+  const [openId, setOpenId] = useState(null)   // which individual response is expanded
+  const [showEmails, setShowEmails] = useState(false) // off by default: this page gets screen-shared
+  const [limit, setLimit] = useState(50)
 
   const refresh = useCallback(async () => {
     if (!isConfigured) { setState('unconfigured'); return }
@@ -21,7 +33,10 @@ export default function Bet2({ embedded = false }) {
     setState('ok')
     // Separate query, and deliberately forgiving: if the table is not there yet
     // or this account cannot read it, the results above still show.
-    const fu = await supabase.from('bet2_followups').select('wants_results, enabler')
+    const fu = await supabase
+      .from('bet2_followups')
+      .select('respondent, email, enabler, wants_results')
+      .order('created_at', { ascending: false })
     setFollowups(fu.error ? [] : (fu.data || []))
   }, [])
 
@@ -60,6 +75,21 @@ export default function Bet2({ embedded = false }) {
       max: Math.max(1, ...enablers.map(([, n]) => n)),
     }
   }, [followups, respondents])
+
+  // Follow-up keyed by respondent id, so an individual response can show the
+  // answer that came with it. Newest wins if somehow there are two.
+  const fuByRespondent = useMemo(() => {
+    const m = {}
+    for (const f of followups) {
+      if (f.respondent && !m[f.respondent]) m[f.respondent] = f
+    }
+    return m
+  }, [followups])
+
+  const anyEmails = useMemo(
+    () => followups.some((f) => f.wants_results && f.email),
+    [followups],
+  )
 
   return (
     <div className="b2">
@@ -208,6 +238,152 @@ export default function Bet2({ embedded = false }) {
               )}
             </div>
           )}
+
+          <div className="b2-card">
+            <div className="b2-resp-head">
+              <h3 className="b2-h3">Individual responses</h3>
+              {anyEmails && (
+                <label className="b2-reveal">
+                  <input
+                    type="checkbox"
+                    checked={showEmails}
+                    onChange={(e) => setShowEmails(e.target.checked)}
+                  />
+                  Show email addresses
+                </label>
+              )}
+            </div>
+            <p className="b2-desc" style={{ marginBottom: 16 }}>
+              Every response, newest first. Click one to see the ten picks behind it and what that
+              person said at the end.
+              {anyEmails && ' Email addresses stay hidden until you ask for them, so this page is safe to share on a screen.'}
+            </p>
+
+            <ul className="b2-resp">
+              {rows.slice(0, limit).map((r) => {
+                const open = openId === r.id
+                const own = tallyResponses([r])
+                const top = own.ranking.find((x) => x.appear > 0)
+                const fu = fuByRespondent[r.respondent]
+                const picks = r.choices || []
+                return (
+                  <li key={r.id} className={'b2-resp-item' + (open ? ' is-open' : '')}>
+                    <button
+                      type="button"
+                      className="b2-resp-row"
+                      aria-expanded={open}
+                      onClick={() => setOpenId(open ? null : r.id)}
+                    >
+                      <span className="b2-resp-when">{fmtWhen(r.created_at)}</span>
+                      <span className="b2-resp-age">{r.age || 'Age not given'}</span>
+                      <span className="b2-resp-top">
+                        {top ? (
+                          <>
+                            <BenefitIcon name={BENEFIT_BY_ID[top.id].icon} size={14} />
+                            {BENEFIT_BY_ID[top.id].name}
+                          </>
+                        ) : '—'}
+                      </span>
+                      <span className="b2-resp-tags">
+                        {fu?.wants_results && <span className="b2-resp-flag">wants results</span>}
+                        <span className="b2-resp-caret" aria-hidden="true">{open ? '−' : '+'}</span>
+                      </span>
+                    </button>
+
+                    {open && (
+                      <div className="b2-resp-body">
+                        <h4 className="b2-resp-h4">Their ten picks</h4>
+                        <ol className="b2-picks">
+                          {picks.map((ch, i) => {
+                            const chosen = ch.chosen === 'right' ? ch.right : ch.left
+                            const other = ch.chosen === 'right' ? ch.left : ch.right
+                            return (
+                              <li key={i} className="b2-pick">
+                                <span className="b2-pick-n">{i + 1}</span>
+                                <span className="b2-pick-side">
+                                  {(chosen || []).map((id) => (
+                                    <span key={id} className="b2-chip b2-chip-sm b2-chip-won">
+                                      <BenefitIcon name={BENEFIT_BY_ID[id]?.icon} size={13} />
+                                      {BENEFIT_BY_ID[id]?.name || id}
+                                    </span>
+                                  ))}
+                                </span>
+                                <span className="b2-pick-vs">over</span>
+                                <span className="b2-pick-side b2-pick-lost">
+                                  {(other || []).map((id) => (
+                                    <span key={id} className="b2-chip b2-chip-sm">
+                                      <BenefitIcon name={BENEFIT_BY_ID[id]?.icon} size={13} />
+                                      {BENEFIT_BY_ID[id]?.name || id}
+                                    </span>
+                                  ))}
+                                </span>
+                              </li>
+                            )
+                          })}
+                        </ol>
+                        {picks.length !== 10 && (
+                          <p className="b2-fine">
+                            {picks.length} of 10 screens answered, so this one is partial.
+                          </p>
+                        )}
+
+                        <h4 className="b2-resp-h4">How often they picked each benefit</h4>
+                        <ul className="b2-bars">
+                          {own.ranking.filter((x) => x.appear > 0).map((x) => (
+                            <li key={x.id} className="b2-bar">
+                              <span className="b2-bar-name">
+                                <BenefitIcon name={BENEFIT_BY_ID[x.id].icon} size={16} />
+                                {BENEFIT_BY_ID[x.id].name}
+                              </span>
+                              <span className="b2-bar-track">
+                                <span className="b2-bar-fill" style={{ width: `${Math.max(x.rate * 100, 2)}%` }} />
+                                <span className="b2-bar-mid" />
+                              </span>
+                              <span className="b2-bar-pct">{x.wins}/{x.appear}</span>
+                            </li>
+                          ))}
+                        </ul>
+
+                        <h4 className="b2-resp-h4">At the end of the survey</h4>
+                        {fu ? (
+                          <dl className="b2-resp-fu">
+                            {fu.enabler && (
+                              <>
+                                <dt>What would make them use it</dt>
+                                <dd>{fu.enabler}</dd>
+                              </>
+                            )}
+                            <dt>Asked for their results</dt>
+                            <dd>{fu.wants_results ? 'Yes' : 'No'}</dd>
+                            {fu.wants_results && fu.email && (
+                              <>
+                                <dt>Email</dt>
+                                <dd>
+                                  {showEmails
+                                    ? fu.email
+                                    : <span className="b2-mask">hidden, tick “Show email addresses” above</span>}
+                                </dd>
+                              </>
+                            )}
+                          </dl>
+                        ) : (
+                          <p className="b2-fine" style={{ marginTop: 0 }}>
+                            They finished the picks but did not answer the closing question.
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </li>
+                )
+              })}
+            </ul>
+
+            {rows.length > limit && (
+              <button type="button" className="btn ghost sm" style={{ marginTop: 14 }} onClick={() => setLimit(limit + 50)}>
+                Show more ({rows.length - limit} left)
+              </button>
+            )}
+          </div>
 
           <div className="b2-share">
             <span>Survey link to share:</span>
