@@ -62,7 +62,9 @@ export default function Bet2({ embedded = false }) {
 
   // Deeper read of the same rows. Recomputed on every change, so it is always current.
   const analysis = useMemo(() => analyzeResponses(rows, { bullseyeOnly }), [rows, bullseyeOnly])
-  const noAge = useMemo(() => rows.filter((r) => !r.age).length, [rows])
+  // Age groups big enough to say anything about. Under three people a win
+  // rate is noise wearing a percentage sign, so those groups are not shown.
+  const readableAges = useMemo(() => analysis.ages.filter((g) => g.n >= 3), [analysis])
   const findings = useMemo(() => summarize(analysis, { bullseyeOnly }), [analysis, bullseyeOnly])
   const VERDICTS = {
     supported: ['Hypothesis supported', 'At least one benefit clears our 4-of-5 bar.'],
@@ -219,17 +221,6 @@ export default function Bet2({ embedded = false }) {
               </div>
             </div>
 
-            {/* The survey falls back to saving without an age when the column is
-                missing, which is silent. Say so here, since the whole premise is 18 to 30. */}
-            {noAge > 0 && (
-              <div className="b2-warn">
-                <b>{noAge === rows.length ? 'No response has an age on it.' : `${noAge} of ${rows.length} responses have no age.`}</b>{' '}
-                {noAge === rows.length
-                  ? 'That usually means the age column is missing from the database, so the survey saves each response without it. Run FIX_MISSING_AGE.sql, then take the survey once to confirm. Until then the bullseye filter cannot tell who is 18 to 30.'
-                  : 'Those responses are included below but cannot be counted toward the bullseye group.'}
-              </div>
-            )}
-
             {analysis.n === 0 ? (
               <p className="b2-fine" style={{ marginTop: 0 }}>Nobody in this group has answered yet.</p>
             ) : (
@@ -320,11 +311,16 @@ export default function Bet2({ embedded = false }) {
                   ranking of whole packages, not just single benefits.
                 </p>
 
-                {analysis.ages.length > 1 && (
+                {/* A group of one or two produces a percentage that looks like a
+                    result and is not one, so those groups are left out rather
+                    than shown with a note explaining them away. Below two
+                    readable groups there is nothing to compare, so the whole
+                    section stays hidden. */}
+                {readableAges.length > 1 && (
                   <>
                     <h4 className="b2-resp-h4" style={{ marginTop: 26 }}>Who leads in each age group</h4>
                     <ul className="b2-ages">
-                      {analysis.ages.map((g) => (
+                      {readableAges.map((g) => (
                         <li key={g.age}>
                           <span className="b2-ages-age">{g.age}</span>
                           <span className="b2-ages-n">{g.n} {g.n === 1 ? 'person' : 'people'}</span>
@@ -336,7 +332,6 @@ export default function Bet2({ embedded = false }) {
                         </li>
                       ))}
                     </ul>
-                    <p className="b2-fine">Groups this small are a hint about where to look, not a finding.</p>
                   </>
                 )}
               </>
