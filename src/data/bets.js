@@ -35,6 +35,20 @@ export const BETS = [
       { label: 'Public survey link', to: '/packages', external: true },
     ],
   },
+  {
+    id: 3,
+    week: 'Bet #3',
+    title: 'Would they add it, at a price',
+    status: 'Draft',
+    hypothesis:
+      'Shown a one-page flyer for the package the survey points to, with a monthly price on it, at least 3 of 5 bullseye users will say they would add it and leave their email to hear more. Draft wording, for the team to settle.',
+    result: '',
+    learning: '',
+    links: [
+      { label: 'Open the flyer', to: '/bets/3', primary: true },
+      { label: 'Survey results behind it', to: '/bets/2' },
+    ],
+  },
 ]
 
 export const BETS_BY_ID = Object.fromEntries(BETS.map((b) => [b.id, b]))

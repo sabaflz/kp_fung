@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { signInWithEmail, signInWithGoogle } from '../lib/auth.jsx'
+import { signInWithEmail, signInWithGoogle, signInWithPassword } from '../lib/auth.jsx'
 import { isConfigured } from '../lib/supabase.js'
 import { ThemeToggle } from '../components/ui.jsx'
 
@@ -19,12 +19,17 @@ export default function Login() {
   const [sent, setSent] = useState(false)
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
+  const [mode, setMode] = useState('link') // link | password
+  const [password, setPassword] = useState('')
 
   async function submit(e) {
     e.preventDefault()
     setErr(''); setBusy(true)
-    try { await signInWithEmail(email.trim()); setSent(true) }
-    catch (e) { setErr(e.message || 'Could not send the link') }
+    try {
+      if (mode === 'password') await signInWithPassword(email.trim(), password)
+      else { await signInWithEmail(email.trim()); setSent(true) }
+    }
+    catch (e) { setErr(e.message || (mode === 'password' ? 'Could not sign in' : 'Could not send the link')) }
     finally { setBusy(false) }
   }
 
@@ -61,7 +66,7 @@ export default function Login() {
 
           <div className="row" style={{ gap: 10, color: 'var(--faint)', fontSize: 12 }}>
             <span style={{ flex: 1, height: 1, background: 'var(--line)' }} />
-            or email me a link
+            {mode === 'password' ? 'or use your password' : 'or email me a link'}
             <span style={{ flex: 1, height: 1, background: 'var(--line)' }} />
           </div>
 
@@ -72,12 +77,27 @@ export default function Login() {
               <div className="field">
                 <label htmlFor="email">Email</label>
                 <input id="email" className="inp" type="email" required
-                  placeholder="you@berkeley.edu" value={email}
+                  placeholder="you@berkeley.edu or you@kp.org" autoComplete="email" value={email}
                   onChange={(e) => setEmail(e.target.value)} disabled={!isConfigured || busy} />
               </div>
+              {mode === 'password' && (
+                <div className="field">
+                  <label htmlFor="password">Password</label>
+                  <input id="password" className="inp" type="password" required autoComplete="current-password"
+                    value={password} onChange={(e) => setPassword(e.target.value)} disabled={!isConfigured || busy} />
+                </div>
+              )}
               {err && <div style={{ color: 'var(--bad)', fontSize: 13 }}>{err}</div>}
               <button className="btn" type="submit" disabled={!isConfigured || busy}>
-                {busy ? 'Sending…' : 'Send magic link'}
+                {mode === 'password'
+                  ? (busy ? 'Signing in…' : 'Sign in')
+                  : (busy ? 'Sending…' : 'Send magic link')}
+              </button>
+              <button type="button" className="login-switch"
+                onClick={() => { setErr(''); setMode(mode === 'password' ? 'link' : 'password') }}>
+                {mode === 'password'
+                  ? 'Email me a sign-in link instead'
+                  : 'No Google account, or the link never arrives? Sign in with a password'}
               </button>
             </form>
           )}

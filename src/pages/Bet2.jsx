@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase, isConfigured } from '../lib/supabase.js'
-import { BENEFITS, BENEFIT_BY_ID, tallyResponses } from '../data/packages.js'
+import { BENEFITS, BENEFIT_BY_ID, tallyResponses, analyzeResponses, summarize, AGREEMENT_BAR } from '../data/packages.js'
 import BenefitIcon from '../components/BenefitIcon.jsx'
 import { copyText, useToast } from '../components/ui.jsx'
 
@@ -25,6 +25,8 @@ export default function Bet2({ embedded = false }) {
   const [showEmails, setShowEmails] = useState(false) // off by default: this page gets screen-shared
   const [limit, setLimit] = useState(50)
   const toast = useToast()
+  const [bullseyeOnly, setBullseyeOnly] = useState(false)
+  const [allPackages, setAllPackages] = useState(false)
 
   const refresh = useCallback(async () => {
     if (!isConfigured) { setState('unconfigured'); return }
@@ -53,6 +55,24 @@ export default function Bet2({ embedded = false }) {
 
   const { ranking, topCombos, respondents, screens } = useMemo(() => tallyResponses(rows), [rows])
   const winners = ranking.slice(0, 3)
+
+  // Deeper read of the same rows. Recomputed on every change, so it is always current.
+  const analysis = useMemo(() => analyzeResponses(rows, { bullseyeOnly }), [rows, bullseyeOnly])
+  const findings = useMemo(() => summarize(analysis, { bullseyeOnly }), [analysis, bullseyeOnly])
+  const VERDICTS = {
+    supported: ['Hypothesis supported', 'At least one benefit clears our 4-of-5 bar.'],
+    partial: ['Partially supported', 'There is a leader, but it does not clear our 4-of-5 bar yet.'],
+    'not-supported': ['Not supported so far', 'No benefit is favored by a clear majority of people.'],
+    'not-yet': ['Too early to call', 'We need at least 5 people in this group before judging.'],
+  }
+  const copySummary = async () => {
+    const head = `Bet #2 package survey, ${bullseyeOnly ? 'bullseye 18 to 30 only' : 'all respondents'}, as of ${new Date().toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}`
+    const table = analysis.benefits.map((b) =>
+      `${BENEFIT_BY_ID[b.id].name}: ${Math.round(b.mean * 100)}%` +
+      (b.moe != null ? ` (±${Math.round(b.moe * 100)})` : '') + `, favored by ${b.favored} of ${b.n}`).join('\n')
+    const text = [head, VERDICTS[analysis.verdict][0], '', ...findings.map((f) => '- ' + f), '', table].join('\n')
+    toast((await copyText(text)) ? 'Summary copied' : 'Copy failed')
+  }
   const ageCounts = useMemo(() => {
     const m = {}
     for (const r of rows) { const a = r.age || 'Not given'; m[a] = (m[a] || 0) + 1 }
@@ -156,6 +176,132 @@ export default function Bet2({ embedded = false }) {
               ))}
             </div>
             <span className="b2-winner-note">The three benefits with the highest win rates.</span>
+          </div>
+
+          <div className="b2-card">
+            <div className="b2-resp-head">
+              <h3 className="b2-h3">What the data says right now</h3>
+              <div className="b2-seg" role="group" aria-label="Who to include">
+                <button type="button" aria-pressed={!bullseyeOnly} onClick={() => setBullseyeOnly(false)}>
+                  Everyone ({analysis.totalAll})
+                </button>
+                <button type="button" aria-pressed={bullseyeOnly} onClick={() => setBullseyeOnly(true)}>
+                  Bullseye 18 to 30 ({analysis.bullseyeCount})
+                </button>
+              </div>
+            </div>
+
+            {analysis.n === 0 ? (
+              <p className="b2-fine" style={{ marginTop: 0 }}>Nobody in this group has answered yet.</p>
+            ) : (
+              <>
+                <div className={'b2-verdict is-' + analysis.verdict}>
+                  <b>{VERDICTS[analysis.verdict][0]}</b>
+                  <span>{VERDICTS[analysis.verdict][1]}</span>
+                </div>
+                <ul className="b2-findings">
+                  {findings.map((f, i) => <li key={i}>{f}</li>)}
+                </ul>
+                <button type="button" className="btn ghost sm" onClick={copySummary}>Copy this summary</button>
+
+                <h4 className="b2-resp-h4" style={{ marginTop: 26 }}>Each benefit, with its margin of error</h4>
+                <div className="b2-ci-wrap">
+                  <table className="b2-ci">
+                    <thead>
+                      <tr>
+                        <th>Benefit</th>
+                        <th>Average pick rate</th>
+                        <th className="num">Rate</th>
+                        <th className="num">Favored by</th>
+                        <th>Read</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {analysis.benefits.map((b) => (
+                        <tr key={b.id}>
+                          <td className="b2-ci-name">
+                            <BenefitIcon name={BENEFIT_BY_ID[b.id].icon} size={15} />
+                            {BENEFIT_BY_ID[b.id].name}
+                          </td>
+                          <td>
+                            <span className="b2-ci-track">
+                              <span className="b2-ci-mid" />
+                              {b.lo != null && (
+                                <span className="b2-ci-band" style={{ left: `${b.lo * 100}%`, width: `${Math.max((b.hi - b.lo) * 100, 1)}%` }} />
+                              )}
+                              <span className="b2-ci-dot" style={{ left: `${b.mean * 100}%` }} />
+                            </span>
+                          </td>
+                          <td className="num">
+                            {Math.round(b.mean * 100)}%
+                            {b.moe != null && <span className="b2-ci-moe"> ±{Math.round(b.moe * 100)}</span>}
+                          </td>
+                          <td className="num">{b.favored} of {b.n}</td>
+                          <td>
+                            <span className={'b2-call is-' + b.call}>
+                              {b.call === 'ahead' ? 'Clearly ahead' : b.call === 'behind' ? 'Clearly behind' : 'Too close to call'}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <p className="b2-fine">
+                  The dot is the average person&rsquo;s pick rate and the band is the 95% range around it. A band
+                  that crosses the 50% line means we cannot yet say the benefit beats a coin flip. Each person
+                  counts once, however many screens they answered. &ldquo;Favored by&rdquo; counts people who picked
+                  that benefit more often than not, and our bar is {Math.round(AGREEMENT_BAR * 100)}%. One caution:
+                  the six rates always average 50%, so a runaway leader pulls the others down.
+                  &ldquo;Behind&rdquo; means behind the field, not unwanted.
+                </p>
+
+                <h4 className="b2-resp-h4" style={{ marginTop: 26 }}>All 20 possible packages, ranked</h4>
+                <ul className="b2-combos">
+                  {analysis.packages.slice(0, allPackages ? 20 : 5).map((c, idx) => (
+                    <li key={c.ids.join('+')} className="b2-combo">
+                      <span className="b2-combo-chips">
+                        <span className="b2-pick-n">{idx + 1}</span>
+                        {c.ids.map((id) => (
+                          <span key={id} className="b2-chip b2-chip-sm">
+                            <BenefitIcon name={BENEFIT_BY_ID[id].icon} size={14} />
+                            {BENEFIT_BY_ID[id].name}
+                          </span>
+                        ))}
+                      </span>
+                      <span className="b2-combo-n">{c.picked} of {c.shown} ({Math.round(c.rate * 100)}%)</span>
+                    </li>
+                  ))}
+                </ul>
+                <button type="button" className="btn ghost sm" style={{ marginTop: 12 }} onClick={() => setAllPackages(!allPackages)}>
+                  {allPackages ? 'Show top 5 only' : 'Show all 20'}
+                </button>
+                <p className="b2-fine">
+                  Every person sees each of the 20 three-benefit packages exactly once, so this is a fair
+                  ranking of whole packages, not just single benefits.
+                </p>
+
+                {analysis.ages.length > 1 && (
+                  <>
+                    <h4 className="b2-resp-h4" style={{ marginTop: 26 }}>Who leads in each age group</h4>
+                    <ul className="b2-ages">
+                      {analysis.ages.map((g) => (
+                        <li key={g.age}>
+                          <span className="b2-ages-age">{g.age}</span>
+                          <span className="b2-ages-n">{g.n} {g.n === 1 ? 'person' : 'people'}</span>
+                          <span className="b2-ages-top">
+                            <BenefitIcon name={BENEFIT_BY_ID[g.top.id].icon} size={14} />
+                            {BENEFIT_BY_ID[g.top.id].name} {Math.round(g.top.mean * 100)}%
+                            <span className="b2-ages-then">then {BENEFIT_BY_ID[g.second.id].name} {Math.round(g.second.mean * 100)}%</span>
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                    <p className="b2-fine">Groups this small are a hint about where to look, not a finding.</p>
+                  </>
+                )}
+              </>
+            )}
           </div>
 
           <div className="b2-card">

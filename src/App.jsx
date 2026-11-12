@@ -7,6 +7,7 @@ import Login from './pages/Login.jsx'
 import Goal from './pages/Goal.jsx'
 import Bets from './pages/Bets.jsx'
 import Bet2 from './pages/Bet2.jsx'
+import Bet3 from './pages/Bet3.jsx'
 import Run from './pages/Run.jsx'
 import Sets from './pages/Sets.jsx'
 import Interviews from './pages/Interviews.jsx'
@@ -204,6 +205,8 @@ export default function App() {
             <Route path="/" element={<Goal />} />
             <Route path="/bets" element={<Bets />} />
             <Route path="/bets/2" element={<Bet2 />} />
+            <Route path="/bets/3" element={<Bet3 />} />
+            <Route path="/flyer" element={<Navigate to="/bets/3" replace />} />
 
             <Route path="/interviews" element={<SectionNav tabs={interviewTabs} />}>
               <Route index element={<Navigate to={viewer ? 'log' : 'run'} replace />} />
