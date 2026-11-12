@@ -40,10 +40,11 @@ as $$
     -- Saffron, all three accounts.
     'saba.f88@gmail.com',
     'saba.feilizadeh@gmail.com',
-    'saba.feilizadeh@berkeley.edu'
-    -- FILL THESE IN, then re-run this file:
-    -- , 'derek@example.com'
-    -- , 'ali@example.com'
+    'saba.feilizadeh@berkeley.edu',
+    -- Derek Hernandez-Alonso
+    'dherna-alonso05@berkeley.edu',
+    -- Alexandra Arcaro
+    'alexandra_arcaro@berkeley.edu'
   )
 $$;
 
@@ -157,14 +158,30 @@ end $$;
 -- ============================================================
 -- CHECK IT WORKED.
 --
--- Run this signed in as yourself. am_i_team must be true. If it is
--- false, the address you are signed in with is not in step 1, and you
--- will see an empty app.
+-- DO NOT test this with `select public.is_team()`. The SQL Editor runs
+-- as the postgres role with nobody signed in, so auth.jwt() is NULL
+-- here and is_team() returns false no matter who is on the list. That
+-- is expected and means nothing is wrong.
+--
+-- Check the LIST instead. Five addresses, no example.com anywhere:
 -- ============================================================
-select
-  auth.jwt() ->> 'email' as signed_in_as,
-  public.is_team()       as am_i_team,
-  public.is_viewer()     as am_i_viewer;
+select unnest(
+  regexp_matches(prosrc, '''([^'']+@[^'']+)''', 'g')
+) as team_member
+from pg_proc where proname = 'is_team';
+
+select unnest(
+  regexp_matches(prosrc, '''([^'']+@[^'']+)''', 'g')
+) as viewer
+from pg_proc where proname = 'is_viewer';
+
+-- Then compare against who has actually signed in, so a typo in an
+-- address shows up as a mismatch rather than as a silent lockout:
+select email, last_sign_in_at from auth.users order by email;
+
+-- The real test is the app itself. Open it signed in as yourself: if
+-- the editing tools are there and the Bet #2 page shows responses,
+-- is_team() is working.
 
 -- Every policy now in force, one row per table per action:
 select tablename, cmd, policyname
