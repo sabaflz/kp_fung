@@ -43,14 +43,12 @@ export default function Packages({ preview = false, onRestart, onExit }) {
   const [choices, setChoices] = useState([])
   const [saving, setSaving] = useState(false)
 
-  // Closing ask: are they interested in hearing more, and if so, their email.
-  // Interest is the signal; the email is what makes it actionable.
-  const [interest, setInterest] = useState('') // '' | 'yes' | 'no'
+  // Closing ask: the email is the signal. Submitting one means interested;
+  // "no thanks" records a decline so the rate has a denominator.
   const [email, setEmail] = useState('')
   const [fu, setFu] = useState('open') // open | saving | sent | skipped
   const [fuErr, setFuErr] = useState('')
   const [fuSentEmail, setFuSentEmail] = useState(false)
-  const [fuKeen, setFuKeen] = useState(false)
 
   const total = session.length
 
@@ -86,7 +84,7 @@ export default function Packages({ preview = false, onRestart, onExit }) {
     // `interested` is passed in rather than read from state, because the "no
     // thanks" button sets it and submits in the same click, and a state update
     // would not land before this runs.
-    const keen = interested != null ? interested : interest === 'yes'
+    const keen = interested != null ? interested : !!email.trim()
     const em = keen ? email.trim() : ''
     if (em && !EMAIL_RE.test(em)) { setFuErr('That does not look like an email address.'); return }
     setFuErr(''); setFu('saving')
@@ -110,7 +108,6 @@ export default function Packages({ preview = false, onRestart, onExit }) {
     }
     // Either way the person is done, so never show them a failure for this.
     setFuSentEmail(!!em)
-    setFuKeen(keen)
     setFu('sent')
   }
 
@@ -212,6 +209,57 @@ export default function Packages({ preview = false, onRestart, onExit }) {
                   {' '}<b>{BENEFIT_BY_ID[mine.ranking[0].id].name.toLowerCase()}</b> matters most to you.
                 </p>
 
+                {/* The ask comes before the breakdown. Once someone has their
+                    result they feel finished, so this is where they still read. */}
+                {(fu === 'open' || fu === 'saving') && (
+                  <div className="pk-fu pk-fu-first">
+                    <div className="pk-fu-head">Before you go</div>
+                    <p className="pk-fu-q">Want to hear more about a plan like this?</p>
+                    <p className="pk-fu-note">
+                      Leave your email and we will send you your own results, just below, plus what we
+                      find as this takes shape.
+                    </p>
+
+                    <input
+                      id="pk-email"
+                      className="pk-fu-input"
+                      type="email"
+                      inputMode="email"
+                      autoComplete="email"
+                      placeholder="you@example.com"
+                      aria-label="Your email address"
+                      value={email}
+                      onChange={(e) => { setEmail(e.target.value); if (fuErr) setFuErr('') }}
+                      onKeyDown={(e) => { if (e.key === 'Enter' && email.trim()) sendFollowup() }}
+                    />
+                    {fuErr && <p className="pk-fu-err">{fuErr}</p>}
+
+                    <div className="pk-fu-actions">
+                      <button
+                        type="button"
+                        className="pk-fu-send"
+                        disabled={fu === 'saving' || !email.trim()}
+                        onClick={() => sendFollowup()}
+                      >
+                        {fu === 'saving' ? 'Sending…' : 'Send it to me'}
+                      </button>
+                      <button
+                        type="button"
+                        className="pk-fu-skip"
+                        onClick={() => sendFollowup({ interested: false })}
+                      >
+                        No thanks, I am done
+                      </button>
+                    </div>
+
+                    <p className="pk-fu-promise">
+                      We are students, not marketers. A couple of emails about this study at most, then
+                      nothing. No ads and no newsletter. Your email is stored next to your picks so we
+                      can send you the right ones, and you can ask us to delete it at any time.
+                    </p>
+                  </div>
+                )}
+
                 <div className="pk-result">
                   <div className="pk-result-head">Your ideal package</div>
                   <div className="pk-result-chips">
@@ -246,86 +294,14 @@ export default function Packages({ preview = false, onRestart, onExit }) {
               <div className="pk-fu pk-fu-sent">
                 <p>
                   {fuSentEmail
-                    ? 'Got it, you are on the list. We will send you more about the plan, and your results.'
-                    : fuKeen
-                      ? 'Noted, thanks. Without an email we cannot send you anything, but your interest is recorded.'
-                      : 'Thanks, that helps. That is everything, you can close this tab.'}
+                    ? 'Got it, you are on the list. We will send you your results and more about the plan.'
+                    : 'No problem. That is everything, you can close this tab.'}
                 </p>
               </div>
             )}
 
             {fu === 'skipped' && (
               <p className="pk-lead" style={{ marginTop: 18 }}>That is everything. Thanks for helping, you can close this tab.</p>
-            )}
-
-            {(fu === 'open' || fu === 'saving') && (
-              <div className="pk-fu">
-                <div className="pk-fu-head">Before you go</div>
-                <p className="pk-fu-q">Want to hear more about a plan like this?</p>
-                <p className="pk-fu-note">
-                  We are students researching this with Kaiser Permanente. Nothing here is for sale,
-                  and this plan does not exist yet.
-                </p>
-
-                <div className="pk-fu-opts">
-                  <button
-                    type="button"
-                    className="pk-fu-opt"
-                    aria-pressed={interest === 'yes'}
-                    onClick={() => setInterest('yes')}
-                  >
-                    <span className="pk-fu-dot" aria-hidden="true" />
-                    <span>Yes, send me more about it</span>
-                  </button>
-                  <button
-                    type="button"
-                    className="pk-fu-opt"
-                    aria-pressed={interest === 'no'}
-                    onClick={() => { setInterest('no'); setEmail(''); setFuErr('') }}
-                  >
-                    <span className="pk-fu-dot" aria-hidden="true" />
-                    <span>No thanks</span>
-                  </button>
-                </div>
-
-                {interest === 'yes' && (
-                  <div className="pk-fu-email">
-                    <label className="pk-fu-label" htmlFor="pk-email">Where should we send it?</label>
-                    <p className="pk-fu-note">
-                      We will send you more about the plan as it takes shape, and your own results from
-                      above. Leaving your email means it gets stored alongside your picks. We will not
-                      use it for anything else, and you can ask us to delete it at any time.
-                    </p>
-                    <input
-                      id="pk-email"
-                      className="pk-fu-input"
-                      type="email"
-                      inputMode="email"
-                      autoComplete="email"
-                      placeholder="you@example.com"
-                      value={email}
-                      onChange={(e) => { setEmail(e.target.value); if (fuErr) setFuErr('') }}
-                    />
-                    {fuErr && <p className="pk-fu-err">{fuErr}</p>}
-                  </div>
-                )}
-
-                {interest !== '' && (
-                  <div className="pk-fu-actions">
-                    <button
-                      type="button"
-                      className="pk-fu-send"
-                      disabled={fu === 'saving'}
-                      onClick={() => sendFollowup()}
-                    >
-                      {fu === 'saving' ? 'Sending…' : 'Done'}
-                    </button>
-                    {interest === 'yes' && (
-                      <span className="pk-fu-hint">You can leave the email blank if you would rather not.</span>
-                    )}
-                  </div>
-                )}
-              </div>
             )}
 
             {saving && <p className="pk-fine">Saving your responses…</p>}
