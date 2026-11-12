@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { supabase, isConfigured } from '../lib/supabase.js'
-import { BENEFIT_BY_ID, analyzeResponses } from '../data/packages.js'
+import { BENEFIT_BY_ID } from '../data/packages.js'
 import { FLYER_COPY, DEFAULT_TOP } from './Bet3.jsx'
 import BenefitIcon from '../components/BenefitIcon.jsx'
 import { startVisit, readSource, track } from '../lib/track.js'
@@ -115,7 +115,7 @@ export default function Landing() {
   const [email, setEmail] = useState('')
   const [err, setErr] = useState('')
   const [sent, setSent] = useState(false)
-  const [rows, setRows] = useState([])
+  const [rates, setRates] = useState([])
   const source = useRef('direct')
   const emailRef = useRef(null)
 
@@ -126,17 +126,26 @@ export default function Landing() {
   }, [])
 
   // The three benefits come from the survey, so the page follows the evidence.
+  //
+  // This calls benefit_win_rates() rather than reading bet2_responses, because
+  // this page is public and that table is not readable without signing in. The
+  // table read silently returned nothing for every real visitor and the page
+  // fell back to the hardcoded list, which looked right to us only because we
+  // are signed in. The function returns six win rates and no rows.
   useEffect(() => {
     if (!isConfigured) return
     let alive = true
-    supabase.from('bet2_responses').select('age, choices')
-      .then(({ data, error }) => { if (alive && !error) setRows(data || []) })
+    supabase.rpc('benefit_win_rates')
+      .then(({ data, error }) => { if (alive && !error) setRates(data || []) })
       .catch(() => {})
     return () => { alive = false }
   }, [])
 
-  const analysis = useMemo(() => analyzeResponses(rows), [rows])
-  const top = analysis.n > 0 ? analysis.benefits.slice(0, 3).map((b) => b.id) : DEFAULT_TOP
+  // Fall back to the predicted order only if the call genuinely returns nothing.
+  const top = useMemo(() => {
+    const ids = (rates || []).map((r) => r.benefit_id).filter((id) => BENEFIT_BY_ID[id])
+    return ids.length >= 3 ? ids.slice(0, 3) : DEFAULT_TOP
+  }, [rates])
 
   const toggle = useCallback((s) => {
     const next = open === s.id ? null : s.id

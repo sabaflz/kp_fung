@@ -17,7 +17,7 @@
 --   * only the TEAM can DELETE          -> so a deletion request can be honored
 --
 -- HOW TO RUN: Supabase dashboard -> SQL Editor -> New query -> paste all -> Run.
--- Safe to re-run. Requires public.is_team() from supabase_viewer_access.sql.
+-- Safe to re-run. Requires public.is_team() from supabase_access.sql.
 --
 -- BEFORE YOU RUN: make sure public.is_team() lists the real team emails. If it
 -- still has the placeholder address, nobody passes it and this table will read
