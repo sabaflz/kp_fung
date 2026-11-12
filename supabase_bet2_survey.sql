@@ -8,7 +8,7 @@
 --
 -- HOW TO RUN: Supabase dashboard -> SQL Editor -> New query -> paste all -> Run.
 -- Safe to re-run. Assumes public.is_team() already exists (from
--- supabase_viewer_access.sql). If it does not, run that file first.
+-- supabase_access.sql). If it does not, run that file first.
 -- ============================================================
 
 create table if not exists public.bet2_responses (

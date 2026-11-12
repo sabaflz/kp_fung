@@ -5,7 +5,7 @@
 // Everyone else keeps the full workspace.
 //
 // IMPORTANT: this list only controls what a viewer SEES. The real protection is
-// in the database (supabase_viewer_access.sql), which blocks writes from anyone
+// in the database (supabase_access.sql), which blocks writes from anyone
 // who is not on the team regardless of the UI. Add a viewer's EXACT sign-in
 // email (lowercased) below to switch them into read-only mode.
 // Saffron's three accounts (saba.f88@gmail.com, saba.feilizadeh@gmail.com,

@@ -16,7 +16,7 @@
 -- dashboard and nothing more.
 --
 -- HOW TO RUN: Supabase dashboard -> SQL Editor -> New query -> paste -> Run.
--- Safe to re-run. Requires public.is_team() from supabase_viewer_access.sql.
+-- Safe to re-run. Requires public.is_team() from supabase_access.sql.
 -- ============================================================
 
 create table if not exists public.landing_events (

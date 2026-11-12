@@ -57,13 +57,20 @@ That is it. Share the Vercel URL with the team. Everyone signs in with their ema
 By default, anyone who signs in can edit. To let someone view the dashboard and
 data without being able to change anything:
 
-1. **Lock writes to the team (database).** In the Supabase **SQL Editor**, first run
-   `select email from auth.users order by email;` to see the exact sign-in emails.
-   Open `supabase_viewer_access.sql`, put every teammate's exact email in the
-   `is_team()` list, then paste the whole file in and **Run**. After this, only the
-   team can add, edit, or delete; everyone else is read-only, enforced by the
-   database. (The file also has an optional block to limit *who can read*, and a
-   rollback block.)
+1. **Set who can see and change what (database).** In the Supabase **SQL
+   Editor**, paste `supabase_access.sql` and **Run**. It already holds the team
+   and the KP partners, so there is nothing to fill in unless somebody joins or
+   leaves, which is what editing and re-running it is for. Reading is limited to
+   those named people, writing to the team, and the interest-list emails to the
+   team only. A stranger can submit a survey response and read nothing.
+
+   Do not run `supabase_viewer_access.sql`. It is superseded and left in place
+   only so an old link to it does not dead-end.
+
+   To check the lists took effect, read them back out of the function rather than
+   calling `is_team()`. The SQL Editor has nobody signed in, so `auth.jwt()` is
+   NULL there and `is_team()` returns false however correct the list is. The
+   verification queries at the bottom of `supabase_access.sql` do this properly.
 2. **Give the viewer a clean view (app).** Add the viewer's exact sign-in email to
    `VIEWER_EMAILS` in `src/lib/team.js` and redeploy. They will land on the Dashboard
    and see the Survey and Interviews as read-only, with the interviewing tools and
