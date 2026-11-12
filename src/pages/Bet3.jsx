@@ -13,7 +13,7 @@ import BenefitIcon from '../components/BenefitIcon.jsx'
 
 // How each benefit reads on a flyer. Written to answer the comprehension
 // problem from Bet #1: say exactly what you get, in plain words.
-const FLYER_COPY = {
+export const FLYER_COPY = {
   dental: {
     kicker: 'Dental',
     line: 'Cleanings covered. Help when you need a filling.',
@@ -46,7 +46,7 @@ const FLYER_COPY = {
   },
 }
 
-const DEFAULT_TOP = ['dental', 'vision', 'mental']
+export const DEFAULT_TOP = ['dental', 'vision', 'mental']
 
 export default function Bet3() {
   const [rows, setRows] = useState([])
@@ -193,7 +193,10 @@ export default function Bet3() {
           <li>The <b>three benefits</b> come straight from the survey. Second and third place are close, so expect them to move.</li>
           <li>The <b>bullet points</b> under each benefit describe what a member would get in plain words. They still need real limits from KP.</li>
         </ul>
-        <Link className="btn ghost sm" to="/bets/2">See the survey results behind this</Link>
+        <div className="b3-links">
+          <Link className="btn sm" to="/present/bet3">Present this week&rsquo;s update</Link>
+          <Link className="btn ghost sm" to="/bets/2">See the survey results behind this</Link>
+        </div>
       </div>
     </div>
   )

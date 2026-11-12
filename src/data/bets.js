@@ -45,7 +45,8 @@ export const BETS = [
     result: '',
     learning: '',
     links: [
-      { label: 'Open the flyer', to: '/bets/3', primary: true },
+      { label: 'Present Bet #3', to: '/present/bet3', primary: true },
+      { label: 'Open the flyer', to: '/bets/3' },
       { label: 'Survey results behind it', to: '/bets/2' },
     ],
   },

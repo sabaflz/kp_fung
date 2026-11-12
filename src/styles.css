@@ -815,3 +815,5 @@ footer.foot{margin-top:26px;padding-top:16px;border-top:1px solid var(--line);co
   .mt-form-row{grid-template-columns:1fr}
 }
 @media (max-width:620px){ .pk-preview{padding-top:108px} }
+
+.b3-links{display:flex; flex-wrap:wrap; gap:8px}
