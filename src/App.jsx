@@ -7,6 +7,7 @@ import Login from './pages/Login.jsx'
 import Goal from './pages/Goal.jsx'
 import Bets from './pages/Bets.jsx'
 import BetDetail from './pages/BetDetail.jsx'
+import Landing from './pages/Landing.jsx'
 import Meetings from './pages/Meetings.jsx'
 import Run from './pages/Run.jsx'
 import Sets from './pages/Sets.jsx'
@@ -97,6 +98,8 @@ export default function App() {
 
   // Public, standalone package-choice survey: no nav, no sign-in.
   if (location.pathname.startsWith('/packages')) return <Packages />
+  // Public landing page the flyer links to. No sign-in, like the survey.
+  if (location.pathname.startsWith('/plan')) return <Landing />
 
   if (loading) return <div className="center"><span className="spin" /></div>
   if (!session) return <Login />

@@ -843,3 +843,69 @@ footer.foot{margin-top:26px;padding-top:16px;border-top:1px solid var(--line);co
 .bet-live-line{font-size:13.5px; font-weight:600; color:var(--brand); margin:10px 0 0}
 .bet-more{display:inline-block; margin-top:14px; font-size:13.5px; font-weight:700; color:var(--brand)}
 @media (max-width:620px){ .betnav-tabs{width:100%} .betnav-present{width:100%; text-align:center} }
+
+.pk-fu-first{margin-top:0; margin-bottom:18px; border-color:var(--pk-accent)}
+.pk-fu-promise{font-size:12px; line-height:1.5; color:var(--pk-muted); margin:14px 0 0;
+  padding-top:13px; border-top:1px solid var(--pk-line)}
+
+/* ---- Public landing page the flyer links to (/plan) ---- */
+.lp{--lp-blue:#003087; --lp-sky:#0078b3; --lp-ink:#14213d; --lp-muted:#55607a; --lp-tint:#eef4fb; --lp-line:#d5deeb;
+  color-scheme:light; background:#fff; color:var(--lp-ink); font-family:var(--sans); min-height:100%;
+  max-width:720px; margin:0 auto; padding:0 0 56px}
+.lp-flag{background:#fff6d6; color:#5c4400; font-size:12.5px; font-weight:700; text-align:center;
+  padding:9px 16px; border-bottom:1px solid #ecd98f}
+.lp-hero{padding:38px 24px 30px; background:var(--lp-blue); color:#fff}
+.lp-eyebrow{margin:0 0 12px; font-size:12.5px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#b9d4f5}
+.lp-h1{margin:0; font-family:var(--serif); font-weight:600; font-size:clamp(34px,9vw,52px); line-height:1.05; text-wrap:balance}
+.lp-sub{margin:16px 0 0; font-size:17px; line-height:1.5; color:#dbe8f8; max-width:52ch}
+.lp-chips{display:flex; flex-wrap:wrap; gap:8px; margin-top:20px}
+.lp-chip{display:inline-flex; align-items:center; gap:7px; background:rgba(255,255,255,.14); color:#fff;
+  border-radius:999px; padding:7px 13px; font-size:13.5px; font-weight:600}
+.lp-ctas{padding:22px 24px 0; display:flex; flex-direction:column; gap:10px}
+.lp-acc{border:1px solid var(--lp-line); border-radius:12px; overflow:hidden; background:#fff}
+.lp-acc.is-open{border-color:var(--lp-blue)}
+.lp-cta{width:100%; appearance:none; border:none; background:none; cursor:pointer; font-family:inherit; text-align:left;
+  display:flex; align-items:center; justify-content:space-between; gap:14px; padding:16px 18px;
+  font-size:16.5px; font-weight:700; color:var(--lp-blue)}
+.lp-cta:hover{background:var(--lp-tint)}
+.lp-cta-mark{font-size:20px; line-height:1; color:var(--lp-muted); flex:none}
+.lp-acc-body{padding:4px 18px 20px; border-top:1px solid var(--lp-line)}
+.lp-acc-body h2{margin:16px 0 10px; font-family:var(--serif); font-size:21px; font-weight:600}
+.lp-acc-body p{margin:0 0 11px; font-size:15.5px; line-height:1.6; color:var(--lp-muted)}
+.lp-acc-body p b,.lp-acc-body li b{color:var(--lp-ink)}
+.lp-list{list-style:none; margin:0 0 11px; padding:0; display:grid; gap:11px}
+.lp-list li{display:flex; gap:11px; font-size:15.5px; line-height:1.55; color:var(--lp-muted)}
+.lp-list-ico{flex:none; width:32px; height:32px; border-radius:999px; background:var(--lp-tint); color:var(--lp-blue);
+  display:inline-flex; align-items:center; justify-content:center}
+.lp-steps{list-style:none; counter-reset:lp; margin:0 0 11px; padding:0; display:grid; gap:13px}
+.lp-steps li{counter-increment:lp; display:grid; gap:3px; font-size:15.5px; line-height:1.55; color:var(--lp-muted)}
+.lp-steps li b{font-size:16px; color:var(--lp-ink)}
+.lp-steps li b::before{content:counter(lp); display:inline-flex; width:22px; height:22px; margin-right:9px;
+  border-radius:999px; background:var(--lp-blue); color:#fff; font-size:12px; align-items:center;
+  justify-content:center; vertical-align:1px}
+.lp-small{font-size:13px; line-height:1.5; color:var(--lp-muted); opacity:.85; margin:0}
+.lp-survey,.lp-email{padding:26px 24px 0}
+.lp-survey h2,.lp-email h2{margin:0 0 9px; font-family:var(--serif); font-size:23px; font-weight:600}
+.lp-survey p,.lp-email p{margin:0 0 15px; font-size:15.5px; line-height:1.6; color:var(--lp-muted); max-width:56ch}
+.lp-btn{display:inline-block; appearance:none; border:none; cursor:pointer; font-family:inherit; text-decoration:none;
+  background:var(--lp-blue); color:#fff; font-size:16px; font-weight:700; border-radius:11px; padding:14px 24px}
+.lp-btn:hover{background:#002a6b}
+.lp-form{display:flex; gap:10px; flex-wrap:wrap}
+.lp-input{flex:1 1 220px; min-width:0; box-sizing:border-box; font-family:inherit; font-size:16px; color:var(--lp-ink);
+  background:#fff; border:2px solid var(--lp-line); border-radius:11px; padding:13px 15px}
+.lp-input:focus{outline:none; border-color:var(--lp-blue)}
+.lp-err{margin:9px 0 0; font-size:13px; color:#b4232a}
+.lp-email .lp-small{margin-top:13px}
+.lp-sent{background:var(--lp-tint); border:1px solid var(--lp-line); border-radius:12px; padding:18px 20px; display:grid; gap:4px}
+.lp-sent b{font-size:17px; color:var(--lp-blue)}
+.lp-sent span{font-size:15px; color:var(--lp-muted)}
+.lp-foot{padding:26px 24px 0; margin-top:26px; border-top:1px solid var(--lp-line)}
+.lp-foot p{margin:0; font-size:12px; line-height:1.55; color:var(--lp-muted)}
+
+/* Bet #3 funnel */
+.b3-funnel{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin-bottom:14px}
+.b3-step{background:var(--surface-2); border:1px solid var(--line); border-radius:12px; padding:14px 16px; display:grid; gap:2px; min-width:0}
+.b3-step-n{font-family:var(--serif); font-size:30px; font-weight:600; color:var(--brand); line-height:1.05; font-variant-numeric:tabular-nums}
+.b3-step-l{font-size:13px; font-weight:600}
+.b3-step-p{font-size:12px; color:var(--muted)}
+@media (max-width:680px){ .b3-funnel{grid-template-columns:repeat(2,minmax(0,1fr))} }
