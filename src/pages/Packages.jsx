@@ -51,7 +51,7 @@ export default function Packages() {
   const [choices, setChoices] = useState([])
   const [saving, setSaving] = useState(false)
 
-  // Closing follow-up: one question, plus an optional email for their results.
+  // Closing follow-up: one question, plus an optional email to join the interest list.
   const [enabler, setEnabler] = useState('')
   const [email, setEmail] = useState('')
   const [fu, setFu] = useState('open') // open | saving | sent | skipped
@@ -155,7 +155,7 @@ export default function Packages() {
             <button type="button" className="pk-start" onClick={() => setStage('age')}>Start</button>
             <p className="pk-fine">
               Your picks are anonymous and there is no sign-in. At the end you can choose to leave
-              an email if you want your results sent to you, but you do not have to.
+              an email if you are interested in a package like this, but you do not have to.
             </p>
           </div>
         )}
@@ -262,7 +262,7 @@ export default function Packages() {
               <div className="pk-fu pk-fu-sent">
                 <p>
                   {fuSentEmail
-                    ? 'Got it. We will send your results to that address, and the overall results once the study wraps up.'
+                    ? 'Got it, you are on the list. We will be in touch with what we learn.'
                     : 'Thanks, that helps. That is everything, you can close this tab.'}
                 </p>
               </div>
@@ -274,12 +274,12 @@ export default function Packages() {
 
             {(fu === 'open' || fu === 'saving') && (
               <div className="pk-fu">
-                <label className="pk-fu-label" htmlFor="pk-email">Want your results by email?</label>
+                <label className="pk-fu-label" htmlFor="pk-email">Interested in a benefits package like this?</label>
                 <p className="pk-fu-note">
-                  Optional. We will send you the summary above, and the overall results from everyone
-                  once the study wraps up. Leaving your email means it gets stored alongside your picks
-                  so we can send you the right ones. We will not use it for anything else, and you can
-                  ask us to delete it at any time.
+                  Optional. Leave your email and we will add you to our list of people who want to hear
+                  more. We will share what we learn from this study, and we may reach out once with a
+                  follow-up question. Your email gets stored alongside your picks. We will not use it for
+                  anything else, and you can ask us to delete it at any time.
                 </p>
                 <input
                   id="pk-email"

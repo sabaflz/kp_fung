@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { supabase, isConfigured } from '../lib/supabase.js'
 import { BENEFITS, BENEFIT_BY_ID, tallyResponses } from '../data/packages.js'
 import BenefitIcon from '../components/BenefitIcon.jsx'
+import { copyText, useToast } from '../components/ui.jsx'
 
 function fmtWhen(iso) {
   if (!iso) return 'Unknown time'
@@ -23,6 +24,7 @@ export default function Bet2({ embedded = false }) {
   const [openId, setOpenId] = useState(null)   // which individual response is expanded
   const [showEmails, setShowEmails] = useState(false) // off by default: this page gets screen-shared
   const [limit, setLimit] = useState(50)
+  const toast = useToast()
 
   const refresh = useCallback(async () => {
     if (!isConfigured) { setState('unconfigured'); return }
@@ -86,10 +88,16 @@ export default function Bet2({ embedded = false }) {
     return m
   }, [followups])
 
-  const anyEmails = useMemo(
-    () => followups.some((f) => f.wants_results && f.email),
-    [followups],
-  )
+  // The interest list: everyone who left an email, de-duplicated.
+  const interestEmails = useMemo(() => {
+    const seen = new Set()
+    for (const f of followups) {
+      const e = (f.email || '').trim().toLowerCase()
+      if (f.wants_results && e) seen.add(e)
+    }
+    return [...seen]
+  }, [followups])
+  const anyEmails = interestEmails.length > 0
 
   return (
     <div className="b2">
@@ -213,8 +221,9 @@ export default function Bet2({ embedded = false }) {
               <h3 className="b2-h3">Closing follow-up</h3>
               <p className="b2-desc" style={{ marginBottom: 14 }}>
                 At the end of the survey people are asked what would make them actually use their
-                top benefit, and offered their results by email. {fuStats.optIns} of {respondents}{' '}
-                {respondents === 1 ? 'respondent' : 'respondents'} asked for their results, a{' '}
+                top benefit, and invited to leave an email if they are interested in a package like
+                this. {fuStats.optIns} of {respondents}{' '}
+                {respondents === 1 ? 'respondent' : 'respondents'} joined the interest list, a{' '}
                 {Math.round(fuStats.rate * 100)}% opt-in rate.
               </p>
               {fuStats.enablers.length > 0 && (
@@ -252,6 +261,15 @@ export default function Bet2({ embedded = false }) {
                   Show email addresses
                 </label>
               )}
+              {anyEmails && showEmails && (
+                <button
+                  type="button"
+                  className="btn ghost sm"
+                  onClick={async () => toast((await copyText(interestEmails.join(', '))) ? `${interestEmails.length} emails copied` : 'Copy failed')}
+                >
+                  Copy interest list ({interestEmails.length})
+                </button>
+              )}
             </div>
             <p className="b2-desc" style={{ marginBottom: 16 }}>
               Every response, newest first. Click one to see the ten picks behind it and what that
@@ -285,7 +303,7 @@ export default function Bet2({ embedded = false }) {
                         ) : '—'}
                       </span>
                       <span className="b2-resp-tags">
-                        {fu?.wants_results && <span className="b2-resp-flag">wants results</span>}
+                        {fu?.wants_results && <span className="b2-resp-flag">interested</span>}
                         <span className="b2-resp-caret" aria-hidden="true">{open ? '−' : '+'}</span>
                       </span>
                     </button>
@@ -353,7 +371,7 @@ export default function Bet2({ embedded = false }) {
                                 <dd>{fu.enabler}</dd>
                               </>
                             )}
-                            <dt>Asked for their results</dt>
+                            <dt>Joined the interest list</dt>
                             <dd>{fu.wants_results ? 'Yes' : 'No'}</dd>
                             {fu.wants_results && fu.email && (
                               <>
