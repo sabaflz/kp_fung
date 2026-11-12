@@ -42,17 +42,18 @@ export const BETS = [
   {
     id: 3,
     week: 'Bet #3',
-    title: 'What people want inside the winning benefits',
+    title: 'Does the flyer make people act',
     status: 'Draft',
     summary:
-      'A category is not a benefit. This asks what people actually needed the last time, so the package can name specifics.',
+      'Liking a package is cheap. This measures whether the flyer makes someone take an observable next step, and what they do once they have.',
     hypothesis:
-      'When at least 5 bullseye users describe the last time they needed care in the benefits leading our survey, at least 4 of 5 will name the same specific need inside a benefit (for example a cleaning, or glasses), concrete enough to write onto the flyer. Draft wording, for the team to settle.',
+      'Shown the flyer with a clear next step, at least 4 of 5 bullseye users will click through to find out more within one minute, without being prompted. Alongside that, the same flyer posted publicly gives us a click-through and sign-up rate per platform. Draft wording, for the team to settle.',
     result: '',
     learning: '',
     links: [
       { label: 'Present Bet #3', to: '/present/bet3', primary: true },
       { label: 'Open the flyer', to: '/bets/3' },
+      { label: 'The landing page people reach', to: '/plan?src=team', external: false },
       { label: 'Survey results behind it', to: '/bets/2' },
     ],
   },

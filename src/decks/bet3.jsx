@@ -46,10 +46,10 @@ const S1 = (
     </div>
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
       <h1 style={{ fontFamily: SERIF, fontSize: 78, fontWeight: 600, lineHeight: 1.04, color: '#FFFFFF', margin: 0 }}>
-        <T p="title.h1">{'From categories\nto specifics'}</T>
+        <T p="title.h1">{'Would anyone\nactually take it?'}</T>
       </h1>
       <p style={{ fontSize: 27, lineHeight: 1.4, color: '#AEC2DD', margin: 0 }}>
-        <T p="title.sub">We know which benefits people reach for. Now we find out what they actually need inside them.</T>
+        <T p="title.sub">We know which benefits people reach for. Now we put the package in front of them and watch what they do.</T>
       </p>
     </div>
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
@@ -93,9 +93,9 @@ const S2 = (
       <Step done n="BET #2 · CLOSING" hp="where.s2h" h="Which benefits fill it" pp="where.s2p"
         p="A balanced head-to-head survey ranking six benefits against each other."
         fp="where.s2f" f="A ranking, and one clear leader." />
-      <Step n="BET #3 · NEXT" hp="where.s3h" h="What goes inside each one" pp="where.s3p"
-        p="A category is not a benefit. We need the specific thing a person needed and could not get."
-        fp="where.s3f" f="Wording we can put on a flyer and defend." />
+      <Step n="BET #3 · NEXT" hp="where.s3h" h="Whether anyone acts on it" pp="where.s3p"
+        p="Liking a package is cheap. We show the flyer and count who takes a real next step."
+        fp="where.s3f" f="Evidence that the interest is real, not polite." />
     </div>
   </div>
 )
@@ -201,7 +201,7 @@ const S4 = (
       <div style={{ flex: 1, background: '#15264A', borderLeft: '6px solid #E8B54A', borderRadius: 16, padding: '26px 30px', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 12 }}>
         <span style={{ fontSize: 15, fontWeight: 700, letterSpacing: '2px', color: '#E8B54A' }}>WHAT THAT TELLS US</span>
         <p style={{ fontSize: 21, lineHeight: 1.45, color: '#EAF1FB', margin: 0 }}>
-          <T p="surp.lesson">If the label misread for you, it misread for our respondents. A benefit may be losing because of how we named it, not because nobody wants it. That is Bet #3.</T>
+          <T p="surp.lesson">If the label misread for you, it misread for our respondents. We cannot settle that by asking people to rate labels, so Bet #3 puts the whole thing in front of them and counts what they do.</T>
         </p>
       </div>
     </div>
@@ -269,26 +269,26 @@ const S6 = (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
       <p style={pill}><T p="b3.ey">Bet #3</T></p>
       <h2 style={{ fontFamily: SERIF, fontSize: 42, fontWeight: 600, lineHeight: 1.06, color: '#16233E', margin: '2px 0 0' }}>
-        <T p="b3.h2">What people needed, and could not get</T>
+        <T p="b3.h2">Does the flyer make people act?</T>
       </h2>
     </div>
     <div style={{ flex: 'none', background: '#FFFFFF', border: '1px solid #E4E2DB', borderLeft: '7px solid #003087', borderRadius: 16, padding: '22px 30px', display: 'flex', flexDirection: 'column', gap: 10 }}>
       <span style={{ fontSize: 15, fontWeight: 700, letterSpacing: '2px', color: '#7A8291' }}>HYPOTHESIS</span>
       <p style={{ fontSize: 22, lineHeight: 1.45, color: '#16233E', margin: 0 }}>
-        <T p="b3.hyp" b="#003087">When at least 5 bullseye users describe the last time they needed care in our leading benefits, at least **4 of 5 will name the same specific need** inside a benefit, concrete enough to write onto the flyer.</T>
+        <T p="b3.hyp" b="#003087">Shown the flyer with a clear next step, **at least 4 of 5 bullseye users will click through to find out more within one minute**, unprompted. We count the click, not whether they say they like it.</T>
       </p>
     </div>
     <div style={{ flex: 1, display: 'flex', gap: 20 }}>
       <div style={{ flex: 1, background: '#FFFFFF', border: '1px solid #E4E2DB', borderRadius: 14, padding: '20px 26px', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 8 }}>
         <span style={{ fontSize: 14, fontWeight: 700, letterSpacing: '1.6px', color: '#1A7F4B' }}>IF WE ARE RIGHT</span>
         <p style={{ fontSize: 19, lineHeight: 1.4, color: '#16233E', margin: 0 }}>
-          <T p="b3.right">The same specific need shows up unprompted across people, and they paid for it or put it off. That sentence goes on the flyer.</T>
+          <T p="b3.right">4 of 5 click through on their own, and the landing page shows what they wanted to know first. That tells us which part of the offer is doing the work.</T>
         </p>
       </div>
       <div style={{ flex: 1, background: '#FFFFFF', border: '1px solid #E4E2DB', borderRadius: 14, padding: '20px 26px', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 8 }}>
         <span style={{ fontSize: 14, fontWeight: 700, letterSpacing: '1.6px', color: '#B4232A' }}>IF WE ARE WRONG</span>
         <p style={{ fontSize: 19, lineHeight: 1.4, color: '#16233E', margin: 0 }}>
-          <T p="b3.wrong">Needs scatter inside a benefit, which tells us to keep it flexible rather than spell it out. That is a finding, not a failure.</T>
+          <T p="b3.wrong">They look, say it is nice, and do nothing. That is the most useful result we could get before anyone spends money on building it.</T>
         </p>
       </div>
     </div>
@@ -296,20 +296,61 @@ const S6 = (
       <div style={{ flex: 1, background: '#EEF3FB', border: '1px solid #D3E0F4', borderRadius: 14, padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 8 }}>
         <span style={{ fontSize: 14, fontWeight: 700, letterSpacing: '1.6px', color: '#0067A8' }}>HOW WE ASK</span>
         <p style={{ fontSize: 18.5, lineHeight: 1.4, color: '#16233E', margin: 0 }}>
-          <T p="b3.ask">“Tell me about the last time you needed dental care. What happened? What did you do? What got in the way?”</T>
+          <T p="b3.ask">Hand them the flyer, say nothing, and watch. The only prompt is “take a look at this.” Everything after that is theirs.</T>
         </p>
       </div>
       <div style={{ flex: 1, background: '#F5E7D4', border: '1px solid #EAD3AE', borderRadius: 14, padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 8 }}>
         <span style={{ fontSize: 14, fontWeight: 700, letterSpacing: '1.6px', color: '#8A5A17' }}>HOW WE DO NOT ASK</span>
         <p style={{ fontSize: 18.5, lineHeight: 1.4, color: '#7A5A2A', margin: 0 }}>
-          <T p="b3.avoid">Nothing starts with “would you.” No prices, and we never describe our package before they have answered. We count what people did, not what they say they might do.</T>
+          <T p="b3.avoid">We do not ask “would you use this” or point at the buttons. No prices anywhere. A click is a real choice; a yes to a student with a laptop is not.</T>
         </p>
       </div>
     </div>
   </div>
 )
 
-/* ---- Slide 7 · What we need from you ---- */
+/* ---- Slide 7 · How we run it: two tracks, kept apart ---- */
+const Track = ({ tag, tagColor, hp, h, pp, p, np, nn, fp, f }) => (
+  <div style={{ flex: 1, background: '#FFFFFF', border: '1px solid #E4E2DB', borderTop: '5px solid ' + tagColor,
+    borderRadius: 14, padding: '22px 24px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+    <span style={{ fontSize: 13.5, fontWeight: 700, letterSpacing: '1.6px', color: tagColor }}>{tag}</span>
+    <h3 style={{ fontFamily: SERIF, fontSize: 26, fontWeight: 600, color: '#16233E', margin: 0, lineHeight: 1.15 }}><T p={hp}>{h}</T></h3>
+    <p style={{ fontSize: 18, lineHeight: 1.4, color: '#4A5568', margin: 0 }}><T p={pp}>{p}</T></p>
+    <div style={{ marginTop: 'auto', paddingTop: 12, borderTop: '1px solid #EDEBE4', display: 'grid', gap: 6 }}>
+      <span style={{ fontSize: 12.5, fontWeight: 700, letterSpacing: '1.4px', color: '#9AA1AD' }}>{nn}</span>
+      <p style={{ fontSize: 17, lineHeight: 1.35, color: '#16233E', margin: 0, fontWeight: 600 }}><T p={np}>{f}</T></p>
+      <p style={{ fontSize: 15, lineHeight: 1.35, color: '#8A909C', margin: '2px 0 0' }}><T p={fp}>&nbsp;</T></p>
+    </div>
+  </div>
+)
+const S7 = (
+  <div style={{ ...base('#F5F4F0', '#4A5568'), gap: 20 }}>
+    {BAR}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <p style={pill}><T p="run.ey">How we run it</T></p>
+      <h2 style={{ fontFamily: SERIF, fontSize: 40, fontWeight: 600, lineHeight: 1.06, color: '#16233E', margin: '2px 0 0' }}>
+        <T p="run.h2">Two tracks, reported separately</T>
+      </h2>
+    </div>
+    <div style={{ display: 'flex', gap: 20, flex: 1 }}>
+      <Track tag="TRACK 1 · THE BET" tagColor="#0067A8"
+        hp="run.t1h" h="Five people, watched"
+        pp="run.t1p" p="We hand the flyer to five bullseye users we sourced ourselves, say nothing beyond take a look, and record whether they click through."
+        nn="PASSES IF" np="run.t1f" f="4 of 5 click within a minute." fp="run.t1x" />
+      <Track tag="TRACK 2 · THE VOLUME" tagColor="#8A5A17"
+        hp="run.t2h" h="Posted in public"
+        pp="run.t2p" p="The same flyer goes out on Instagram, Discord, Snapchat and Reddit, each with its own link, so every platform gets its own row."
+        nn="GIVES US" np="run.t2f" f="A click and sign-up rate per platform." fp="run.t2x" />
+    </div>
+    <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start', background: '#F5E7D4', border: '1px solid #EAD3AE', borderRadius: 12, padding: '16px 24px' }}>
+      <p style={{ fontSize: 18.5, lineHeight: 1.4, color: '#7A5A2A', margin: 0 }}>
+        <T p="run.warn" b="#8A5A17">**Why we keep them apart.** A click-through rate on social is normally one to three percent. Judging a public post against the 4-of-5 bar would make a good flyer look like a failure, and we are not going to report it that way.</T>
+      </p>
+    </div>
+  </div>
+)
+
+/* ---- Slide 8 · What we need from you ---- */
 const AskRow = ({ n, hp, pp, h, p }) => (
   <div style={{ display: 'flex', alignItems: 'center', gap: 22, background: '#FFFFFF', border: '1px solid #E4E2DB', borderLeft: '6px solid #003087', borderRadius: 12, padding: '18px 26px' }}>
     <span style={{ fontFamily: SERIF, fontSize: 36, fontWeight: 600, color: '#0A6BB0', width: 44, flex: 'none' }}>{n}</span>
@@ -319,7 +360,7 @@ const AskRow = ({ n, hp, pp, h, p }) => (
     </div>
   </div>
 )
-const S7 = (
+const S8 = (
   <div style={{ ...base('#F5F4F0', '#4A5568'), gap: 20 }}>
     {BAR}
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -346,13 +387,14 @@ const bet3 = {
   id: 'bet3',
   title: 'Bet #3 · From categories to specifics',
   slides: [
-    { id: 'title', node: S1, notes: 'One line to open: we know which benefits people reach for first, and we are now finding out what they need inside them. Keep it to fifteen seconds.' },
-    { id: 'where', node: S2, notes: 'The three bets in order, so the partners see this is one line of reasoning rather than three separate studies. Bet #1 gave us the wallet, Bet #2 the ranking, Bet #3 the contents. Land on the last card: a category is not a benefit.' },
+    { id: 'title', node: S1, notes: 'One line to open: we know which benefits people reach for, and now we are testing whether the package makes anyone actually move. Keep it to fifteen seconds.' },
+    { id: 'where', node: S2, notes: 'The three bets in order, so the partners see this is one line of reasoning rather than three separate studies. Bet #1 gave us the wallet, Bet #2 the ranking, Bet #3 asks whether anyone acts on it. Land on the last card: liking a package is cheap.' },
     { id: 'results', node: S3, notes: 'This chart reads the live survey, so whatever is on screen is current. Say the sample size out loud before the ranking, and do not oversell: dental is the one clear signal, the rest are inside the margin of error. The amber box is the honest caveat, read it rather than skipping it.' },
-    { id: 'surprise', node: S4, notes: 'Credit Tamer directly. He read our fitness benefit as a gym membership, and if the label misread for him it misread for our respondents. This is the bridge into Bet #3: a benefit may be losing on its name, not on its substance.' },
+    { id: 'surprise', node: S4, notes: 'Credit Tamer directly. He read our fitness benefit as a gym membership, and if the label misread for him it misread for our respondents. This is the bridge into Bet #3: we cannot settle a labelling problem by asking people about labels, so we show them the real thing and count clicks.' },
     { id: 'flyer', node: S5, notes: 'Open /bets/3 in a browser tab and show the real flyer here rather than this miniature, which only has room for the headlines. Point out that the three benefits come from the survey and will change if the ranking does. Say plainly that the dollar amounts inside each benefit are placeholders.' },
-    { id: 'bet3', node: S6, notes: 'The hypothesis and, just as important, how we ask. David flagged that "would you pay for this" is a leading question, so Bet #3 is built on what people actually did the last time they needed care. The right-hand box is the discipline we are holding ourselves to.' },
-    { id: 'ask', node: S7, notes: 'Close on the three questions. These are the ones we could not answer from public pages, and they block the costed version of the package. Then the ask: react to the flyer wording and tell us which specifics are realistic.' },
+    { id: 'bet3', node: S6, notes: 'The hypothesis and, just as important, how we run it. David flagged that "would you pay for this" is a leading question, so Bet #3 counts a click rather than an opinion. Two tracks, and keep them separate when reporting: five supervised users is the bet, and the public posting gives volume but cannot prove anyone was bullseye. A click-through rate on social is normally one to three percent, so never hold that against the 4-of-5 bar.' },
+    { id: 'run', node: S7, notes: 'The part to be most careful about out loud. Track 1 is the actual bet: five people we sourced, watched, 4 of 5 clicking inside a minute. Track 2 is the public posting, which gives volume but cannot prove anyone was in the age range. Say the one-to-three-percent figure yourself before a partner assumes a low social number means the flyer failed.' },
+    { id: 'ask', node: S8, notes: 'Close on the three questions. These are the ones we could not answer from public pages, and they block the costed version of the package. Then the ask: react to the flyer wording and tell us which specifics are realistic.' },
   ],
 }
 

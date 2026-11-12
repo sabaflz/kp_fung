@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { supabase, isConfigured } from '../lib/supabase.js'
+import { copyText, useToast } from '../components/ui.jsx'
+import { useAuth } from '../lib/auth.jsx'
+import { isOwner } from '../lib/team.js'
 import { BENEFIT_BY_ID, analyzeResponses } from '../data/packages.js'
 import BenefitIcon from '../components/BenefitIcon.jsx'
 
@@ -48,8 +51,19 @@ export const FLYER_COPY = {
 
 export const DEFAULT_TOP = ['dental', 'vision', 'mental']
 
+// Median is the honest middle for timings: one person who leaves the tab
+// open for an hour would wreck a mean.
+function median(xs) {
+  if (!xs.length) return null
+  const a = [...xs].sort((x, y) => x - y)
+  const m = Math.floor(a.length / 2)
+  return a.length % 2 ? a[m] : Math.round((a[m - 1] + a[m]) / 2)
+}
+const secs = (ms) => (ms == null ? '—' : ms < 1000 ? '<1s' : Math.round(ms / 1000) + 's')
+
 export default function Bet3() {
   const [rows, setRows] = useState([])
+  const [events, setEvents] = useState([])
   const [loaded, setLoaded] = useState(false)
   const [params, setParams] = useSearchParams()
   const bullseyeOnly = params.get('who') === 'bullseye'
@@ -64,6 +78,9 @@ export default function Bet3() {
     if (!isConfigured) { setLoaded(true); return }
     const { data, error } = await supabase.from('bet2_responses').select('age, choices')
     if (!error) setRows(data || [])
+    // Forgiving: if the table is not there yet, the flyer still renders.
+    const ev = await supabase.from('landing_events').select('session, source, event, label, ms')
+    setEvents(ev.error ? [] : (ev.data || []))
     setLoaded(true)
   }, [])
 
@@ -90,6 +107,50 @@ export default function Bet3() {
   const a = useMemo(() => analyzeResponses(rows, { bullseyeOnly }), [rows, bullseyeOnly])
   const fromData = a.n > 0
   const top = fromData ? a.benefits.slice(0, 3).map((b) => b.id) : DEFAULT_TOP
+  const { session } = useAuth()
+  const owner = isOwner(session?.user?.email || '')
+  const toast = useToast()
+
+  // The Bet #3 funnel. Each visit counts once per step, so somebody who
+  // opens three sections is still one visitor who took a next step.
+  const funnel = useMemo(() => {
+    if (!events.length) return null
+    const bySession = {}
+    for (const e of events) {
+      const v = (bySession[e.session] ||= { source: e.source || 'direct', cta: [], survey: false, email: false, firstMs: null })
+      if (e.source) v.source = e.source
+      if (e.event === 'cta') {
+        v.cta.push(e.label || 'unlabelled')
+        if (v.firstMs == null || (e.ms != null && e.ms < v.firstMs)) v.firstMs = e.ms
+      }
+      if (e.event === 'survey') v.survey = true
+      if (e.event === 'email') v.email = true
+    }
+    const visits = Object.values(bySession)
+    const clicked = visits.filter((v) => v.cta.length)
+    const bySource = {}
+    for (const v of visits) {
+      const g = (bySource[v.source] ||= { source: v.source, visits: 0, clicked: 0, survey: 0, email: 0 })
+      g.visits++
+      if (v.cta.length) g.clicked++
+      if (v.survey) g.survey++
+      if (v.email) g.email++
+    }
+    const labels = {}
+    for (const v of visits) for (const l of new Set(v.cta)) labels[l] = (labels[l] || 0) + 1
+    return {
+      visits: visits.length,
+      clicked: clicked.length,
+      survey: visits.filter((v) => v.survey).length,
+      email: visits.filter((v) => v.email).length,
+      clickRate: visits.length ? clicked.length / visits.length : 0,
+      medianMs: median(clicked.map((v) => v.firstMs).filter((x) => x != null)),
+      within60: clicked.filter((v) => v.firstMs != null && v.firstMs <= 60000).length,
+      sources: Object.values(bySource).sort((a, b) => b.visits - a.visits),
+      labels: Object.entries(labels).sort((a, b) => b[1] - a[1]),
+    }
+  }, [events])
+
   const topPackageDiffers = fromData && a.packages.length > 0 &&
     a.packages[0].ids.slice().sort().join('+') !== top.slice().sort().join('+')
   const surveyUrl = (typeof window !== 'undefined' ? window.location.host : '') + '/packages'
@@ -174,6 +235,97 @@ export default function Bet3() {
           </footer>
         </article>
       </div>
+
+      {funnel && (
+        <div className="b3-notes">
+          <div className="b2-resp-head">
+            <h3 className="b2-h3">Bet #3 funnel</h3>
+            {owner && (
+              <button type="button" className="btn ghost sm" onClick={async () => {
+                const head = `Bet #3 funnel, as of ${new Date().toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`
+                const lines = [head,
+                  `${funnel.visits} visits, ${funnel.clicked} took a next step (${Math.round(funnel.clickRate * 100)}%)`,
+                  `${funnel.survey} started the survey, ${funnel.email} left an email`,
+                  funnel.medianMs != null ? `Median time to first click: ${secs(funnel.medianMs)}` : '',
+                  '', 'By source:',
+                  ...funnel.sources.map((s) => `  ${s.source}: ${s.visits} visits, ${s.clicked} clicked, ${s.survey} survey, ${s.email} email`),
+                  '', 'Most-opened:',
+                  ...funnel.labels.map(([l, n]) => `  ${l}: ${n}`)].filter(Boolean).join('\n')
+                toast((await copyText(lines)) ? 'Funnel copied' : 'Copy failed')
+              }}>Copy funnel</button>
+            )}
+          </div>
+          <p className="b2-desc" style={{ marginBottom: 16 }}>
+            What people do after the flyer sends them to the landing page. A visit counts once per
+            step, so someone who opens three sections is still one person who took a next step.
+          </p>
+
+          <div className="b3-funnel">
+            {[
+              ['Saw the page', funnel.visits, null],
+              ['Took a next step', funnel.clicked, funnel.visits],
+              ['Started the survey', funnel.survey, funnel.visits],
+              ['Left an email', funnel.email, funnel.visits],
+            ].map(([label, n, of]) => (
+              <div key={label} className="b3-step">
+                <span className="b3-step-n">{n}</span>
+                <span className="b3-step-l">{label}</span>
+                {of ? <span className="b3-step-p">{of ? Math.round((n / of) * 100) : 0}% of visits</span> : <span className="b3-step-p">&nbsp;</span>}
+              </div>
+            ))}
+          </div>
+
+          <p className="b2-fine">
+            {funnel.medianMs != null
+              ? <>Median time from landing to first click: <b>{secs(funnel.medianMs)}</b>. {funnel.within60} of {funnel.clicked} clicked within a minute.</>
+              : <>Nobody has clicked yet, so there is no timing to report.</>}
+          </p>
+
+          {funnel.sources.length > 0 && (
+            <>
+              <h4 className="b2-resp-h4" style={{ marginTop: 22 }}>Where they came from</h4>
+              <div className="b2-ci-wrap">
+                <table className="b2-ci">
+                  <thead><tr><th>Source</th><th className="num">Visits</th><th className="num">Next step</th><th className="num">Survey</th><th className="num">Email</th></tr></thead>
+                  <tbody>
+                    {funnel.sources.map((s) => (
+                      <tr key={s.source}>
+                        <td className="b2-ci-name">{s.source}</td>
+                        <td className="num">{s.visits}</td>
+                        <td className="num">{s.clicked} ({s.visits ? Math.round((s.clicked / s.visits) * 100) : 0}%)</td>
+                        <td className="num">{s.survey}</td>
+                        <td className="num">{s.email}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <p className="b2-fine">
+                Add <code>?src=instagram</code> to the link you post, one per platform, and each gets
+                its own row. <code>supervised</code> is the one to use when you sit with someone, so
+                the five-user bet never mixes with social traffic.
+              </p>
+            </>
+          )}
+
+          {funnel.labels.length > 0 && (
+            <>
+              <h4 className="b2-resp-h4" style={{ marginTop: 22 }}>What they opened</h4>
+              <ul className="b2-bars">
+                {funnel.labels.map(([l, n]) => (
+                  <li key={l} className="b2-bar">
+                    <span className="b2-bar-name">{l}</span>
+                    <span className="b2-bar-track">
+                      <span className="b2-bar-fill" style={{ width: `${Math.max((n / funnel.labels[0][1]) * 100, 3)}%` }} />
+                    </span>
+                    <span className="b2-bar-pct">{n}</span>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+        </div>
+      )}
 
       <div className="b3-notes">
         <h3 className="b2-h3">What is a placeholder here</h3>
