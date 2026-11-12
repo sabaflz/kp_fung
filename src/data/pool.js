@@ -46,23 +46,24 @@ export const POOL = [
   ['P11','Package · Barriers','What might make it hard to understand, access, or actually use these benefits?'],
   ['P12','Package · Choice','Now that you have looked at both closely, which would you choose, and did that change from your first instinct?'],
   ['P13','Package · Takeaway','What is the single most important thing we should understand about designing supplemental benefits for people your age?'],
-  // --- Bet #3: what people actually needed, and what they did about it. ---
+  // --- What people actually needed, and what they did about it. ---
   // Deliberately all past tense. We count what happened, not what someone says
-  // they might do, and we never name a price or describe the package.
-  ['Q32','Bet #3 · Setup','Before we start: I am not going to describe anything we are building, and there are no right answers. I just want to hear what actually happened to you. Sound good?'],
-  ['Q33','Bet #3 · Dental','Tell me about the last time you needed anything to do with your teeth. A cleaning, a filling, pain, a checkup you were due for. What happened?'],
-  ['Q34','Bet #3 · Dental','What did you end up doing about it? (went and paid / used coverage / put it off / did nothing)'],
-  ['Q35','Bet #3 · Dental','If you put it off, what was in the way? If you went, what did it end up costing you?'],
-  ['Q36','Bet #3 · Vision','When did you last need anything for your eyes? An exam, glasses, contacts, a replacement pair. Walk me through it.'],
-  ['Q37','Bet #3 · Vision','What did you do, and what did you pay for yourself?'],
-  ['Q38','Bet #3 · Mental health','Tell me about a time in the last year or two when you thought about talking to someone, a therapist or a counsellor. What happened next?'],
-  ['Q39','Bet #3 · Mental health','What made it easy or hard to actually get to that first appointment?'],
-  ['Q40','Bet #3 · Movement','What do you currently do to stay active, and what do you pay for it? (gym, classes, climbing, a run club, an app, nothing)'],
-  ['Q41','Bet #3 · Movement','Has there been something active you wanted to do and did not, where cost was the reason?'],
-  ['Q42','Bet #3 · Everyday','Think about the last few months of ordinary health spending: medicine from a pharmacy, a thermometer, allergy stuff, vitamins. What have you actually bought?'],
-  ['Q43','Bet #3 · Specifics','Of everything you have just told me about, which one did you most wish someone else had paid for? Why that one?'],
-  ['Q44','Bet #3 · Specifics','For that thing, what would have had to be true for you to deal with it sooner?'],
-  ['Q45','Bet #3 · Close','Is there anything health-related you have been putting off that we have not talked about?'],
+  // they might do, and we never name a price or describe the package. Use these
+  // as the conversation after someone has looked at the flyer.
+  ['Q32','Needs · Setup','Before we start: I am not going to describe anything we are building, and there are no right answers. I just want to hear what actually happened to you. Sound good?'],
+  ['Q33','Needs · Dental','Tell me about the last time you needed anything to do with your teeth. A cleaning, a filling, pain, a checkup you were due for. What happened?'],
+  ['Q34','Needs · Dental','What did you end up doing about it? (went and paid / used coverage / put it off / did nothing)'],
+  ['Q35','Needs · Dental','If you put it off, what was in the way? If you went, what did it end up costing you?'],
+  ['Q36','Needs · Vision','When did you last need anything for your eyes? An exam, glasses, contacts, a replacement pair. Walk me through it.'],
+  ['Q37','Needs · Vision','What did you do, and what did you pay for yourself?'],
+  ['Q38','Needs · Mental health','Tell me about a time in the last year or two when you thought about talking to someone, a therapist or a counsellor. What happened next?'],
+  ['Q39','Needs · Mental health','What made it easy or hard to actually get to that first appointment?'],
+  ['Q40','Needs · Movement','What do you currently do to stay active, and what do you pay for it? (gym, classes, climbing, a run club, an app, nothing)'],
+  ['Q41','Needs · Movement','Has there been something active you wanted to do and did not, where cost was the reason?'],
+  ['Q42','Needs · Everyday','Think about the last few months of ordinary health spending: medicine from a pharmacy, a thermometer, allergy stuff, vitamins. What have you actually bought?'],
+  ['Q43','Needs · Specifics','Of everything you have just told me about, which one did you most wish someone else had paid for? Why that one?'],
+  ['Q44','Needs · Specifics','For that thing, what would have had to be true for you to deal with it sooner?'],
+  ['Q45','Needs · Close','Is there anything health-related you have been putting off that we have not talked about?'],
 ]
 
 export const BY_ID = Object.fromEntries(POOL.map(q => [q[0], q]))
