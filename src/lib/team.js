@@ -17,6 +17,17 @@ export const VIEWER_EMAILS = [
   'Tamer.M.Barakat@kp.org',
 ].map((e) => e.toLowerCase())
 
+// Saffron's own accounts. Owner-only tools (the test survey) check this list.
+export const OWNER_EMAILS = [
+  'saba.f88@gmail.com',
+  'saba.feilizadeh@gmail.com',
+  'saba.feilizadeh@berkeley.edu',
+]
+
+export function isOwner(email) {
+  return !!email && OWNER_EMAILS.includes(email.toLowerCase())
+}
+
 export function isViewer(email) {
   return !!email && VIEWER_EMAILS.includes(email.toLowerCase())
 }

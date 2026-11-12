@@ -42,7 +42,10 @@ function Package({ side, ids, onPick }) {
   )
 }
 
-export default function Packages() {
+/* `preview` is the owner-only test run: the exact same survey, but nothing is
+   ever written. Both save paths return early, so a test can never land in the
+   results, whatever the tester clicks. */
+export default function Packages({ preview = false, onRestart, onExit }) {
   const session = useMemo(() => buildSession(), [])
   const respondent = useMemo(() => newRespondentId(), [])
   const [stage, setStage] = useState('intro') // intro | age | q | done
@@ -66,6 +69,7 @@ export default function Packages() {
   const topName = mine?.ranking?.length ? BENEFIT_BY_ID[mine.ranking[0].id].name : ''
 
   async function submit(all) {
+    if (preview) return // test run: never saved
     if (!isConfigured) {
       // No Supabase keys on this build: the response can't be stored. Flag it in
       // the console so the team can see why results are not appearing.
@@ -93,7 +97,9 @@ export default function Packages() {
     const em = withEmail ? email.trim() : ''
     if (em && !EMAIL_RE.test(em)) { setFuErr('That does not look like an email address.'); return }
     setFuErr(''); setFu('saving')
-    if (isConfigured) {
+    if (preview) {
+      // test run: show the same confirmation, write nothing
+    } else if (isConfigured) {
       try {
         const { error } = await supabase.from('bet2_followups').insert({
           respondent,
@@ -130,7 +136,16 @@ export default function Packages() {
   }
 
   return (
-    <div className="pk-root">
+    <div className={'pk-root' + (preview ? ' pk-preview' : '')}>
+      {preview && (
+        <div className="pk-testbar" role="status">
+          <span><b>Test run.</b> This is the real survey, but nothing you do here is saved.</span>
+          <span className="pk-testbar-actions">
+            <button type="button" onClick={onRestart}>Start over</button>
+            <button type="button" onClick={onExit}>Back to the app</button>
+          </span>
+        </div>
+      )}
       <div className="pk-shell">
         {stage === 'intro' && (
           <div className="pk-panel pk-intro">

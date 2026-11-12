@@ -4,6 +4,8 @@ import { supabase, isConfigured } from '../lib/supabase.js'
 import { BENEFITS, BENEFIT_BY_ID, tallyResponses, analyzeResponses, summarize, AGREEMENT_BAR } from '../data/packages.js'
 import BenefitIcon from '../components/BenefitIcon.jsx'
 import { copyText, useToast } from '../components/ui.jsx'
+import { useAuth } from '../lib/auth.jsx'
+import { isOwner } from '../lib/team.js'
 
 function fmtWhen(iso) {
   if (!iso) return 'Unknown time'
@@ -25,6 +27,8 @@ export default function Bet2({ embedded = false }) {
   const [showEmails, setShowEmails] = useState(false) // off by default: this page gets screen-shared
   const [limit, setLimit] = useState(50)
   const toast = useToast()
+  const { session } = useAuth()
+  const owner = isOwner(session?.user?.email || '')
   const [bullseyeOnly, setBullseyeOnly] = useState(false)
   const [allPackages, setAllPackages] = useState(false)
 
@@ -161,6 +165,13 @@ export default function Bet2({ embedded = false }) {
       )}
       {state === 'ok' && respondents === 0 && (
         <div className="b2-empty">No responses yet. Share the survey link and results will appear here live.</div>
+      )}
+
+      {owner && (
+        <div className="b2-share">
+          <span>Only you see this:</span>
+          <Link className="btn ghost sm" to="/survey-test">Test the survey without saving</Link>
+        </div>
       )}
 
       {state === 'ok' && respondents > 0 && (
