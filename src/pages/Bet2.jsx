@@ -104,6 +104,14 @@ export default function Bet2({ embedded = false }) {
     const text = [head, VERDICTS[analysis.verdict][0], '', ...findings.map((f) => '- ' + f), '', table].join('\n')
     toast((await copyText(text)) ? 'Summary copied' : 'Copy failed')
   }
+  // Responses collected before the age column existed have an age that the
+  // team supplied afterwards from memory of who they surveyed. The totals are
+  // real; which age sits on which response is not, because that link was never
+  // saved. Counted here so the page can say so rather than pass them off as
+  // answers people gave.
+  const teamReported = useMemo(
+    () => rows.filter((r) => r.age_source === 'team-reported').length, [rows])
+
   const ageCounts = useMemo(() => {
     const m = {}
     for (const r of rows) { const a = r.age || 'Not given'; m[a] = (m[a] || 0) + 1 }
@@ -228,6 +236,15 @@ export default function Bet2({ embedded = false }) {
               </p>
             )}
 
+            {teamReported > 0 && (
+              <p className="b2-fine" style={{ margin: '0 0 14px' }}>
+                {teamReported} of {rows.length} ages were supplied by the team afterwards, because
+                these responses were collected before the survey had anywhere to store an age. The
+                mix is accurate. Which age belongs to which response is not, so treat these as
+                evidence of who we reached and not as a basis for comparing age groups.
+              </p>
+            )}
+
             {analysis.n === 0 ? (
               <p className="b2-fine" style={{ marginTop: 0 }}>Nobody in this group has answered yet.</p>
             ) : (
@@ -326,15 +343,25 @@ export default function Bet2({ embedded = false }) {
                         <li key={g.age}>
                           <span className="b2-ages-age">{g.age}</span>
                           <span className="b2-ages-n">{g.n} {g.n === 1 ? 'person' : 'people'}</span>
-                          <span className="b2-ages-top">
-                            <BenefitIcon name={BENEFIT_BY_ID[g.top.id].icon} size={14} />
-                            {BENEFIT_BY_ID[g.top.id].name} {Math.round(g.top.mean * 100)}%
-                            <span className="b2-ages-then">then {BENEFIT_BY_ID[g.second.id].name} {Math.round(g.second.mean * 100)}%</span>
-                          </span>
+                          {/* One or two people produce a percentage that looks like a
+                              result and is not one, so don't print it at all. */}
+                          {g.n < 3 ? (
+                            <span className="b2-ages-top b2-ages-thin">too few to read</span>
+                          ) : (
+                            <span className="b2-ages-top">
+                              <BenefitIcon name={BENEFIT_BY_ID[g.top.id].icon} size={14} />
+                              {BENEFIT_BY_ID[g.top.id].name} {Math.round(g.top.mean * 100)}%
+                              <span className="b2-ages-then">then {BENEFIT_BY_ID[g.second.id].name} {Math.round(g.second.mean * 100)}%</span>
+                            </span>
+                          )}
                         </li>
                       ))}
                     </ul>
-                    <p className="b2-fine">Groups this small are a hint about where to look, not a finding.</p>
+                    <p className="b2-fine">
+                      {teamReported > 0
+                        ? 'Most of these ages were supplied by the team afterwards and were not matched to individual responses, so this breakdown cannot be read as a difference between age groups yet. It becomes meaningful once responses carry the age the person chose.'
+                        : 'Groups this small are a hint about where to look, not a finding.'}
+                    </p>
                   </>
                 )}
               </>
