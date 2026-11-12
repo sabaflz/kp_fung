@@ -706,9 +706,7 @@ footer.foot{margin-top:26px;padding-top:16px;border-top:1px solid var(--line);co
 .b2-ages li{display:grid; grid-template-columns:70px 80px minmax(0,1fr); gap:10px; align-items:center}
 .b2-ages-age{font-weight:700}
 .b2-ages-n{color:var(--muted)}
-.b2-ages-top{display:flex; flex-wrap:wrap; align-items:center; gap:6px; font-weight:600; color:var(--brand); min-width:0}
-.b2-ages-thin{font-weight:500; color:var(--muted); font-style:italic}
-.b2-ages-then{color:var(--muted); font-weight:500}
+.b2-ages-top{display:flex; flex-wrap:wrap; align-items:center; gap:6px; font-weight:600; color:var(--brand); min-width:0}.b2-ages-then{color:var(--muted); font-weight:500}
 
 /* Bet #3: concept flyer. The flyer is a print piece, so it keeps one fixed
    light look in both themes and carries its own colors. */
