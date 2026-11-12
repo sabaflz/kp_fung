@@ -127,7 +127,7 @@ export default function Bet3() {
 
       <div className="fl-scroll">
         <article className="fl-page">
-          <div className="fl-concept">Concept only. A student research mock-up, not a real plan or offer.</div>
+          <div className="fl-concept">This benefit does not exist. It is a research concept, not an offer.</div>
 
           <header className="fl-hero">
             <p className="fl-eyebrow">Extra benefits for the life you actually have</p>
@@ -169,8 +169,8 @@ export default function Bet3() {
           </section>
 
           <footer className="fl-foot">
-            <p>The $300 allowance is a placeholder used for research. The amount and what it can be spent on have not been set or approved.</p>
-            <p>This page was made by UC Berkeley Fung Fellowship students for a class project with partners at Kaiser Permanente. It does not describe a benefit that exists today and is not an offer of coverage.</p>
+            <p>The $300 allowance and everything inside it are placeholders used for research. Nothing here has been priced or approved.</p>
+            <p>Made by a student research team at UC Berkeley. No health insurer is offering this, and nothing here is an offer of coverage. If enough people tell us they want something like this, that is the case we will put to the people who design health plans.</p>
           </footer>
         </article>
       </div>

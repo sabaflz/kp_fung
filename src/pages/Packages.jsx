@@ -160,8 +160,9 @@ export default function Packages({ preview = false, onRestart, onExit }) {
             </div>
             <button type="button" className="pk-start" onClick={() => setStage('age')}>Start</button>
             <p className="pk-fine">
-              Your picks are anonymous and there is no sign-in. At the end you can choose to leave
-              an email if you are interested in a package like this, but you do not have to.
+              This is a student research project, and the benefit above does not exist yet. Your picks
+              are anonymous and there is no sign-in. At the end you can leave an email if you want to
+              hear more, but you do not have to.
             </p>
           </div>
         )}
@@ -216,8 +217,9 @@ export default function Packages({ preview = false, onRestart, onExit }) {
                     <div className="pk-fu-head">Before you go</div>
                     <p className="pk-fu-q">Want to hear more about a plan like this?</p>
                     <p className="pk-fu-note">
-                      Leave your email and we will send you your own results, just below, plus what we
-                      find as this takes shape.
+                      Nothing here exists yet. If enough people say they want something like this, that
+                      is the case we will put to the people who design health plans. Leave your email
+                      and we will send you your own results, just below, plus what we find.
                     </p>
 
                     <input
@@ -253,9 +255,10 @@ export default function Packages({ preview = false, onRestart, onExit }) {
                     </div>
 
                     <p className="pk-fu-promise">
-                      We are students, not marketers. A couple of emails about this study at most, then
-                      nothing. No ads and no newsletter. Your email is stored next to your picks so we
-                      can send you the right ones, and you can ask us to delete it at any time.
+                      We are a student research team, not marketers. A couple of emails about this study
+                      at most, then nothing. No ads, no newsletter, and no health insurer is offering
+                      this. Your email is stored next to your picks so we can send you the right ones,
+                      and you can ask us to delete it at any time.
                     </p>
                   </div>
                 )}
