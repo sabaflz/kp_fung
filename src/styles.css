@@ -817,3 +817,7 @@ footer.foot{margin-top:26px;padding-top:16px;border-top:1px solid var(--line);co
 @media (max-width:620px){ .pk-preview{padding-top:108px} }
 
 .b3-links{display:flex; flex-wrap:wrap; gap:8px}
+
+.b2-warn{border:1px solid #EAD3AE; background:#FDF6E8; color:#7A5A2A; border-radius:11px;
+  padding:13px 16px; font-size:13.5px; line-height:1.5; margin-bottom:14px}
+.b2-warn b{color:#8A5A17}
