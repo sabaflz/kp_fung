@@ -117,12 +117,16 @@ export default function Bet2({ embedded = false }) {
   const fuStats = useMemo(() => {
     if (!followups.length) return null
     const optIns = followups.filter((r) => r.wants_results).length
+    const withEmail = followups.filter((r) => r.wants_results && r.email).length
+    // Kept so the answers from the earlier closing question are still readable.
     const m = {}
     for (const r of followups) { const e = (r.enabler || '').trim(); if (e) m[e] = (m[e] || 0) + 1 }
     const enablers = Object.entries(m).sort((a, b) => b[1] - a[1])
     return {
       answered: followups.length,
       optIns,
+      withEmail,
+      keenRate: followups.length ? optIns / followups.length : 0,
       rate: respondents ? optIns / respondents : 0,
       enablers,
       max: Math.max(1, ...enablers.map(([, n]) => n)),
@@ -418,11 +422,10 @@ export default function Bet2({ embedded = false }) {
             <div className="b2-card">
               <h3 className="b2-h3">Closing follow-up</h3>
               <p className="b2-desc" style={{ marginBottom: 14 }}>
-                At the end of the survey people are asked what would make them actually use their
-                top benefit, and invited to leave an email if they are interested in a package like
-                this. {fuStats.optIns} of {respondents}{' '}
-                {respondents === 1 ? 'respondent' : 'respondents'} joined the interest list, a{' '}
-                {Math.round(fuStats.rate * 100)}% opt-in rate.
+                At the end of the survey people are asked whether they want to hear more about a
+                plan like this, and if so for an email. {fuStats.optIns} of {fuStats.answered}{' '}
+                {fuStats.answered === 1 ? 'person who answered' : 'people who answered'} said yes
+                ({Math.round(fuStats.keenRate * 100)}%), and {fuStats.withEmail} left an email.
               </p>
               {fuStats.enablers.length > 0 && (
                 <>
@@ -438,8 +441,9 @@ export default function Bet2({ embedded = false }) {
                     ))}
                   </ul>
                   <p className="b2-fine">
-                    What would make them use it, from the {fuStats.answered}{' '}
-                    {fuStats.answered === 1 ? 'person' : 'people'} who answered the closing question.
+                    From an earlier version of the closing question, which asked what would make
+                    people use their top benefit. That question has been replaced, so this covers
+                    only the responses collected before the change.
                   </p>
                 </>
               )}
@@ -501,7 +505,9 @@ export default function Bet2({ embedded = false }) {
                         ) : '—'}
                       </span>
                       <span className="b2-resp-tags">
-                        {fu?.wants_results && <span className="b2-resp-flag">interested</span>}
+                        {fu?.wants_results && (
+                          <span className="b2-resp-flag">{fu.email ? 'interested + email' : 'interested'}</span>
+                        )}
                         <span className="b2-resp-caret" aria-hidden="true">{open ? '−' : '+'}</span>
                       </span>
                     </button>
@@ -563,14 +569,14 @@ export default function Bet2({ embedded = false }) {
                         <h4 className="b2-resp-h4">At the end of the survey</h4>
                         {fu ? (
                           <dl className="b2-resp-fu">
+                            <dt>Wants to hear more</dt>
+                            <dd>{fu.wants_results ? 'Yes' : 'No'}</dd>
                             {fu.enabler && (
                               <>
                                 <dt>What would make them use it</dt>
-                                <dd>{fu.enabler}</dd>
+                                <dd>{fu.enabler} <span className="b2-mask">(earlier version of the question)</span></dd>
                               </>
                             )}
-                            <dt>Joined the interest list</dt>
-                            <dd>{fu.wants_results ? 'Yes' : 'No'}</dd>
                             {fu.wants_results && fu.email && (
                               <>
                                 <dt>Email</dt>

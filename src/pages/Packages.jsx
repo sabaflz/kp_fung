@@ -7,17 +7,6 @@ const Icon = ({ name }) => <BenefitIcon name={name} />
 
 const AGE_RANGES = ['Under 18', '18–20', '21–23', '24–26', '27–30', 'Over 30']
 
-// Closing question. These are the barriers from the Bet #1 interviews turned
-// around into what would remove them, so the answers line up with the barrier
-// categories we already code the interviews against.
-const ENABLERS = [
-  'Knowing exactly what is covered',
-  'A simple way to use it, no paperwork',
-  'Covering more of the cost',
-  'Being able to use someone I already see',
-  'Nothing, I would use it as it is',
-]
-
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 function Package({ side, ids, onPick }) {
@@ -54,12 +43,14 @@ export default function Packages({ preview = false, onRestart, onExit }) {
   const [choices, setChoices] = useState([])
   const [saving, setSaving] = useState(false)
 
-  // Closing follow-up: one question, plus an optional email to join the interest list.
-  const [enabler, setEnabler] = useState('')
+  // Closing ask: are they interested in hearing more, and if so, their email.
+  // Interest is the signal; the email is what makes it actionable.
+  const [interest, setInterest] = useState('') // '' | 'yes' | 'no'
   const [email, setEmail] = useState('')
   const [fu, setFu] = useState('open') // open | saving | sent | skipped
   const [fuErr, setFuErr] = useState('')
   const [fuSentEmail, setFuSentEmail] = useState(false)
+  const [fuKeen, setFuKeen] = useState(false)
 
   const total = session.length
 
@@ -91,10 +82,12 @@ export default function Packages({ preview = false, onRestart, onExit }) {
 
   // Saved separately from the picks, in bet2_followups, so an email address is
   // never stored in the same row as someone's answers.
-  async function sendFollowup({ withEmail = true } = {}) {
-    // withEmail:false is the "no thanks" path. Read from the argument rather than
-    // clearing state first, since a state update would not land before this runs.
-    const em = withEmail ? email.trim() : ''
+  async function sendFollowup({ interested } = {}) {
+    // `interested` is passed in rather than read from state, because the "no
+    // thanks" button sets it and submits in the same click, and a state update
+    // would not land before this runs.
+    const keen = interested != null ? interested : interest === 'yes'
+    const em = keen ? email.trim() : ''
     if (em && !EMAIL_RE.test(em)) { setFuErr('That does not look like an email address.'); return }
     setFuErr(''); setFu('saving')
     if (preview) {
@@ -105,8 +98,8 @@ export default function Packages({ preview = false, onRestart, onExit }) {
           respondent,
           email: em || null,
           top_benefit: topName || null,
-          enabler: enabler || null,
-          wants_results: !!em,
+          enabler: null, // retired: the old "what would make you use it" question
+          wants_results: keen, // said yes to hearing more, with or without an email
         })
         if (error) console.error('[survey] follow-up save failed:', error.message)
       } catch (e) {
@@ -117,6 +110,7 @@ export default function Packages({ preview = false, onRestart, onExit }) {
     }
     // Either way the person is done, so never show them a failure for this.
     setFuSentEmail(!!em)
+    setFuKeen(keen)
     setFu('sent')
   }
 
@@ -218,31 +212,6 @@ export default function Packages({ preview = false, onRestart, onExit }) {
                   {' '}<b>{BENEFIT_BY_ID[mine.ranking[0].id].name.toLowerCase()}</b> matters most to you.
                 </p>
 
-                {/* Asked before the breakdown, while they are still engaged. Once they
-                    have their result they feel finished and stop answering. */}
-                {(fu === 'open' || fu === 'saving') && (
-                  <div className="pk-fu">
-                    <div className="pk-fu-head">One quick question</div>
-                    <p className="pk-fu-q">
-                      If your plan added {topName.toLowerCase()}, what would make you actually use it?
-                    </p>
-                    <div className="pk-fu-opts pk-fu-opts-last">
-                      {ENABLERS.map((opt) => (
-                        <button
-                          key={opt}
-                          type="button"
-                          className="pk-fu-opt"
-                          aria-pressed={enabler === opt}
-                          onClick={() => setEnabler(enabler === opt ? '' : opt)}
-                        >
-                          <span className="pk-fu-dot" aria-hidden="true" />
-                          <span>{opt}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
                 <div className="pk-result">
                   <div className="pk-result-head">Your ideal package</div>
                   <div className="pk-result-chips">
@@ -277,8 +246,10 @@ export default function Packages({ preview = false, onRestart, onExit }) {
               <div className="pk-fu pk-fu-sent">
                 <p>
                   {fuSentEmail
-                    ? 'Got it, you are on the list. We will be in touch with what we learn.'
-                    : 'Thanks, that helps. That is everything, you can close this tab.'}
+                    ? 'Got it, you are on the list. We will send you more about the plan, and your results.'
+                    : fuKeen
+                      ? 'Noted, thanks. Without an email we cannot send you anything, but your interest is recorded.'
+                      : 'Thanks, that helps. That is everything, you can close this tab.'}
                 </p>
               </div>
             )}
@@ -289,44 +260,71 @@ export default function Packages({ preview = false, onRestart, onExit }) {
 
             {(fu === 'open' || fu === 'saving') && (
               <div className="pk-fu">
-                <label className="pk-fu-label" htmlFor="pk-email">Interested in a benefits package like this?</label>
+                <div className="pk-fu-head">Before you go</div>
+                <p className="pk-fu-q">Want to hear more about a plan like this?</p>
                 <p className="pk-fu-note">
-                  Optional. Leave your email and we will add you to our list of people who want to hear
-                  more. We will share what we learn from this study, and we may reach out once with a
-                  follow-up question. Your email gets stored alongside your picks. We will not use it for
-                  anything else, and you can ask us to delete it at any time.
+                  We are students researching this with Kaiser Permanente. Nothing here is for sale,
+                  and this plan does not exist yet.
                 </p>
-                <input
-                  id="pk-email"
-                  className="pk-fu-input"
-                  type="email"
-                  inputMode="email"
-                  autoComplete="email"
-                  placeholder="you@example.com"
-                  value={email}
-                  onChange={(e) => { setEmail(e.target.value); if (fuErr) setFuErr('') }}
-                />
-                {fuErr && <p className="pk-fu-err">{fuErr}</p>}
 
-                <div className="pk-fu-actions">
+                <div className="pk-fu-opts">
                   <button
                     type="button"
-                    className="pk-fu-send"
-                    disabled={fu === 'saving' || (!email.trim() && !enabler)}
-                    onClick={sendFollowup}
+                    className="pk-fu-opt"
+                    aria-pressed={interest === 'yes'}
+                    onClick={() => setInterest('yes')}
                   >
-                    {fu === 'saving' ? 'Sending…' : 'Done'}
+                    <span className="pk-fu-dot" aria-hidden="true" />
+                    <span>Yes, send me more about it</span>
                   </button>
-                  {/* They answered the question above, so keep that even though
-                      they are declining the email. */}
                   <button
                     type="button"
-                    className="pk-fu-skip"
-                    onClick={() => { if (enabler) sendFollowup({ withEmail: false }); else setFu('skipped') }}
+                    className="pk-fu-opt"
+                    aria-pressed={interest === 'no'}
+                    onClick={() => { setInterest('no'); setEmail(''); setFuErr('') }}
                   >
-                    No thanks, I am finished
+                    <span className="pk-fu-dot" aria-hidden="true" />
+                    <span>No thanks</span>
                   </button>
                 </div>
+
+                {interest === 'yes' && (
+                  <div className="pk-fu-email">
+                    <label className="pk-fu-label" htmlFor="pk-email">Where should we send it?</label>
+                    <p className="pk-fu-note">
+                      We will send you more about the plan as it takes shape, and your own results from
+                      above. Leaving your email means it gets stored alongside your picks. We will not
+                      use it for anything else, and you can ask us to delete it at any time.
+                    </p>
+                    <input
+                      id="pk-email"
+                      className="pk-fu-input"
+                      type="email"
+                      inputMode="email"
+                      autoComplete="email"
+                      placeholder="you@example.com"
+                      value={email}
+                      onChange={(e) => { setEmail(e.target.value); if (fuErr) setFuErr('') }}
+                    />
+                    {fuErr && <p className="pk-fu-err">{fuErr}</p>}
+                  </div>
+                )}
+
+                {interest !== '' && (
+                  <div className="pk-fu-actions">
+                    <button
+                      type="button"
+                      className="pk-fu-send"
+                      disabled={fu === 'saving'}
+                      onClick={() => sendFollowup()}
+                    >
+                      {fu === 'saving' ? 'Sending…' : 'Done'}
+                    </button>
+                    {interest === 'yes' && (
+                      <span className="pk-fu-hint">You can leave the email blank if you would rather not.</span>
+                    )}
+                  </div>
+                )}
               </div>
             )}
 
