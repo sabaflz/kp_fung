@@ -106,6 +106,11 @@ export default function App() {
 
   const email = session.user?.email || ''
   const viewer = isViewer(email)
+  // Meeting notes are Saffron's alone for now: not the KP partners, and not
+  // Derek or Ali either. The database enforces this as well (is_owner() in
+  // supabase_meeting_notes.sql), so hiding the tab is convenience, not the
+  // protection.
+  const owner = isOwner(email)
 
   // Owner-only test run of the public survey. Same screens, nothing saved.
   if (location.pathname.startsWith('/survey-test')) {
@@ -163,7 +168,7 @@ export default function App() {
         </div>
 
         <nav className="side-nav">
-          {SECTIONS.filter(([to]) => !(viewer && to === '/meetings')).map(([to, label, icon]) => {
+          {SECTIONS.filter(([to]) => !(to === '/meetings' && !owner)).map(([to, label, icon]) => {
             const active = activeTo === to
             return (
               <div key={to} className="side-item">
@@ -241,7 +246,7 @@ export default function App() {
             </Route>
 
             <Route path="/market" element={<Market />} />
-            {!viewer && <Route path="/meetings" element={<Meetings />} />}
+            {owner && <Route path="/meetings" element={<Meetings />} />}
 
             {/* Redirects from the old flat paths */}
             <Route path="/run" element={<Navigate to="/interviews/run" replace />} />

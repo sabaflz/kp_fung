@@ -50,6 +50,29 @@ $$;
 
 
 -- ============================================================
+-- 1b) THE OWNER: Saffron's own accounts.
+--
+-- A narrower group than the team, for things that are hers alone. Right
+-- now that is the meeting notes: not the KP partners, and not Derek or
+-- Ali either. To open them to the whole team later, change the
+-- meeting_notes line in step 3 from is_owner() to is_team().
+-- ============================================================
+create or replace function public.is_owner()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select lower(coalesce(auth.jwt() ->> 'email', '')) in (
+    'saba.f88@gmail.com',
+    'saba.feilizadeh@gmail.com',
+    'saba.feilizadeh@berkeley.edu'
+  )
+$$;
+
+
+-- ============================================================
 -- 2) THE VIEWERS: read everything, change nothing.
 --
 -- The KP partners. Remove an address here and re-run to revoke access.
@@ -115,6 +138,25 @@ begin
     loop
       execute format('drop policy if exists %I on public.%I', p.policyname, t);
     end loop;
+
+    -- Meeting notes are Saffron's alone: she reads and writes them and
+    -- nobody else sees them, team included. Handled first so the general
+    -- rules below cannot widen it by accident.
+    if t = 'meeting_notes' then
+      execute format(
+        'create policy "owner can read" on public.%I for select
+           to authenticated using (public.is_owner())', t);
+      execute format(
+        'create policy "owner can insert" on public.%I for insert
+           to authenticated with check (public.is_owner())', t);
+      execute format(
+        'create policy "owner can update" on public.%I for update
+           to authenticated using (public.is_owner()) with check (public.is_owner())', t);
+      execute format(
+        'create policy "owner can delete" on public.%I for delete
+           to authenticated using (public.is_owner())', t);
+      continue;
+    end if;
 
     -- Reading: team and viewers, except the interest list.
     --
