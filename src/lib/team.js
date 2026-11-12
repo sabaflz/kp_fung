@@ -8,11 +8,13 @@
 // in the database (supabase_viewer_access.sql), which blocks writes from anyone
 // who is not on the team regardless of the UI. Add a viewer's EXACT sign-in
 // email (lowercased) below to switch them into read-only mode.
+// Saffron's three accounts (saba.f88@gmail.com, saba.feilizadeh@gmail.com,
+// saba.feilizadeh@berkeley.edu) are never viewers. They get the full workspace
+// everywhere, and they are all in is_team() in the database too.
 export const VIEWER_EMAILS = [
   'Sheila.X.Baxter@kp.org',
   'Amy.L.Benisch@kp.org',
   'Tamer.M.Barakat@kp.org',
-  'saba.feilizadeh@gmail.com', // Saffron's screen-share account: view-only, presentation only
 ].map((e) => e.toLowerCase())
 
 export function isViewer(email) {
