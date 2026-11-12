@@ -8,9 +8,8 @@ import BenefitIcon from '../components/BenefitIcon.jsx'
 
    The three benefits on the flyer are NOT typed in. They are whichever three
    are leading the Bet #2 survey right now, so the flyer follows the evidence
-   as more responses arrive. The dollar amounts and session counts are
-   placeholders that add up to the $300 we have used all along; the real
-   numbers are KP's to set. */
+   as more responses arrive. There is deliberately no price on it: Bet #3 is
+   about making the benefits specific, not about what people would pay. */
 
 // How each benefit reads on a flyer. Written to answer the comprehension
 // problem from Bet #1: say exactly what you get, in plain words.
@@ -48,14 +47,12 @@ const FLYER_COPY = {
 }
 
 const DEFAULT_TOP = ['dental', 'vision', 'mental']
-const PRICES = ['10', '15', '25']
 
 export default function Bet3() {
   const [rows, setRows] = useState([])
   const [loaded, setLoaded] = useState(false)
   const [params, setParams] = useSearchParams()
   const bullseyeOnly = params.get('who') === 'bullseye'
-  const price = PRICES.includes(params.get('price')) ? params.get('price') : '15'
 
   const setParam = (k, v) => {
     const next = new URLSearchParams(params)
@@ -134,11 +131,6 @@ export default function Bet3() {
             <button type="button" aria-pressed={!bullseyeOnly} onClick={() => setParam('who', 'all')}>Everyone</button>
             <button type="button" aria-pressed={bullseyeOnly} onClick={() => setParam('who', 'bullseye')}>Bullseye 18 to 30</button>
           </div>
-          <div className="b2-seg" role="group" aria-label="Monthly price to show">
-            {PRICES.map((p) => (
-              <button key={p} type="button" aria-pressed={price === p} onClick={() => setParam('price', p)}>${p}/mo</button>
-            ))}
-          </div>
           <button type="button" className="btn sm" onClick={() => window.print()}>Print or save as PDF</button>
         </div>
       </div>
@@ -180,18 +172,14 @@ export default function Bet3() {
           </section>
 
           <section className="fl-cta">
-            <div className="fl-price">
-              <span className="fl-price-n">${price}</span>
-              <span className="fl-price-u">a month<sup>1</sup></span>
-            </div>
             <div className="fl-cta-text">
-              <b>Would you add this to your plan?</b>
-              <span>Tell us in two minutes at <u>{surveyUrl}</u></span>
+              <b>Help us get the details right.</b>
+              <span>Tell us what you would want from benefits like these at <u>{surveyUrl}</u></span>
             </div>
           </section>
 
           <footer className="fl-foot">
-            <p><sup>1</sup> Price and allowance are placeholders used for research. The $300 allowance, what it can be spent on, and any monthly cost have not been set or approved.</p>
+            <p>The $300 allowance is a placeholder used for research. The amount and what it can be spent on have not been set or approved.</p>
             <p>This page was made by UC Berkeley Fung Fellowship students for a class project with partners at Kaiser Permanente. It does not describe a benefit that exists today and is not an offer of coverage.</p>
           </footer>
         </article>
@@ -201,7 +189,7 @@ export default function Bet3() {
         <h3 className="b2-h3">What is a placeholder here</h3>
         <ul>
           <li>The <b>$300</b> is the same assumed value we used in Bets #1 and #2. It is not a costed number.</li>
-          <li>The <b>monthly price</b> is the thing Bet #3 tests. Switch between $10, $15 and $25 above and show different people different prices.</li>
+          <li>There is <b>no price</b> on it, on purpose. Asking people what they would pay is a leading question, and the benefits are not final yet.</li>
           <li>The <b>three benefits</b> come straight from the survey. Second and third place are close, so expect them to move.</li>
           <li>The <b>bullet points</b> under each benefit describe what a member would get in plain words. They still need real limits from KP.</li>
         </ul>

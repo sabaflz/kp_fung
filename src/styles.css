@@ -744,9 +744,6 @@ footer.foot{margin-top:26px;padding-top:16px;border-top:1px solid var(--line);co
 .fl-how li b::before{content:counter(fl); display:inline-flex; width:22px; height:22px; margin-right:8px; border-radius:999px;
   background:var(--fl-blue); color:#fff; font-size:12px; align-items:center; justify-content:center; vertical-align:1px}
 .fl-cta{display:flex; align-items:center; gap:28px; flex-wrap:wrap; padding:28px 48px}
-.fl-price{display:flex; align-items:baseline; gap:8px; white-space:nowrap}
-.fl-price-n{font-family:var(--serif); font-size:60px; font-weight:600; line-height:1; color:var(--fl-blue); font-variant-numeric:tabular-nums}
-.fl-price-u{font-size:15px; font-weight:600; color:var(--fl-muted)}
 .fl-cta-text{display:grid; gap:4px; font-size:15px; color:var(--fl-muted); min-width:0; flex:1 1 260px;
   border-left:3px solid var(--fl-sky); padding-left:20px}
 .fl-cta-text b{font-size:19px; color:var(--fl-ink)}

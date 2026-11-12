@@ -38,10 +38,10 @@ export const BETS = [
   {
     id: 3,
     week: 'Bet #3',
-    title: 'Would they add it, at a price',
+    title: 'What people want inside the winning benefits',
     status: 'Draft',
     hypothesis:
-      'Shown a one-page flyer for the package the survey points to, with a monthly price on it, at least 3 of 5 bullseye users will say they would add it and leave their email to hear more. Draft wording, for the team to settle.',
+      'When at least 5 bullseye users describe the last time they needed care in the benefits leading our survey, at least 4 of 5 will name the same specific need inside a benefit (for example a cleaning, or glasses), concrete enough to write onto the flyer. Draft wording, for the team to settle.',
     result: '',
     learning: '',
     links: [

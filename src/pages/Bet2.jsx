@@ -69,6 +69,32 @@ export default function Bet2({ embedded = false }) {
     'not-supported': ['Not supported so far', 'No benefit is favored by a clear majority of people.'],
     'not-yet': ['Too early to call', 'We need at least 5 people in this group before judging.'],
   }
+  // One file with every response, for analysis outside the app. Email
+  // addresses are left out on purpose: the file is meant to be handed on.
+  const downloadResults = () => {
+    const out = {
+      exported_at: new Date().toISOString(),
+      note: 'Bet #2 package survey. Email addresses are deliberately not included.',
+      benefits: BENEFITS.map((b) => ({ id: b.id, name: b.name })),
+      response_count: rows.length,
+      responses: rows.map((r) => ({
+        respondent: r.respondent, created_at: r.created_at, age: r.age || null,
+        choices: (r.choices || []).map((c) => ({ left: c.left, right: c.right, chosen: c.chosen })),
+      })),
+      followups: followups.map((f) => ({
+        respondent: f.respondent, enabler: f.enabler || null, joined_interest_list: !!f.wants_results,
+      })),
+    }
+    const url = URL.createObjectURL(new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' }))
+    const a = document.createElement('a')
+    a.href = url
+    const d = new Date()
+    a.download = `bet2-results-${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}.json`
+    document.body.appendChild(a); a.click(); a.remove()
+    setTimeout(() => URL.revokeObjectURL(url), 1000)
+    toast(`Downloaded ${rows.length} responses`)
+  }
+
   const copySummary = async () => {
     const head = `Bet #2 package survey, ${bullseyeOnly ? 'bullseye 18 to 30 only' : 'all respondents'}, as of ${new Date().toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}`
     const table = analysis.benefits.map((b) =>
@@ -171,6 +197,9 @@ export default function Bet2({ embedded = false }) {
         <div className="b2-share">
           <span>Only you see this:</span>
           <Link className="btn ghost sm" to="/survey-test">Test the survey without saving</Link>
+          <button type="button" className="btn ghost sm" onClick={downloadResults} disabled={state !== 'ok'}>
+            Download results ({rows.length})
+          </button>
         </div>
       )}
 
