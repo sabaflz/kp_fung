@@ -96,16 +96,6 @@ export default function Bet3() {
 
   return (
     <div className="b3">
-      <div className="b3-top">
-        <span className="bp-eyebrow">Bet #3 <span className="bp-dot">·</span> Draft</span>
-        <h1 className="bp-title">The package, as a flyer</h1>
-        <p className="bp-lede">
-          Bet #1 told us people want a flexible allowance they control. Bet #2 is telling us which
-          benefits they reach for first. This puts the two together as one page a member could read
-          in thirty seconds.
-        </p>
-      </div>
-
       <div className="b3-bar">
         <div className="b3-evidence">
           {!loaded ? 'Loading the survey results…' : fromData ? (

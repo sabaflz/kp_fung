@@ -821,3 +821,28 @@ footer.foot{margin-top:26px;padding-top:16px;border-top:1px solid var(--line);co
 .b2-warn{border:1px solid #EAD3AE; background:#FDF6E8; color:#7A5A2A; border-radius:11px;
   padding:13px 16px; font-size:13.5px; line-height:1.5; margin-bottom:14px}
 .b2-warn b{color:#8A5A17}
+
+.pk-fu-email{margin-top:20px; padding-top:18px; border-top:1px solid var(--pk-line)}
+.pk-fu-hint{font-size:12.5px; color:var(--pk-muted)}
+
+/* Shared navigation across the Bets section */
+.betnav{display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap}
+.betnav-tabs{display:flex; gap:6px; flex-wrap:wrap; background:var(--surface-2); border:1px solid var(--line);
+  border-radius:999px; padding:4px}
+.betnav-tab{display:inline-flex; align-items:center; gap:7px; border-radius:999px; padding:7px 15px;
+  font-size:13.5px; font-weight:600; color:var(--muted); text-decoration:none; white-space:nowrap;
+  transition:background .15s, color .15s}
+.betnav-tab:hover{color:var(--fg); background:var(--surface)}
+.betnav-tab.is-on{background:var(--brand); color:var(--on-brand)}
+.betnav-dot{width:7px; height:7px; border-radius:999px; background:currentColor; opacity:.5}
+.betnav-tab.is-on .betnav-dot{opacity:.85}
+.betnav-dot.s-supported{background:#1a7f4b; opacity:1}
+.betnav-dot.s-collecting{background:var(--sv, #c08a2e); opacity:1}
+.betnav-tab.is-on .betnav-dot.s-supported,.betnav-tab.is-on .betnav-dot.s-collecting{background:currentColor}
+/* Hub cards are now links into each bet */
+.bet-card-link{display:block; text-decoration:none; color:inherit; transition:border-color .15s, transform .15s}
+.bet-card-link:hover{border-color:var(--brand)}
+.bet-sum{font-size:14.5px; line-height:1.55; color:var(--muted); margin:8px 0 0; max-width:70ch}
+.bet-live-line{font-size:13.5px; font-weight:600; color:var(--brand); margin:10px 0 0}
+.bet-more{display:inline-block; margin-top:14px; font-size:13.5px; font-weight:700; color:var(--brand)}
+@media (max-width:620px){ .betnav-tabs{width:100%} .betnav-present{width:100%; text-align:center} }
