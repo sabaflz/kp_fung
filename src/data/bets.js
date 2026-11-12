@@ -8,6 +8,8 @@ export const BETS = [
     week: 'Bet #1',
     title: 'Flexible wallet vs. a set bundle',
     status: 'Supported',
+    summary:
+      'All 5 chose a flexible allowance they control over a bundle decided for them. The real barrier turned out to be comprehension.',
     hypothesis:
       'Shown two $300 packages, at least 4 of 5 bullseye users will name a specific benefit or combination they would prioritize, with a reason, within a 15-minute session.',
     result:
@@ -24,6 +26,8 @@ export const BETS = [
     week: 'Bet #2',
     title: 'Which benefits win head-to-head',
     status: 'Collecting',
+    summary:
+      'A balanced choice survey ranking six benefits against each other, so every benefit earns a clean win rate.',
     live: true,
     hypothesis:
       'Across a short balanced choice survey, one or two benefits will win a majority of their head-to-head matchups consistently enough to name one strongest package.',
@@ -40,6 +44,8 @@ export const BETS = [
     week: 'Bet #3',
     title: 'What people want inside the winning benefits',
     status: 'Draft',
+    summary:
+      'A category is not a benefit. This asks what people actually needed the last time, so the package can name specifics.',
     hypothesis:
       'When at least 5 bullseye users describe the last time they needed care in the benefits leading our survey, at least 4 of 5 will name the same specific need inside a benefit (for example a cleaning, or glasses), concrete enough to write onto the flyer. Draft wording, for the team to settle.',
     result: '',

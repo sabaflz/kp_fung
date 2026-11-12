@@ -156,23 +156,6 @@ export default function Bet2({ embedded = false }) {
 
   return (
     <div className="b2">
-      <div className="bp-top">
-        <span className="bp-eyebrow">Bet #2 <span className="bp-dot">·</span> <span className="bp-live">Collecting</span></span>
-        <h1 className="bp-title">Which benefits win head-to-head</h1>
-        <p className="bp-lede">We show two $300 packages, ten times, and let people pick. Every benefit meets every other an equal number of times, so each one earns a clean win rate. The results below update live.</p>
-        <div className="bp-chips">
-          {BENEFITS.map((bn) => (
-            <span key={bn.id} className="bp-benefit"><BenefitIcon name={bn.icon} size={16} />{bn.name}</span>
-          ))}
-        </div>
-      </div>
-      {!embedded && (
-        <div className="bp-nav bp-nav-top">
-          <Link className="btn ghost sm" to="/bets">&larr; All bets</Link>
-          <Link className="btn ghost sm" to="/present/bet1">Present Bet #1</Link>
-        </div>
-      )}
-
       <div className="b2-head">
         <div>
           <h2 className="b2-title">Bet #2 &middot; Package preference</h2>
