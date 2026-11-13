@@ -43,7 +43,7 @@ questions will come from.
 | Forced choice separates benefits that flat ratings do not | The method itself, and the spread in the results. Strong. |
 | Dental leads | 59% win rate across 16 people. Leads, but 7 points over therapy and not yet separable from a coin flip. |
 | Dental belongs in the package | All five most-picked packages contain it. This is the stronger form of the claim and we should lead with it. |
-| No single benefit has cleared our 4-of-5 bar | True, and we should say it before anyone asks. |
+| No single benefit has cleared Bet #2's 4-of-5 bar | True, and we should say it before anyone asks. Note all three bets set a bar of 4 of 5 and they measure different things: Bet #1 was whether people name a benefit they would prioritise, and it was met; Bet #2 is whether 4 in 5 favour the same one; Bet #3 is whether 4 in 5 click through. Never say "our 4-of-5 bar" without the number. |
 | Respondents are the right people | 15 of 16 were inside 18 to 30, and 18 to 30 is the default view everywhere on the site. |
 | Something in the flyer makes people act | Bet 3, in flight. Nothing to claim yet. |
 

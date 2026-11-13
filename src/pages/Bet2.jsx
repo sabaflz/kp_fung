@@ -67,18 +67,19 @@ export default function Bet2({ embedded = false }) {
   // rate is noise wearing a percentage sign, so those groups are not shown.
   const readableAges = useMemo(() => analysis.ages.filter((g) => g.n >= 3), [analysis])
   const findings = useMemo(() => summarize(analysis, { bullseyeOnly }), [analysis, bullseyeOnly])
-  // These judge Bet #2's declared bar: at least 4 of 5 people favoring the
-  // same benefit. They do NOT judge whether the survey worked.
+  // These judge BET #2's bar and nothing else.
   //
-  // The old "not supported" text read "no benefit is favored by a clear
-  // majority", which was both deflating and wrong: this case fires when the
-  // leader is under 60%, so a benefit favored by 55% of people, a majority,
-  // would still land here and be described as having none. Each line now
-  // names the bar and says what is true as well as what is not.
+  // All three bets set a bar of "4 of 5", and they measure completely
+  // different things, which is a trap worth naming in the copy rather than
+  // in a comment. Bet #1: 4 of 5 name a benefit they would prioritise, and
+  // that was met. Bet #2, below: 4 of 5 favour the SAME benefit. Bet #3:
+  // 4 of 5 click through from the flyer. Saying "our 4-of-5 bar" anywhere
+  // without the bet number invites somebody to read the wrong verdict, in
+  // front of partners, off this page.
   const VERDICTS = {
-    supported: ['Hypothesis supported', 'At least one benefit is favored by 4 of 5 people, which is the bar we set before running this.'],
-    partial: ['Partially supported', 'There is a clear leader, favored by more than 3 in 5 people, but not yet by the 4 in 5 we set as the bar.'],
-    'not-supported': ['Our 4-of-5 bar is not met', 'The ranking below still holds. What has not happened is one benefit pulling far enough ahead that 4 of 5 people favor it, which is a demanding bar when every screen splits six benefits three against three.'],
+    supported: ["Bet #2's bar is met", 'At least one benefit is favored by 4 of 5 people. That was the bar for this bet: not whether people liked the idea, but whether they converge on the same benefit.'],
+    partial: ["Bet #2's bar is not met yet", 'There is a clear leader, favored by more than 3 in 5 people, but Bet #2 asked for 4 in 5 favoring the same benefit.'],
+    'not-supported': ["Bet #2's bar is not met", "The ranking below still holds. Bet #2 asked whether people converge on one benefit, 4 in 5 favoring the same one, and they have not yet. That is a demanding bar when every screen splits six benefits three against three. It says nothing about Bet #1, which was met, or Bet #3, which has not run."],
     'not-yet': ['Too early to call', 'We need at least 5 people in this group before judging.'],
   }
   // One file with every response, for analysis outside the app. Email
@@ -290,7 +291,7 @@ export default function Bet2({ embedded = false }) {
                   The dot is the average person&rsquo;s pick rate and the band is the 95% range around it. A band
                   that crosses the 50% line means we cannot yet say the benefit beats a coin flip. Each person
                   counts once, however many screens they answered. &ldquo;Favored by&rdquo; counts people who picked
-                  that benefit more often than not, and our bar is {Math.round(AGREEMENT_BAR * 100)}%. One caution:
+                  that benefit more often than not, and Bet #2's bar is {Math.round(AGREEMENT_BAR * 100)}%. One caution:
                   the six rates always average 50%, so a runaway leader pulls the others down.
                   &ldquo;Behind&rdquo; means behind the field, not unwanted.
                 </p>

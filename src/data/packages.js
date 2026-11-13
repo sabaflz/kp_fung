@@ -121,7 +121,9 @@ export function tallyResponses(rows) {
 export const BULLSEYE_AGES = ['18–20', '21–23', '24–26', '27–30']
 export const isBullseyeAge = (age) => BULLSEYE_AGES.includes(age)
 
-// Bet #2's declared bar: at least 4 of 5 people (80%) favoring the same benefit.
+// Bet #2's declared bar: at least 4 of 5 people (80%) favouring the SAME
+// benefit. All three bets use "4 of 5" for different things, so never
+// describe this one without saying which bet it belongs to.
 export const AGREEMENT_BAR = 0.8
 // What we predicted would lead, written down before the survey ran.
 export const PREDICTED = { anchor: 'dental', partner: ['fitness', 'everyday'] }
@@ -258,7 +260,7 @@ export function summarize(a, { bullseyeOnly = true } = {}) {
   )
   out.push(
     `${L.favored} of ${L.n} people picked ${nameOf(L.id).toLowerCase()} more often than not. ` +
-    `Our bar was 4 of 5 (${pctStr(AGREEMENT_BAR)}), and this is ${pctStr(L.favoredShare)}.`,
+    `Bet #2's bar was 4 of 5 (${pctStr(AGREEMENT_BAR)}) favouring the same benefit, and this is ${pctStr(L.favoredShare)}.`,
   )
   if (a.ahead.length) {
     out.push(`Clearly above a coin flip, even allowing for the margin of error: ${a.ahead.map((b) => nameOf(b.id)).join(', ')}.`)
