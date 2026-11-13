@@ -19,12 +19,12 @@ import BenefitIcon from '../components/BenefitIcon.jsx'
 export const FLYER_COPY = {
   dental: {
     kicker: 'Dental',
-    line: 'Cleanings covered. Help with fillings.',
+    line: 'Cleanings and fillings.',
     points: ['Two cleanings and X-rays a year', 'Money toward fillings and other dental work', 'See a dentist near you'],
   },
   mental: {
     kicker: 'Therapy & mental health',
-    line: 'Therapy, without the runaround.',
+    line: 'Therapy, no referral.',
     points: ['Covered therapy or counseling sessions', 'No referral needed to start', 'In person, by phone, or by video'],
   },
   fitness: {
@@ -34,17 +34,17 @@ export const FLYER_COPY = {
   },
   vision: {
     kicker: 'Vision',
-    line: 'An eye exam, plus help with glasses.',
+    line: 'Exams and glasses.',
     points: ['A yearly eye exam', 'Money toward glasses or contacts', 'Pick the frames you actually like'],
   },
   everyday: {
     kicker: 'Everyday health',
-    line: 'The stuff insurance skips.',
+    line: 'What insurance skips.',
     points: ['Cold and allergy medicine', 'Vitamins, first aid, and sunscreen', 'Order online or pick up in store'],
   },
   nutrition: {
     kicker: 'Nutrition',
-    line: 'A dietitian in your corner.',
+    line: 'Your own dietitian.',
     points: ['One-on-one sessions with a registered dietitian', 'A plan built around how you actually eat', 'By video, on your schedule'],
   },
 }
