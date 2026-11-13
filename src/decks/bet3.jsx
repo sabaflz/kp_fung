@@ -312,7 +312,7 @@ const S5 = (
   </div>
 )
 
-/* ---- 6 · The ask ---- */
+/* ---- 6 · What we do next ---- */
 const AskRow = ({ n, hp, pp, h, p }) => (
   <div style={{ display: 'flex', alignItems: 'center', gap: 20, background: '#FFFFFF', border: '1px solid #E4E2DB', borderLeft: '6px solid #003087', borderRadius: 12, padding: '16px 24px' }}>
     <span style={{ fontFamily: SERIF, fontSize: 34, fontWeight: 600, color: '#0A6BB0', width: 40, flex: 'none' }}>{n}</span>
@@ -326,23 +326,23 @@ const S6 = (
   <div style={{ ...base('#F5F4F0', '#4A5568'), gap: 16 }}>
     {BAR}
     <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
-      <p style={pill}><T p="ask.ey">What we need from you</T></p>
+      <p style={pill}><T p="next.ey">What we do next</T></p>
       <h2 style={{ fontFamily: SERIF, fontSize: 40, fontWeight: 600, lineHeight: 1.06, color: '#16233E', margin: '2px 0 0' }}>
-        <T p="ask.h2">Three things that change what we do next</T>
+        <T p="next.h2">Get it seen, watch it work, go deeper</T>
       </h2>
     </div>
     <div style={{ display: 'flex', flexDirection: 'column', gap: 11, flex: 1, justifyContent: 'center' }}>
-      <AskRow n="1" hp="ask.r1h" h="Tell us what the package cannot claim" pp="ask.r1p"
-        p="This goes to real people this week. It carries no KP name, but the idea is yours. Anything in it a plan could never actually do, we would rather hear now than after five hundred people have read it." />
-      <AskRow n="2" hp="ask.r2h" h="Make one benefit specific with us" pp="ask.r2p"
-        p="We can rank dental. We cannot say what dental. Fifteen minutes with whoever knows the benefit design would save us weeks of guessing at amounts and limits." />
-      <AskRow n="3" hp="ask.r3h" h="Does this already exist as KP rewards?" pp="ask.r3p"
-        p="Rewards gives members flexible dollars and names Gen Z. If that is the same mechanism, we should be building on it rather than beside it, and we would rather find out now than at the final." />
+      <AskRow n="1" hp="next.r1h" h="Get the flyer in front of as many 18 to 30s as we can" pp="next.r1p"
+        p="Instagram, Discord, Snapchat and Facebook, each with its own link, plus the group chats and clubs we are already in. More eyes means a click rate we can trust and a clearer view of which way in people open first." />
+      <AskRow n="2" hp="next.r2h" h="Run the five watched tests" pp="next.r2p"
+        p="Five people in range. We hand over the flyer, say nothing, and time it. This is the group Bet #3's 4-of-5 bar is judged on." />
+      <AskRow n="3" hp="next.r3h" h="Go one level deeper inside the top benefits" pp="next.r3p"
+        p="Keep the survey open until the leader separates from a coin flip, and use the next interviews to ask what dental, or therapy, actually means to someone. Which service, and how much." />
     </div>
     <div style={{ display: 'flex', gap: 14, alignItems: 'center', background: '#003087', borderRadius: 12, padding: '16px 24px' }}>
       <span style={{ color: '#FFFFFF', fontSize: 19 }}>▶</span>
       <p style={{ fontSize: 19, lineHeight: 1.35, color: '#FFFFFF', margin: 0 }}>
-        <T p="ask.ask" b="#FFFFFF">**Next time we meet we will have numbers:** how many people saw it, how many moved, and which part of the offer they opened first.</T>
+        <T p="next.ask" b="#FFFFFF">**Before it goes out, we would like your eyes on what the flyer claims.** Next time we meet we will have numbers: how many people saw it, how many moved, and which part of the offer they opened first.</T>
       </p>
     </div>
   </div>
@@ -363,7 +363,7 @@ const bet3 = {
        2 if they have moved. */
 
     { id: 'title', node: S1, notes:
-      "So this week we're moving from which benefits people say they want, to whether any of it actually gets someone to do something.\n\nI'll go through what Bet 2 is telling us so far, what we built off the back of it, and then we have three things we'd like your help with at the end." },
+      "So this week we're moving from which benefits people say they want, to whether any of it actually gets someone to do something.\n\nI'll go through what Bet 2 is telling us so far, what we built off the back of it, and then what we're doing over the next couple of weeks, with one thing we'd like your eyes on before it goes out." },
 
     { id: 'results', node: S2, notes:
       "Quick bit of context first. In Bet 1, all five participants chose an allowance they could control over a fixed bundle, so that gave us the shape. Bet 2 was about what goes inside it.\n\nWe're at 19 responses now, 18 of them in our 18 to 30 range.\n\nDental is leading. The average person picked the package with dental in it about 60 percent of the time. Therapy and mental health is second at 53. After that the rest are fairly close together.\n\nTwo things about that before anyone has to ask. First, 19 is a small sample, and the gap between dental and therapy sits inside the margin of error. So we're treating this as a direction rather than a result.\n\nSecond, how to read these numbers at all. Each screen puts three benefits against the other three, so the six rates always average 50 percent by design. A benefit below 50 isn't unwanted, it just showed up less often in the packages people picked.\n\nAnd on our own success criteria: we said we'd want to see one benefit clearly outperforming the others, and four out of five people favouring the same one. Dental is leading, but we haven't hit four out of five, and at this sample size I wouldn't call the lead settled either." },
@@ -377,8 +377,8 @@ const bet3 = {
     { id: 'bet3', node: S5, notes:
       "So here's the bet itself, which the three of us agreed on yesterday.\n\nIf we show someone the flyer with a clear next step, at least four out of five people in our age range will click through within a minute, without us prompting them. We're counting the click, not whether they say they like it.\n\nWe're running it as two separate tracks.\n\nThe first is the actual bet. Five people in our age range that we recruit ourselves. We hand them the flyer, say take a look, and then say nothing. That's the group we judge against four out of five.\n\nThe second is public. The same flyer on Instagram, Discord, Snapchat and Facebook, each with its own link so we can see which platform does what. That gives us reach and a click rate, but it can't tell us that whoever clicked was in our age range.\n\nWe're keeping those apart on purpose, because a normal click-through rate on social is one to three percent. Held to four out of five, a perfectly good flyer would look like a failure, and that isn't useful to report.\n\nOne limit I want to be upfront about. A click doesn't prove anyone would buy this, it proves the offer is worth thirty seconds. And if people look, say it's nice and do nothing, that's still the cheapest thing we could learn, because it's before anyone spends money building it." },
 
-    { id: 'ask', node: S6, notes:
-      "So, three things we'd like from you, and each one changes what we do over the next two weeks.\n\nThe first is telling us what this can't claim. It goes out this week, and we've written things about covered services and access that we're honestly not qualified to promise. We'd much rather hear that now than after five hundred people have read it.\n\nThe second is fifteen minutes with whoever knows benefit design, starting with dental. What a realistic amount looks like, what the limits would be, what somebody actually gets. That one conversation is the difference between a ranked category and something you could build. If you can point us at a name today, we'll handle the scheduling.\n\nThe third one is a bit uncomfortable to ask, but we'd rather ask it now than at the final. How does this sit next to KP Rewards? We've seen flexible dollars and Gen Z in your own material, and if that's the same mechanism, we'd rather build on it than end up presenting something beside it.\n\nAnd next time we meet we'll come back with numbers. The five person test, the public response, and which part of the offer people opened first.\n\nIf you can start with the flyer claims though, that's the one that's blocking us." },
+    { id: 'next', node: S6, notes:
+      "So here's what we're actually doing over the next couple of weeks, in order.\n\nFirst, getting the flyer in front of as many people in our age range as we can. Instagram, Discord, Snapchat and Facebook, each with its own link, plus the group chats and clubs we're already in. The more people see it, the more we can trust the click rate, and the more we learn about which way in people open first.\n\nSecond, the five watched tests. That's the bet itself. Five people in our range, we hand them the flyer, say nothing, and time it.\n\nThird, going a level deeper inside the top benefits. We keep the survey open until the leader either separates from the pack or doesn't, and we use the next interviews to ask what dental, or therapy, actually means to someone. Which service, and how much.\n\nThere's one thing we'd like from you before any of that goes out, and that's a look at what the flyer claims. Anything in it a plan couldn't actually do, we'd much rather hear now than after hundreds of people have seen it. And if you can point us to someone who knows benefit design, even fifteen minutes on dental would help.\n\nNext time we meet we'll come back with numbers: how many people saw it, how many moved, and which part of the offer they opened first." },
   ],
 }
 
