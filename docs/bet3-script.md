@@ -14,7 +14,7 @@ presenting. It is here to rehearse from and to send to Derek and Ali.
 data, so check the screen before the call and change the two numbers in
 section 2 if they have moved.
 
-About 8 minutes 15 seconds at a steady speaking pace.
+About 8 minutes 2 seconds at a steady speaking pace.
 
 ---
 
@@ -90,17 +90,17 @@ One limit I want to be upfront about. A click doesn't prove anyone would buy thi
 
 ## 6. What we do next
 
-*About 99 seconds.*
+*About 86 seconds.*
 
 So here's what we're actually doing over the next couple of weeks, in order.
 
 First, getting the flyer in front of as many people in our age range as we can. Instagram, Discord, Snapchat and Facebook, each with its own link, plus the group chats and clubs we're already in. The more people see it, the more we can trust the click rate, and the more we learn about which way in people open first.
 
-Second, the five watched tests. That's the bet itself. Five people in our range, we hand them the flyer, say nothing, and time it.
+Second, five more interviews, and those double as the bet itself. Five people in our range, we hand them the flyer, say nothing, and time it. Then we ask what dental, or therapy, actually means to them. Which service, and how much.
 
-Third, going a level deeper inside the top benefits. We keep the survey open until the leader either separates from the pack or doesn't, and we use the next interviews to ask what dental, or therapy, actually means to someone. Which service, and how much.
+Third, we keep the survey open until the leader either separates from the pack or doesn't.
 
-There's one thing we'd like from you before any of that goes out, and that's a look at what the flyer claims. Anything in it a plan couldn't actually do, we'd much rather hear now than after hundreds of people have seen it. And if you can point us to someone who knows benefit design, even fifteen minutes on dental would help.
+One thing we'd still like from you before any of it goes out is a look at what the flyer claims. Anything in it a plan couldn't actually do, we'd much rather hear now than after hundreds of people have seen it.
 
 Next time we meet we'll come back with numbers: how many people saw it, how many moved, and which part of the offer they opened first.
 

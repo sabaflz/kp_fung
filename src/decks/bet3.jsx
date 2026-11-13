@@ -332,17 +332,17 @@ const S6 = (
       </h2>
     </div>
     <div style={{ display: 'flex', flexDirection: 'column', gap: 11, flex: 1, justifyContent: 'center' }}>
-      <AskRow n="1" hp="next.r1h" h="Get the flyer in front of as many 18 to 30s as we can" pp="next.r1p"
+      <AskRow n="1" hp="next.r1h" h="Get the flyer in front of as many people as we can" pp="next.r1p"
         p="Instagram, Discord, Snapchat and Facebook, each with its own link, plus the group chats and clubs we are already in. More eyes means a click rate we can trust and a clearer view of which way in people open first." />
-      <AskRow n="2" hp="next.r2h" h="Run the five watched tests" pp="next.r2p"
-        p="Five people in range. We hand over the flyer, say nothing, and time it. This is the group Bet #3's 4-of-5 bar is judged on." />
-      <AskRow n="3" hp="next.r3h" h="Go one level deeper inside the top benefits" pp="next.r3p"
-        p="Keep the survey open until the leader separates from a coin flip, and use the next interviews to ask what dental, or therapy, actually means to someone. Which service, and how much." />
+      <AskRow n="2" hp="next.r2h" h="Conduct 5 more interviews" pp="next.r2p"
+        p="Five people in range. We hand over the flyer, say nothing, and time it. Then we ask what dental, or therapy, actually means to them: which service, and how much. This is the group Bet #3's 4-of-5 bar is judged on." />
+      <AskRow n="3" hp="next.r3h" h="Keep the survey open" pp="next.r3p"
+        p="Keep collecting responses until the leader separates from a coin flip, or we can say plainly that it has not." />
     </div>
     <div style={{ display: 'flex', gap: 14, alignItems: 'center', background: '#003087', borderRadius: 12, padding: '16px 24px' }}>
       <span style={{ color: '#FFFFFF', fontSize: 19 }}>▶</span>
       <p style={{ fontSize: 19, lineHeight: 1.35, color: '#FFFFFF', margin: 0 }}>
-        <T p="next.ask" b="#FFFFFF">**Before it goes out, we would like your eyes on what the flyer claims.** Next time we meet we will have numbers: how many people saw it, how many moved, and which part of the offer they opened first.</T>
+        <T p="next.ask" b="#FFFFFF">**Next time we meet we will have numbers:** how many people saw it, how many moved, and which part of the offer they opened first.</T>
       </p>
     </div>
   </div>
@@ -378,7 +378,7 @@ const bet3 = {
       "So here's the bet itself, which the three of us agreed on yesterday.\n\nIf we show someone the flyer with a clear next step, at least four out of five people in our age range will click through within a minute, without us prompting them. We're counting the click, not whether they say they like it.\n\nWe're running it as two separate tracks.\n\nThe first is the actual bet. Five people in our age range that we recruit ourselves. We hand them the flyer, say take a look, and then say nothing. That's the group we judge against four out of five.\n\nThe second is public. The same flyer on Instagram, Discord, Snapchat and Facebook, each with its own link so we can see which platform does what. That gives us reach and a click rate, but it can't tell us that whoever clicked was in our age range.\n\nWe're keeping those apart on purpose, because a normal click-through rate on social is one to three percent. Held to four out of five, a perfectly good flyer would look like a failure, and that isn't useful to report.\n\nOne limit I want to be upfront about. A click doesn't prove anyone would buy this, it proves the offer is worth thirty seconds. And if people look, say it's nice and do nothing, that's still the cheapest thing we could learn, because it's before anyone spends money building it." },
 
     { id: 'next', node: S6, notes:
-      "So here's what we're actually doing over the next couple of weeks, in order.\n\nFirst, getting the flyer in front of as many people in our age range as we can. Instagram, Discord, Snapchat and Facebook, each with its own link, plus the group chats and clubs we're already in. The more people see it, the more we can trust the click rate, and the more we learn about which way in people open first.\n\nSecond, the five watched tests. That's the bet itself. Five people in our range, we hand them the flyer, say nothing, and time it.\n\nThird, going a level deeper inside the top benefits. We keep the survey open until the leader either separates from the pack or doesn't, and we use the next interviews to ask what dental, or therapy, actually means to someone. Which service, and how much.\n\nThere's one thing we'd like from you before any of that goes out, and that's a look at what the flyer claims. Anything in it a plan couldn't actually do, we'd much rather hear now than after hundreds of people have seen it. And if you can point us to someone who knows benefit design, even fifteen minutes on dental would help.\n\nNext time we meet we'll come back with numbers: how many people saw it, how many moved, and which part of the offer they opened first." },
+      "So here's what we're actually doing over the next couple of weeks, in order.\n\nFirst, getting the flyer in front of as many people in our age range as we can. Instagram, Discord, Snapchat and Facebook, each with its own link, plus the group chats and clubs we're already in. The more people see it, the more we can trust the click rate, and the more we learn about which way in people open first.\n\nSecond, five more interviews, and those double as the bet itself. Five people in our range, we hand them the flyer, say nothing, and time it. Then we ask what dental, or therapy, actually means to them. Which service, and how much.\n\nThird, we keep the survey open until the leader either separates from the pack or doesn't.\n\nOne thing we'd still like from you before any of it goes out is a look at what the flyer claims. Anything in it a plan couldn't actually do, we'd much rather hear now than after hundreds of people have seen it.\n\nNext time we meet we'll come back with numbers: how many people saw it, how many moved, and which part of the offer they opened first." },
   ],
 }
 
