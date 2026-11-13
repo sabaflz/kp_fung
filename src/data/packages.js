@@ -121,7 +121,10 @@ export function tallyResponses(rows) {
 export const BULLSEYE_AGES = ['18–20', '21–23', '24–26', '27–30']
 export const isBullseyeAge = (age) => BULLSEYE_AGES.includes(age)
 
-// Bet #2's declared bar: at least 4 of 5 people (80%) favoring the same benefit.
+// Bet #2's agreement bar: at least 4 of 5 people (80%) favouring the SAME
+// benefit. This is only half of Bet #2's declared signal; the other half is
+// a benefit clearly outperforming the alternatives. All three bets use
+// "4 of 5" for different things, so never name this one without its bet.
 export const AGREEMENT_BAR = 0.8
 // What we predicted would lead, written down before the survey ran.
 export const PREDICTED = { anchor: 'dental', partner: ['fitness', 'everyday'] }
@@ -221,16 +224,39 @@ export function analyzeResponses(allRows, { bullseyeOnly = true } = {}) {
     return { age: a, n: g.length, top: means[0], second: means[1] }
   })
 
-  // The verdict against what we wrote down before running the survey.
+  // The verdict against what the team wrote down before running the survey.
+  //
+  // Bet #2's declared signal had TWO parts, and an earlier version of this
+  // only tested the first, which made the page report failure while the
+  // second part was being met:
+  //
+  //   A. "At least 4 of 5 users consistently favoring packages that include
+  //       one or two of the same benefits."
+  //   B. "One benefit or package combination clearly outperforming
+  //       alternatives across head-to-head matchups, giving us a defensible
+  //       basis for naming a strongest preliminary package."
+  //
+  // And the declared failure was "win rates clustering near 50/50, with no
+  // clear leader" — which is B failing, not A.
+  //
+  // So both are tested, and the verdict says which one is met. B uses the
+  // margin of error rather than the raw average: a benefit counts as
+  // clearly ahead only when its 95% range sits entirely above a coin flip,
+  // which is the honest reading of "clearly outperforming".
   const agreed = benefits.filter((b) => b.n > 0 && b.favoredShare >= AGREEMENT_BAR)
   const ahead = benefits.filter((b) => b.call === 'ahead')
+  const signalAgreement = agreed.length >= 1
+  const signalSeparation = ahead.length >= 1
   const leader = benefits[0]
   const runnerUp = benefits[1]
   const gap = leader && runnerUp ? leader.mean - runnerUp.mean : 0
   let verdict = 'not-yet'
-  if (n >= 5 && agreed.length >= 1) verdict = 'supported'
-  else if (n >= 5 && leader && leader.favoredShare >= 0.6) verdict = 'partial'
-  else if (n >= 5) verdict = 'not-supported'
+  if (n >= 5) {
+    if (signalAgreement && signalSeparation) verdict = 'supported'
+    else if (signalSeparation) verdict = 'leader'
+    else if (signalAgreement) verdict = 'agreement'
+    else verdict = 'not-supported'
+  }
   const predictedAnchorLeads = leader?.id === PREDICTED.anchor
   const predictedPartnerInTop3 = benefits.slice(0, 3).some((b) => PREDICTED.partner.includes(b.id))
 
@@ -238,6 +264,7 @@ export function analyzeResponses(allRows, { bullseyeOnly = true } = {}) {
     n, partial, totalAll: everyone.length,
     bullseyeCount: everyone.filter((r) => isBullseyeAge(r.age)).length,
     benefits, packages, ages, agreed, ahead, leader, runnerUp, gap,
+    signalAgreement, signalSeparation,
     verdict, predictedAnchorLeads, predictedPartnerInTop3,
   }
 }
@@ -258,7 +285,7 @@ export function summarize(a, { bullseyeOnly = true } = {}) {
   )
   out.push(
     `${L.favored} of ${L.n} people picked ${nameOf(L.id).toLowerCase()} more often than not. ` +
-    `Our bar was 4 of 5 (${pctStr(AGREEMENT_BAR)}), and this is ${pctStr(L.favoredShare)}.`,
+    `Bet #2's agreement bar was 4 of 5 (${pctStr(AGREEMENT_BAR)}) favouring the same benefit, and this is ${pctStr(L.favoredShare)}.`,
   )
   if (a.ahead.length) {
     out.push(`Clearly above a coin flip, even allowing for the margin of error: ${a.ahead.map((b) => nameOf(b.id)).join(', ')}.`)
