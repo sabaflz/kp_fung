@@ -48,24 +48,51 @@ export default function Deck({ deckId = 'bet1' }) {
   const [saveState, setSaveState] = useState('idle') // idle | saving | saved | error
   const [saveError, setSaveError] = useState('')
   const [loadError, setLoadError] = useState('')
+  const [savedBy, setSavedBy] = useState(null) // { email, at } of the last save
 
-  // Load saved text for this deck.
-  useEffect(() => {
-    let alive = true
+  // Paths THIS session has edited. Everything else in `overrides` belongs to
+  // whoever saved last, and must survive our save untouched.
+  const changed = useRef(new Set())
+
+  const load = useCallback(async ({ keepMine = false } = {}) => {
     if (!isConfigured) return
-    supabase.from('deck_content').select('content').eq('deck_id', deckId).maybeSingle()
-      .then(({ data, error }) => {
-        if (!alive) return
-        if (error) { setLoadError(error.message || 'Could not load saved edits.'); return }
-        if (data?.content) setOverrides(data.content)
-      })
-      .catch((e) => { if (alive) setLoadError(e?.message || 'Could not load saved edits.') })
-    return () => { alive = false }
+    const { data, error } = await supabase.from('deck_content')
+      .select('content, updated_by, updated_at').eq('deck_id', deckId).maybeSingle()
+    if (error) { setLoadError(error.message || 'Could not load saved edits.'); return }
+    setLoadError('')
+    setSavedBy(data?.updated_at ? { email: data.updated_by, at: data.updated_at } : null)
+    setOverrides((mine) => {
+      const theirs = data?.content || {}
+      if (!keepMine) return theirs
+      // Take everything new, but never discard an edit this session has not
+      // saved yet just because we refreshed.
+      const merged = { ...theirs }
+      for (const p of changed.current) merged[p] = mine[p]
+      return merged
+    })
   }, [deckId])
+
+  useEffect(() => { load() }, [load])
+
+  // The deck used to read the saved text once and never again, so two people
+  // with it open never saw each other's work and it looked as if saving did
+  // nothing. Refetch whenever the tab comes back to the front, which is what
+  // actually happens when you switch to another window and return.
+  useEffect(() => {
+    if (!isConfigured) return
+    const refresh = () => { if (!document.hidden) load({ keepMine: true }) }
+    window.addEventListener('focus', refresh)
+    document.addEventListener('visibilitychange', refresh)
+    return () => {
+      window.removeEventListener('focus', refresh)
+      document.removeEventListener('visibilitychange', refresh)
+    }
+  }, [load])
 
   const setField = useCallback((path, value) => {
     setOverrides((prev) => {
       if ((prev[path] ?? '') === value) return prev
+      changed.current.add(path)
       setDirty(true)
       setSaveState('idle')
       return { ...prev, [path]: value }
@@ -76,13 +103,35 @@ export default function Deck({ deckId = 'bet1' }) {
     if (!isConfigured) { setSaveState('error'); setSaveError('Not connected to Supabase yet.'); return }
     setSaveState('saving')
     setSaveError('')
+
+    // Read before writing, and send only the fields this session changed
+    // merged onto whatever is stored now.
+    //
+    // Saving the whole overrides object was silent data loss: two people
+    // editing different slides would each save a snapshot taken when their
+    // page loaded, and the second save would quietly undo the first. Nobody
+    // would see an error, and the lost edit would just be gone.
+    const { data: current, error: readErr } = await supabase.from('deck_content')
+      .select('content').eq('deck_id', deckId).maybeSingle()
+    if (readErr) {
+      setSaveState('error')
+      setSaveError('Could not check for other edits, so nothing was saved: ' + (readErr.message || ''))
+      return false
+    }
+    const merged = { ...(current?.content || {}) }
+    for (const p of changed.current) merged[p] = overrides[p]
+
+    const stamp = new Date().toISOString()
     const { error } = await supabase.from('deck_content')
-      .upsert({ deck_id: deckId, content: overrides, updated_by: email, updated_at: new Date().toISOString() }, { onConflict: 'deck_id' })
+      .upsert({ deck_id: deckId, content: merged, updated_by: email, updated_at: stamp }, { onConflict: 'deck_id' })
     if (error) {
       setSaveState('error')
       setSaveError(error.message || 'Save failed.')
       return false
     }
+    changed.current.clear()
+    setOverrides(merged)
+    setSavedBy({ email, at: stamp })
     setDirty(false)
     setSaveState('saved')
     return true
@@ -150,6 +199,22 @@ export default function Deck({ deckId = 'bet1' }) {
             <button className="btn ghost sm" type="button" onClick={() => go(i + 1)} disabled={i === n - 1 || editing}>Next →</button>
           </div>
           <div className="present-mid">
+            {/* Who saved last. Without this, a teammate's edit arriving (or
+                failing to arrive) is invisible, which is exactly how this
+                looked broken when it was working. */}
+            {team && savedBy?.at && (
+              <span
+                className="present-count"
+                title={`Last saved ${new Date(savedBy.at).toLocaleString()}${savedBy.email ? ' by ' + savedBy.email : ''}`}
+              >
+                {(() => {
+                  const mins = Math.round((Date.now() - new Date(savedBy.at)) / 60000)
+                  const when = mins < 1 ? 'just now' : mins < 60 ? `${mins}m ago` : new Date(savedBy.at).toLocaleDateString()
+                  const who = !savedBy.email ? '' : savedBy.email === email ? 'you' : savedBy.email.split('@')[0]
+                  return who ? `Edited ${when} by ${who}` : `Edited ${when}`
+                })()}
+              </span>
+            )}
             {team && !editing && <button className="btn ghost sm" type="button" onClick={() => setEditing(true)}>Edit text</button>}
             {team && editing && (
               <>
