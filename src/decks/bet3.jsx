@@ -290,7 +290,7 @@ const S5 = (
           <T p="b3.t1p">Five bullseye users we sourced ourselves. We hand it over, say nothing beyond take a look, and record what happens.</T>
         </p>
         <p style={{ fontSize: 16.5, lineHeight: 1.35, color: '#16233E', margin: 'auto 0 0', fontWeight: 700 }}>
-          <T p="b3.t1f">This is what the 4-of-5 bar judges.</T>
+          <T p="b3.t1f">This is what Bet #3\u2019s 4-of-5 bar judges.</T>
         </p>
       </div>
       <div style={{ ...card, flex: 1, borderTop: '5px solid #8A5A17' }}>
