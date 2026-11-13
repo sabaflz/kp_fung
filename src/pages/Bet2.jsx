@@ -67,19 +67,38 @@ export default function Bet2({ embedded = false }) {
   // rate is noise wearing a percentage sign, so those groups are not shown.
   const readableAges = useMemo(() => analysis.ages.filter((g) => g.n >= 3), [analysis])
   const findings = useMemo(() => summarize(analysis, { bullseyeOnly }), [analysis, bullseyeOnly])
-  // These judge BET #2's bar and nothing else.
+  // These judge BET #2's declared signal, which had two parts:
   //
-  // All three bets set a bar of "4 of 5", and they measure completely
-  // different things, which is a trap worth naming in the copy rather than
-  // in a comment. Bet #1: 4 of 5 name a benefit they would prioritise, and
-  // that was met. Bet #2, below: 4 of 5 favour the SAME benefit. Bet #3:
-  // 4 of 5 click through from the flyer. Saying "our 4-of-5 bar" anywhere
-  // without the bet number invites somebody to read the wrong verdict, in
-  // front of partners, off this page.
+  //   A. at least 4 of 5 users consistently favouring the same one or two
+  //      benefits, and
+  //   B. one benefit clearly outperforming the alternatives, rather than
+  //      win rates clustering near 50/50 with no clear leader.
+  //
+  // An earlier version tested only A, so the page reported plain failure
+  // while B was being met. Both are reported now, because meeting one and
+  // not the other is the likeliest outcome and is worth saying precisely.
+  //
+  // Note all three bets set a bar of "4 of 5" and they measure different
+  // things. Bet #1: 4 of 5 name a benefit they would prioritise, met.
+  // Bet #2: part A below. Bet #3: 4 of 5 click through from the flyer.
+  // Never write "our 4-of-5 bar" here without the bet number.
   const VERDICTS = {
-    supported: ["Bet #2's bar is met", 'At least one benefit is favored by 4 of 5 people. That was the bar for this bet: not whether people liked the idea, but whether they converge on the same benefit.'],
-    partial: ["Bet #2's bar is not met yet", 'There is a clear leader, favored by more than 3 in 5 people, but Bet #2 asked for 4 in 5 favoring the same benefit.'],
-    'not-supported': ["Bet #2's bar is not met", "The ranking below still holds. Bet #2 asked whether people converge on one benefit, 4 in 5 favoring the same one, and they have not yet. That is a demanding bar when every screen splits six benefits three against three. It says nothing about Bet #1, which was met, or Bet #3, which has not run."],
+    supported: [
+      "Bet #2's signal is met",
+      'Both halves: one benefit is clearly ahead of the alternatives, and at least 4 of 5 people favor the same one. That is a defensible basis for naming a strongest package.',
+    ],
+    leader: [
+      'Clear leader, not yet 4 of 5',
+      'Half the signal is met. One benefit is clearly outperforming the alternatives rather than the win rates clustering near 50/50, which is the outcome we said in advance would mean we were wrong. What has not happened yet is 4 of 5 people favoring the same one.',
+    ],
+    agreement: [
+      '4 of 5 agree, no clear leader yet',
+      'The other half. People are converging on the same benefit, but its margin of error still crosses a coin flip, so we cannot yet say it outperforms the alternatives.',
+    ],
+    'not-supported': [
+      "Bet #2's signal is not met",
+      'Win rates are clustering near a coin flip with no benefit clearly ahead, and no benefit is favored by 4 of 5 people. That is the outcome we said in advance would mean preference is too individual to package around. It says nothing about Bet #1, which was met, or Bet #3, which has not run.',
+    ],
     'not-yet': ['Too early to call', 'We need at least 5 people in this group before judging.'],
   }
   // One file with every response, for analysis outside the app. Email
@@ -291,7 +310,7 @@ export default function Bet2({ embedded = false }) {
                   The dot is the average person&rsquo;s pick rate and the band is the 95% range around it. A band
                   that crosses the 50% line means we cannot yet say the benefit beats a coin flip. Each person
                   counts once, however many screens they answered. &ldquo;Favored by&rdquo; counts people who picked
-                  that benefit more often than not, and Bet #2's bar is {Math.round(AGREEMENT_BAR * 100)}%. One caution:
+                  that benefit more often than not, and Bet #2's agreement bar is {Math.round(AGREEMENT_BAR * 100)}%. One caution:
                   the six rates always average 50%, so a runaway leader pulls the others down.
                   &ldquo;Behind&rdquo; means behind the field, not unwanted.
                 </p>
