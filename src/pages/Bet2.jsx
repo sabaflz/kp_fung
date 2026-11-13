@@ -67,10 +67,18 @@ export default function Bet2({ embedded = false }) {
   // rate is noise wearing a percentage sign, so those groups are not shown.
   const readableAges = useMemo(() => analysis.ages.filter((g) => g.n >= 3), [analysis])
   const findings = useMemo(() => summarize(analysis, { bullseyeOnly }), [analysis, bullseyeOnly])
+  // These judge Bet #2's declared bar: at least 4 of 5 people favoring the
+  // same benefit. They do NOT judge whether the survey worked.
+  //
+  // The old "not supported" text read "no benefit is favored by a clear
+  // majority", which was both deflating and wrong: this case fires when the
+  // leader is under 60%, so a benefit favored by 55% of people, a majority,
+  // would still land here and be described as having none. Each line now
+  // names the bar and says what is true as well as what is not.
   const VERDICTS = {
-    supported: ['Hypothesis supported', 'At least one benefit clears our 4-of-5 bar.'],
-    partial: ['Partially supported', 'There is a leader, but it does not clear our 4-of-5 bar yet.'],
-    'not-supported': ['Not supported so far', 'No benefit is favored by a clear majority of people.'],
+    supported: ['Hypothesis supported', 'At least one benefit is favored by 4 of 5 people, which is the bar we set before running this.'],
+    partial: ['Partially supported', 'There is a clear leader, favored by more than 3 in 5 people, but not yet by the 4 in 5 we set as the bar.'],
+    'not-supported': ['Our 4-of-5 bar is not met', 'The ranking below still holds. What has not happened is one benefit pulling far enough ahead that 4 of 5 people favor it, which is a demanding bar when every screen splits six benefits three against three.'],
     'not-yet': ['Too early to call', 'We need at least 5 people in this group before judging.'],
   }
   // One file with every response, for analysis outside the app. Email
