@@ -256,7 +256,7 @@ function FlyerSlide() {
         <div style={{ width: 400, display: 'flex', flexDirection: 'column', gap: 14, justifyContent: 'center' }}>
           {[
             ['fly.p1', 'The three benefits are whichever three are leading the survey right now. If the ranking changes, the flyer changes.'],
-            ['fly.p2', 'It answers the comprehension problem from Bet #1: say what you get, in plain words, in thirty seconds.'],
+            ['fly.p2', 'Bet #1 found the barrier was not wanting these benefits, it was not understanding them. This says what you get in thirty seconds.'],
             ['fly.p3', 'No price on it, on purpose. The benefits are not final, and asking what someone would pay leads them.'],
           ].map(([path, t]) => (
             <div key={path} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
@@ -370,18 +370,24 @@ const S8 = (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
       <p style={pill}><T p="ask.ey">What we need from you</T></p>
       <h2 style={{ fontFamily: SERIF, fontSize: 40, fontWeight: 600, lineHeight: 1.06, color: '#16233E', margin: '2px 0 0' }}>
-        <T p="ask.h2">Three things only KP can answer</T>
+        <T p="ask.h2">Three things that change what we do next</T>
       </h2>
     </div>
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12, flex: 1, justifyContent: 'center' }}>
-      <AskRow n="1" hp="ask.r1h" h="What do the add-ons cost today?" pp="ask.r1p" p="Monthly premiums for adult dental and vision in California. We could not find them anywhere public." />
-      <AskRow n="2" hp="ask.r2h" h="Is there an allowance under 65?" pp="ask.r2p" p="The over-the-counter allowance appears on Medicare plans. Does anything like it exist for younger members?" />
-      <AskRow n="3" hp="ask.r3h" h="How does this sit next to KP rewards?" pp="ask.r3p" p="Rewards already gives members flexible dollars and names Gen Z. Same mechanism with a different funding source, or a separate product?" />
+      {/* Rewritten. These used to be costing questions, which do not help a
+          team that has deliberately decided not to price anything yet. Each
+          one below changes something we do in the next two weeks. */}
+      <AskRow n="1" hp="ask.r1h" h="Tell us what the package cannot claim" pp="ask.r1p"
+        p="This goes to real people this week. It carries no KP name, but the idea is yours. Anything in it a plan could never actually do, we would rather hear now than after five hundred people have read it." />
+      <AskRow n="2" hp="ask.r2h" h="Make one benefit specific with us" pp="ask.r2p"
+        p="We can rank dental. We cannot say what dental. Fifteen minutes with whoever knows the benefit design would save us weeks of guessing at amounts and limits." />
+      <AskRow n="3" hp="ask.r3h" h="Does this already exist as KP rewards?" pp="ask.r3p"
+        p="Rewards gives members flexible dollars and names Gen Z. If that is the same mechanism, we should be building on it rather than beside it, and we would rather find out now than at the final." />
     </div>
     <div style={{ display: 'flex', gap: 14, alignItems: 'center', background: '#003087', borderRadius: 12, padding: '18px 26px' }}>
       <span style={{ color: '#FFFFFF', fontSize: 20 }}>▶</span>
       <p style={{ fontSize: 20, lineHeight: 1.35, color: '#FFFFFF', margin: 0 }}>
-        <T p="ask.ask" b="#FFFFFF">**The ask:** react to the flyer wording, and tell us which specifics inside each benefit are realistic for KP to offer.</T>
+        <T p="ask.ask" b="#FFFFFF">**Next time we meet we will have numbers:** how many people saw the flyer, how many acted, and which part of the offer they opened first.</T>
       </p>
     </div>
   </div>
@@ -398,7 +404,7 @@ const bet3 = {
     { id: 'flyer', node: S5, notes: 'Open /bets/3 in a browser tab and show the real flyer here rather than this miniature, which only has room for the headlines. Point out that the three benefits come from the survey and will change if the ranking does. Say plainly that the dollar amounts inside each benefit are placeholders.' },
     { id: 'bet3', node: S6, notes: 'The hypothesis and, just as important, how we run it. David flagged that "would you pay for this" is a leading question, so Bet #3 counts a click rather than an opinion. Two tracks, and keep them separate when reporting: five supervised users is the bet, and the public posting gives volume but cannot prove anyone was bullseye. A click-through rate on social is normally one to three percent, so never hold that against the 4-of-5 bar.' },
     { id: 'run', node: S7, notes: 'The part to be most careful about out loud. Track 1 is the actual bet: five people we sourced, watched, 4 of 5 clicking inside a minute. Track 2 is the public posting, which gives volume but cannot prove anyone was in the age range. Say the one-to-three-percent figure yourself before a partner assumes a low social number means the flyer failed.' },
-    { id: 'ask', node: S8, notes: 'Close on the three questions. These are the ones we could not answer from public pages, and they block the costed version of the package. Then the ask: react to the flyer wording and tell us which specifics are realistic.' },
+    { id: 'ask', node: S8, notes: 'Three asks, and every one of them changes something we do in the next fortnight, so do not let this become a wish list. One: the flyer goes out this week, so any objection to what it claims has to come now. Two: name a person we can get fifteen minutes with about what dental should actually cover, and get a date before the call ends. Three: the KP rewards question is the uncomfortable one, so ask it plainly, because if rewards is the same mechanism we would rather rebuild on it now than be told at the final. Close by saying what they get next time: real numbers, not another plan.' },
   ],
 }
 
