@@ -155,7 +155,16 @@ export default function Bet3() {
 
   const topPackageDiffers = fromData && a.packages.length > 0 &&
     a.packages[0].ids.slice().sort().join('+') !== top.slice().sort().join('+')
-  const surveyUrl = (typeof window !== 'undefined' ? window.location.host : '') + '/packages'
+  // Where the flyer sends people. This has to be the landing page, NOT the
+  // survey: Bet #3 measures which of the four ways in somebody opens before
+  // they commit, and a flyer pointing straight at /packages skips that page
+  // entirely, so the funnel records nothing and the bet cannot be judged.
+  //
+  // VITE_SITE_URL lets a render for print or email carry the real domain
+  // instead of whatever host it happened to be built on.
+  const host = import.meta.env.VITE_SITE_URL
+    || (typeof window !== 'undefined' ? window.location.host : '')
+  const surveyUrl = host + '/plan'
 
   return (
     <div className="b3">
@@ -227,7 +236,7 @@ export default function Bet3() {
           <section className="fl-cta">
             <div className="fl-cta-text">
               <b>Help us get the details right.</b>
-              <span>Tell us what you would want from benefits like these at <u>{surveyUrl}</u></span>
+              <span>See what is included and tell us what you would want at <u>{surveyUrl}</u></span>
             </div>
           </section>
 
