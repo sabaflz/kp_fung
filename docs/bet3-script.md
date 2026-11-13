@@ -14,17 +14,17 @@ presenting. It is here to rehearse from and to send to Derek and Ali.
 data, so check the screen before the call and change the two numbers in
 section 2 if they have moved.
 
-About 8 minutes 5 seconds at a steady speaking pace.
+About 8 minutes 15 seconds at a steady speaking pace.
 
 ---
 
 ## 1. Opening
 
-*About 24 seconds.*
+*About 28 seconds.*
 
 So this week we're moving from which benefits people say they want, to whether any of it actually gets someone to do something.
 
-I'll go through what Bet 2 is telling us so far, what we built off the back of it, and then we have three things we'd like your help with at the end.
+I'll go through what Bet 2 is telling us so far, what we built off the back of it, and then what we're doing over the next couple of weeks, with one thing we'd like your eyes on before it goes out.
 
 ## 2. Where Bet 2 landed
 
@@ -88,21 +88,21 @@ We're keeping those apart on purpose, because a normal click-through rate on soc
 
 One limit I want to be upfront about. A click doesn't prove anyone would buy this, it proves the offer is worth thirty seconds. And if people look, say it's nice and do nothing, that's still the cheapest thing we could learn, because it's before anyone spends money building it.
 
-## 6. What we need from you
+## 6. What we do next
 
-*About 93 seconds.*
+*About 99 seconds.*
 
-So, three things we'd like from you, and each one changes what we do over the next two weeks.
+So here's what we're actually doing over the next couple of weeks, in order.
 
-The first is telling us what this can't claim. It goes out this week, and we've written things about covered services and access that we're honestly not qualified to promise. We'd much rather hear that now than after five hundred people have read it.
+First, getting the flyer in front of as many people in our age range as we can. Instagram, Discord, Snapchat and Facebook, each with its own link, plus the group chats and clubs we're already in. The more people see it, the more we can trust the click rate, and the more we learn about which way in people open first.
 
-The second is fifteen minutes with whoever knows benefit design, starting with dental. What a realistic amount looks like, what the limits would be, what somebody actually gets. That one conversation is the difference between a ranked category and something you could build. If you can point us at a name today, we'll handle the scheduling.
+Second, the five watched tests. That's the bet itself. Five people in our range, we hand them the flyer, say nothing, and time it.
 
-The third one is a bit uncomfortable to ask, but we'd rather ask it now than at the final. How does this sit next to KP Rewards? We've seen flexible dollars and Gen Z in your own material, and if that's the same mechanism, we'd rather build on it than end up presenting something beside it.
+Third, going a level deeper inside the top benefits. We keep the survey open until the leader either separates from the pack or doesn't, and we use the next interviews to ask what dental, or therapy, actually means to someone. Which service, and how much.
 
-And next time we meet we'll come back with numbers. The five person test, the public response, and which part of the offer people opened first.
+There's one thing we'd like from you before any of that goes out, and that's a look at what the flyer claims. Anything in it a plan couldn't actually do, we'd much rather hear now than after hundreds of people have seen it. And if you can point us to someone who knows benefit design, even fifteen minutes on dental would help.
 
-If you can start with the flyer claims though, that's the one that's blocking us.
+Next time we meet we'll come back with numbers: how many people saw it, how many moved, and which part of the offer they opened first.
 
 ---
 
@@ -128,9 +128,10 @@ implies the others did not.
 "we were thinking". Say the one to three percent figure yourself, before
 anyone assumes a low social number means the flyer flopped.
 
-**Section 6, the asks.** Do not let these soften into a wish list. On
-the second one, get an actual name before the call ends and offer to do
-the scheduling yourself, or it becomes "we will look into it".
+**Section 6, the one ask.** The flyer check is the only thing you are
+asking for, so say it plainly and do not soften it. If they offer a name
+for the benefit design conversation, take it before the call ends and
+offer to do the scheduling yourself.
 
 **If you are running long**, the opening and the privacy paragraph in
 section 4 are the two places to cut. Do not cut the sample size caveat
@@ -150,6 +151,11 @@ behaviour rather than from a question.
 
 **Is this a real KP offer?** No, and the materials say so themselves. No
 branding, no price, and the page states plainly that it does not exist.
+
+**How does this sit next to KP Rewards?** We have seen flexible dollars
+and Gen Z in KP's own material. If it is the same mechanism we would
+rather build on it than beside it, and we would like to know before the
+final, not at it.
 
 **What if nobody clicks?** Then we have learned the offer is not
 compelling before anyone spent money building it, and we still have the
