@@ -369,7 +369,11 @@ footer.foot{margin-top:26px;padding-top:16px;border-top:1px solid var(--line);co
   .present{position:static !important;height:auto !important}
   .present-stage,.present-bar{display:none !important}
   .deck-print{display:block !important}
+  /* Browsers strip backgrounds when printing unless told not to, which turned
+     the cream slides, blue bars and cards white in the PDF. */
+  html,body,.present,.deck-print,.deck-print *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important}
   .deck-print .sld{page-break-after:always;break-after:page}
+  .deck-print .sld:last-child{page-break-after:auto;break-after:auto}
 }
 .b2-bars{list-style:none; margin:0; padding:0; display:grid; gap:14px}
 .b2-bar{display:grid; grid-template-columns:180px 1fr 44px; align-items:center; gap:12px}
