@@ -156,7 +156,11 @@ function personRates(row) {
   return { rates, screens }
 }
 
-export function analyzeResponses(allRows, { bullseyeOnly = false } = {}) {
+// Bullseye is the DEFAULT everywhere, not an option you switch on. We collect
+// every response, but the finding we are after is what 18 to 30 year olds want,
+// so a caller has to ask for everyone explicitly rather than get them by
+// accident. Callers that want the whole sample pass { bullseyeOnly: false }.
+export function analyzeResponses(allRows, { bullseyeOnly = true } = {}) {
   const everyone = (allRows || []).filter((r) => (r.choices || []).length > 0)
   const rows = bullseyeOnly ? everyone.filter((r) => isBullseyeAge(r.age)) : everyone
   const people = rows.map((r) => ({ row: r, ...personRates(r) })).filter((p) => p.screens > 0)
@@ -243,7 +247,7 @@ const nameOf = (id) => BENEFIT_BY_ID[id]?.name || id
 
 // Plain-language findings, regenerated from the data every time. These are the
 // lines the page shows and the "copy summary" button exports.
-export function summarize(a, { bullseyeOnly = false } = {}) {
+export function summarize(a, { bullseyeOnly = true } = {}) {
   const who = bullseyeOnly ? 'bullseye respondents (18 to 30)' : 'respondents'
   if (!a.n) return [`No ${who} yet.`]
   const out = []

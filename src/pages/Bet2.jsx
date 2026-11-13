@@ -29,7 +29,8 @@ export default function Bet2({ embedded = false }) {
   const toast = useToast()
   const { session } = useAuth()
   const owner = isOwner(session?.user?.email || '')
-  const [bullseyeOnly, setBullseyeOnly] = useState(false)
+  // Opens on the bullseye. "Everyone" is one click away, and the toggle says so.
+  const [bullseyeOnly, setBullseyeOnly] = useState(true)
   const [allPackages, setAllPackages] = useState(false)
 
   const refresh = useCallback(async () => {

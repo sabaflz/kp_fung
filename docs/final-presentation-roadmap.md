@@ -44,7 +44,7 @@ questions will come from.
 | Dental leads | 59% win rate across 16 people. Leads, but 7 points over therapy and not yet separable from a coin flip. |
 | Dental belongs in the package | All five most-picked packages contain it. This is the stronger form of the claim and we should lead with it. |
 | No single benefit has cleared our 4-of-5 bar | True, and we should say it before anyone asks. |
-| Respondents are the right people | 15 of 16 were inside 18 to 30. |
+| Respondents are the right people | 15 of 16 were inside 18 to 30, and 18 to 30 is the default view everywhere on the site. |
 | Something in the flyer makes people act | Bet 3, in flight. Nothing to claim yet. |
 
 Two things we must not say. We cannot claim an age-group difference: this
@@ -64,8 +64,10 @@ project that knows what it is doing and one that ran out of time.
 ## Before the final
 
 - Bet 3 numbers in, with the supervised and social tracks reported
-  separately. They answer different questions and a 1 to 3% social click
-  rate is a normal result, not a failure.
+  separately. The bar, agreed by the team on Nov 12, is 4 of 5 bullseye
+  users clicking through within a minute, and it judges the supervised
+  track only. A 1 to 3% social click rate is a normal result, not a
+  failure, and is never measured against that bar.
 - Five more interviews, aimed at specifics inside the leading benefits
   rather than at ranking them again.
 - Enough survey responses that the leader separates from a coin flip, or

@@ -30,6 +30,16 @@ set search_path = public
 as $$
   with screens as (
     -- One row per head-to-head screen, per person.
+    --
+    -- BULLSEYE ONLY. The flyer is aimed at 18 to 30 year olds, so the three
+    -- benefits on it come from what that group chose, not from everybody.
+    -- We still collect every response; this is about which answer the public
+    -- page is built on. A response with no age recorded cannot be placed in
+    -- the group and is left out here.
+    --
+    -- The dash below is an EN DASH, matching BULLSEYE_AGES in
+    -- src/data/packages.js. A hyphen would silently match nothing and the
+    -- page would fall back to its hardcoded list with no error anywhere.
     select r.id as rid,
            coalesce(ch -> 'left',  '[]'::jsonb) as left_side,
            coalesce(ch -> 'right', '[]'::jsonb) as right_side,
@@ -37,6 +47,7 @@ as $$
       from public.bet2_responses r
       cross join lateral jsonb_array_elements(r.choices) ch
      where jsonb_typeof(r.choices) = 'array'
+       and r.age in ('18–20', '21–23', '24–26', '27–30')
   ),
   flat as (
     -- Benefits on the side they picked: a win.
@@ -72,7 +83,9 @@ $$;
 grant execute on function public.benefit_win_rates() to anon, authenticated;
 
 -- ============================================================
--- CHECK IT WORKED. Expect six rows, highest win rate first, and the
--- same order you see on the Bet #2 page.
+-- CHECK IT WORKED. Expect six rows, highest win rate first, and the same
+-- order the Bet #2 page shows with its Bullseye toggle on, which is how
+-- that page now opens. The `people` column counts bullseye respondents,
+-- so it is smaller than your total response count.
 -- ============================================================
 select * from public.benefit_win_rates();
