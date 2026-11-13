@@ -212,14 +212,14 @@ function BuiltSlide() {
           <T p="built.h2">An offer, and somewhere for it to go</T>
         </h2>
       </div>
-      <div style={{ display: 'flex', gap: 20, flex: 1 }}>
+      <div style={{ display: 'flex', gap: 20, alignItems: 'flex-start' }}>
         {/* The flyer */}
         <div style={{ flex: 1.15, background: '#FFFFFF', border: '1px solid #E4E2DB', borderRadius: 14, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
           <div style={{ background: '#003087', padding: '16px 20px' }}>
             <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '1.5px', color: '#B9D4F5' }}>EXTRA BENEFITS FOR THE LIFE YOU ACTUALLY HAVE</div>
             <div style={{ fontFamily: SERIF, fontSize: 27, fontWeight: 600, color: '#FFFFFF', lineHeight: 1.1, marginTop: 6 }}>$300 a year. Spend it your way.</div>
           </div>
-          <div style={{ display: 'flex', flex: 1 }}>
+          <div style={{ display: 'flex' }}>
             {top.map((id, i) => (
               <div key={id} style={{ flex: 1, padding: '14px 14px', borderLeft: i ? '1px solid #E4E2DB' : 'none', display: 'flex', flexDirection: 'column', gap: 6 }}>
                 <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: '1.1px', color: '#0078B3', textTransform: 'uppercase' }}>{FLYER_COPY[id].kicker}</div>
