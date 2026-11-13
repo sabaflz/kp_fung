@@ -111,7 +111,11 @@ function ResultsSlide() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           <p style={pill}><T p="res.ey">Bet #2 result</T></p>
           <h2 style={{ fontFamily: SERIF, fontSize: 42, fontWeight: 600, lineHeight: 1.06, color: '#16233E', margin: '2px 0 0' }}>
-            <T p="res.h2">One clear winner, the rest too close to call</T>
+            {/* The headline follows the data. Hardcoding "one clear winner"
+                meant it could contradict the caveat box directly below it. */}
+            <T p="res.h2">{a.ahead.length === 0
+              ? 'A direction, not yet a result'
+              : 'One clear winner, the rest too close to call'}</T>
           </h2>
         </div>
         <div style={{ flex: 'none', textAlign: 'right' }}>
@@ -164,9 +168,14 @@ function ResultsSlide() {
             <p style={{ fontSize: 19, lineHeight: 1.4, color: '#7A5A2A', margin: 0 }}>
               <b style={{ color: '#8A5A17' }}>Read this carefully. </b>
               {top ? `${BENEFIT_BY_ID[top.id].name} leads at ${Math.round(top.mean * 100)}%, favored by ${top.favored} of ${top.n} people. ` : ''}
-              {a.ahead.length <= 1
-                ? 'Nothing else is clearly above a coin flip once the margin of error is counted, so second and third place are still open. '
-                : `Also clearly ahead: ${a.ahead.slice(1).map((b) => BENEFIT_BY_ID[b.id].name).join(', ')}. `}
+              {/* Three cases, because the two-case version overclaimed. Saying
+                  "nothing ELSE is above a coin flip" implies the leader is,
+                  which at this sample size is not yet true of anything. */}
+              {a.ahead.length === 0
+                ? 'At this sample size nothing is clearly above a coin flip once the margin of error is counted, the leader included. Treat the order as a direction to follow, not a result to act on. '
+                : a.ahead.length === 1
+                  ? 'Nothing else is clearly above a coin flip once the margin of error is counted, so second and third place are still open. '
+                  : `Also clearly ahead: ${a.ahead.slice(1).map((b) => BENEFIT_BY_ID[b.id].name).join(', ')}. `}
               Every screen splits the six three against three, so the rates always average 50%. A benefit below that is behind the field, not unwanted.
             </p>
           </div>
@@ -195,7 +204,10 @@ const S4 = (
       <div style={{ flex: 1, background: '#15264A', borderLeft: '6px solid #6FB0EC', borderRadius: 16, padding: '26px 30px', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 12 }}>
         <span style={{ fontSize: 15, fontWeight: 700, letterSpacing: '2px', color: '#8FA6C6' }}>YOUR FEEDBACK, NOV 7</span>
         <p style={{ fontSize: 21, lineHeight: 1.45, color: '#EAF1FB', margin: 0 }}>
-          <T p="surp.tamer">Tamer read our fitness benefit as a gym membership. We meant any spending that keeps someone moving: a climbing pass, a mobility program, classes.</T>
+          {/* Deliberately not attributed to one person. The feedback came out
+              of the partner call as a whole, and naming a single partner
+              implies the others contributed less. */}
+          <T p="surp.tamer">Your read on it was that our fitness benefit sounded like a gym membership. We meant any spending that keeps someone moving: a climbing pass, a mobility program, classes.</T>
         </p>
       </div>
       <div style={{ flex: 1, background: '#15264A', borderLeft: '6px solid #E8B54A', borderRadius: 16, padding: '26px 30px', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 12 }}>
@@ -244,7 +256,7 @@ function FlyerSlide() {
         <div style={{ width: 400, display: 'flex', flexDirection: 'column', gap: 14, justifyContent: 'center' }}>
           {[
             ['fly.p1', 'The three benefits are whichever three are leading the survey right now. If the ranking changes, the flyer changes.'],
-            ['fly.p2', 'It answers the comprehension problem from Bet #1: say what you get, in plain words, in thirty seconds.'],
+            ['fly.p2', 'Bet #1 found the barrier was not wanting these benefits, it was not understanding them. This says what you get in thirty seconds.'],
             ['fly.p3', 'No price on it, on purpose. The benefits are not final, and asking what someone would pay leads them.'],
           ].map(([path, t]) => (
             <div key={path} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
@@ -292,25 +304,18 @@ const S6 = (
         </p>
       </div>
     </div>
-    <div style={{ display: 'flex', gap: 20 }}>
-      <div style={{ flex: 1, background: '#EEF3FB', border: '1px solid #D3E0F4', borderRadius: 14, padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 8 }}>
-        <span style={{ fontSize: 14, fontWeight: 700, letterSpacing: '1.6px', color: '#0067A8' }}>HOW WE ASK</span>
-        <p style={{ fontSize: 18.5, lineHeight: 1.4, color: '#16233E', margin: 0 }}>
-          <T p="b3.ask">Hand them the flyer, say nothing, and watch. The only prompt is “take a look at this.” Everything after that is theirs.</T>
-        </p>
-      </div>
-      <div style={{ flex: 1, background: '#F5E7D4', border: '1px solid #EAD3AE', borderRadius: 14, padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 8 }}>
-        <span style={{ fontSize: 14, fontWeight: 700, letterSpacing: '1.6px', color: '#8A5A17' }}>HOW WE DO NOT ASK</span>
-        <p style={{ fontSize: 18.5, lineHeight: 1.4, color: '#7A5A2A', margin: 0 }}>
-          <T p="b3.avoid">We do not ask “would you use this” or point at the buttons. No prices anywhere. A click is a real choice; a yes to a student with a laptop is not.</T>
-        </p>
-      </div>
-    </div>
+    {/* The "how we ask" and "how we do not ask" boxes used to sit here and
+        repeated what the next slide says properly, so the same caveat landed
+        twice in an eight-minute slot. One line carries the discipline; the
+        method belongs on the slide about the method. */}
+    <p style={{ fontSize: 19, lineHeight: 1.4, color: '#6A7383', margin: 0 }}>
+      <T p="b3.note">No prompting and no prices. A click is a real choice; agreeing with a student holding a laptop is not.</T>
+    </p>
   </div>
 )
 
 /* ---- Slide 7 · How we run it: two tracks, kept apart ---- */
-const Track = ({ tag, tagColor, hp, h, pp, p, np, nn, fp, f }) => (
+const Track = ({ tag, tagColor, hp, h, pp, p, np, nn, f }) => (
   <div style={{ flex: 1, background: '#FFFFFF', border: '1px solid #E4E2DB', borderTop: '5px solid ' + tagColor,
     borderRadius: 14, padding: '22px 24px', display: 'flex', flexDirection: 'column', gap: 10 }}>
     <span style={{ fontSize: 13.5, fontWeight: 700, letterSpacing: '1.6px', color: tagColor }}>{tag}</span>
@@ -319,7 +324,6 @@ const Track = ({ tag, tagColor, hp, h, pp, p, np, nn, fp, f }) => (
     <div style={{ marginTop: 'auto', paddingTop: 12, borderTop: '1px solid #EDEBE4', display: 'grid', gap: 6 }}>
       <span style={{ fontSize: 12.5, fontWeight: 700, letterSpacing: '1.4px', color: '#9AA1AD' }}>{nn}</span>
       <p style={{ fontSize: 17, lineHeight: 1.35, color: '#16233E', margin: 0, fontWeight: 600 }}><T p={np}>{f}</T></p>
-      <p style={{ fontSize: 15, lineHeight: 1.35, color: '#8A909C', margin: '2px 0 0' }}><T p={fp}>&nbsp;</T></p>
     </div>
   </div>
 )
@@ -336,11 +340,11 @@ const S7 = (
       <Track tag="TRACK 1 · THE BET" tagColor="#0067A8"
         hp="run.t1h" h="Five people, watched"
         pp="run.t1p" p="We hand the flyer to five bullseye users we sourced ourselves, say nothing beyond take a look, and record whether they click through."
-        nn="PASSES IF" np="run.t1f" f="4 of 5 click within a minute." fp="run.t1x" />
+        nn="PASSES IF" np="run.t1f" f="4 of 5 click within a minute." />
       <Track tag="TRACK 2 · THE VOLUME" tagColor="#8A5A17"
         hp="run.t2h" h="Posted in public"
-        pp="run.t2p" p="The same flyer goes out on Instagram, Discord, Snapchat and Reddit, each with its own link, so every platform gets its own row."
-        nn="GIVES US" np="run.t2f" f="A click and sign-up rate per platform." fp="run.t2x" />
+        pp="run.t2p" p="The same flyer goes out on Instagram, Discord, Snapchat and Facebook, each with its own link, so every platform gets its own row."
+        nn="GIVES US" np="run.t2f" f="A click and sign-up rate per platform." />
     </div>
     <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start', background: '#F5E7D4', border: '1px solid #EAD3AE', borderRadius: 12, padding: '16px 24px' }}>
       <p style={{ fontSize: 18.5, lineHeight: 1.4, color: '#7A5A2A', margin: 0 }}>
@@ -366,18 +370,24 @@ const S8 = (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
       <p style={pill}><T p="ask.ey">What we need from you</T></p>
       <h2 style={{ fontFamily: SERIF, fontSize: 40, fontWeight: 600, lineHeight: 1.06, color: '#16233E', margin: '2px 0 0' }}>
-        <T p="ask.h2">Three things only KP can answer</T>
+        <T p="ask.h2">Three things that change what we do next</T>
       </h2>
     </div>
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12, flex: 1, justifyContent: 'center' }}>
-      <AskRow n="1" hp="ask.r1h" h="What do the add-ons cost today?" pp="ask.r1p" p="Monthly premiums for adult dental and vision in California. We could not find them anywhere public." />
-      <AskRow n="2" hp="ask.r2h" h="Is there an allowance under 65?" pp="ask.r2p" p="The over-the-counter allowance appears on Medicare plans. Does anything like it exist for younger members?" />
-      <AskRow n="3" hp="ask.r3h" h="How does this sit next to KP rewards?" pp="ask.r3p" p="Rewards already gives members flexible dollars and names Gen Z. Same mechanism with a different funding source, or a separate product?" />
+      {/* Rewritten. These used to be costing questions, which do not help a
+          team that has deliberately decided not to price anything yet. Each
+          one below changes something we do in the next two weeks. */}
+      <AskRow n="1" hp="ask.r1h" h="Tell us what the package cannot claim" pp="ask.r1p"
+        p="This goes to real people this week. It carries no KP name, but the idea is yours. Anything in it a plan could never actually do, we would rather hear now than after five hundred people have read it." />
+      <AskRow n="2" hp="ask.r2h" h="Make one benefit specific with us" pp="ask.r2p"
+        p="We can rank dental. We cannot say what dental. Fifteen minutes with whoever knows the benefit design would save us weeks of guessing at amounts and limits." />
+      <AskRow n="3" hp="ask.r3h" h="Does this already exist as KP rewards?" pp="ask.r3p"
+        p="Rewards gives members flexible dollars and names Gen Z. If that is the same mechanism, we should be building on it rather than beside it, and we would rather find out now than at the final." />
     </div>
     <div style={{ display: 'flex', gap: 14, alignItems: 'center', background: '#003087', borderRadius: 12, padding: '18px 26px' }}>
       <span style={{ color: '#FFFFFF', fontSize: 20 }}>▶</span>
       <p style={{ fontSize: 20, lineHeight: 1.35, color: '#FFFFFF', margin: 0 }}>
-        <T p="ask.ask" b="#FFFFFF">**The ask:** react to the flyer wording, and tell us which specifics inside each benefit are realistic for KP to offer.</T>
+        <T p="ask.ask" b="#FFFFFF">**Next time we meet we will have numbers:** how many people saw the flyer, how many acted, and which part of the offer they opened first.</T>
       </p>
     </div>
   </div>
@@ -390,11 +400,11 @@ const bet3 = {
     { id: 'title', node: S1, notes: 'One line to open: we know which benefits people reach for, and now we are testing whether the package makes anyone actually move. Keep it to fifteen seconds.' },
     { id: 'where', node: S2, notes: 'The three bets in order, so the partners see this is one line of reasoning rather than three separate studies. Bet #1 gave us the wallet, Bet #2 the ranking, Bet #3 asks whether anyone acts on it. Land on the last card: liking a package is cheap.' },
     { id: 'results', node: S3, notes: 'This chart reads the live survey, so whatever is on screen is current. Say the sample size out loud before the ranking, and do not oversell: dental is the one clear signal, the rest are inside the margin of error. The amber box is the honest caveat, read it rather than skipping it.' },
-    { id: 'surprise', node: S4, notes: 'Credit Tamer directly. He read our fitness benefit as a gym membership, and if the label misread for him it misread for our respondents. This is the bridge into Bet #3: we cannot settle a labelling problem by asking people about labels, so we show them the real thing and count clicks.' },
+    { id: 'surprise', node: S4, notes: 'Credit the room, not one person: say "your feedback on the fitness benefit" rather than naming a partner, so nobody hears that only one of them was useful. The point is that if the label misread for the people who sell this, it misread for our respondents. This is the bridge into Bet #3: we cannot settle a labelling problem by asking people about labels, so we show them the real thing and count clicks.' },
     { id: 'flyer', node: S5, notes: 'Open /bets/3 in a browser tab and show the real flyer here rather than this miniature, which only has room for the headlines. Point out that the three benefits come from the survey and will change if the ranking does. Say plainly that the dollar amounts inside each benefit are placeholders.' },
     { id: 'bet3', node: S6, notes: 'The hypothesis and, just as important, how we run it. David flagged that "would you pay for this" is a leading question, so Bet #3 counts a click rather than an opinion. Two tracks, and keep them separate when reporting: five supervised users is the bet, and the public posting gives volume but cannot prove anyone was bullseye. A click-through rate on social is normally one to three percent, so never hold that against the 4-of-5 bar.' },
     { id: 'run', node: S7, notes: 'The part to be most careful about out loud. Track 1 is the actual bet: five people we sourced, watched, 4 of 5 clicking inside a minute. Track 2 is the public posting, which gives volume but cannot prove anyone was in the age range. Say the one-to-three-percent figure yourself before a partner assumes a low social number means the flyer failed.' },
-    { id: 'ask', node: S8, notes: 'Close on the three questions. These are the ones we could not answer from public pages, and they block the costed version of the package. Then the ask: react to the flyer wording and tell us which specifics are realistic.' },
+    { id: 'ask', node: S8, notes: 'Three asks, and every one of them changes something we do in the next fortnight, so do not let this become a wish list. One: the flyer goes out this week, so any objection to what it claims has to come now. Two: name a person we can get fifteen minutes with about what dental should actually cover, and get a date before the call ends. Three: the KP rewards question is the uncomfortable one, so ask it plainly, because if rewards is the same mechanism we would rather rebuild on it now than be told at the final. Close by saying what they get next time: real numbers, not another plan.' },
   ],
 }
 

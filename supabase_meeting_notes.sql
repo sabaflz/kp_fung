@@ -128,6 +128,61 @@ values
 on conflict (id) do nothing;
 
 -- ============================================================
+-- THE CLASS TIMELINE
+--
+-- The scheduled sessions and deliverables from the ENGIN 188 syllabus,
+-- so the notes carry the whole project spine and not just the weeks
+-- somebody happened to write up. Firm dates, straight from the syllabus.
+--
+-- These record WHAT EACH SESSION CARRIES, not what was said in it. A
+-- past one with nothing in its summary beyond the deliverable means
+-- nobody has written it up yet, which is honest. Fill them in as you go.
+--
+-- Three of these are partner-facing: Partner Pitches, the Midpoint
+-- Read-Out, and the Final Showcase. The weekly partner calls are NOT
+-- here, because only the Nov 7 one is documented anywhere.
+--
+-- The syllabus says the schedule may flex, and lists three unmissable
+-- days: Partner Pitches, Midpoint, and the Final Showcase.
+-- ============================================================
+insert into public.meeting_notes (id, meeting_date, title, kind, attendees, summary, decisions, actions, updated_by)
+values
+('00000000-0000-4000-8000-000000000201', '2026-09-08', 'Week 2: Partner Pitches and team formation', 'KP partners', 'Whole class, partners',
+ E'Virtual session. Where the KP partnership and this team started.\n\nDeliverables: Team OS set up, meaning the canonical doc and the DRI log, plus the Mom Test quiz.\n\nOne of the three unmissable days in the syllabus. Not written up: add what you remember.', null, null, 'from the ENGIN 188 syllabus'),
+
+('00000000-0000-4000-8000-000000000202', '2026-09-22', 'Week 4: first outreach to KP', 'KP partners', 'Saba, Derek, Ali',
+ E'Focus was how to talk to humans. Deliverable: the Partner Dossier plus first outreach, and the Show Up reflection.\n\nThis is when contact with Sheila, Amy and Tamer would have begun. Not written up.', null, null, 'from the ENGIN 188 syllabus'),
+
+('00000000-0000-4000-8000-000000000203', '2026-10-06', 'Week 6: the interview sprint', 'Class', 'Saba, Derek, Ali',
+ E'Build, test, repeat. Deliverable: 10 to 15 interviews synthesized.\n\nThis is the sprint that produced the 11 interviews the final presentation draws its quotes from.', null, null, 'from the ENGIN 188 syllabus'),
+
+('00000000-0000-4000-8000-000000000204', '2026-10-20', 'Week 8: Midpoint Read-Out', 'KP partners', 'Whole class, partners',
+ E'Deliverable: the discovery read-out. One of the three unmissable days. Not written up: worth filling in, since the final builds on what was shown here.', null, null, 'from the ENGIN 188 syllabus'),
+
+('00000000-0000-4000-8000-000000000205', '2026-10-27', 'Week 9: Small Bet #1', 'Class', 'Saba, Derek, Ali',
+ E'Deliverable: Small Bet #1, plus the Navigate Conflict reflection.\n\nBet #1 is the flexible wallet test, where 5 of 5 chose the flexible wallet over a fixed bundle.', null, null, 'from the ENGIN 188 syllabus'),
+
+('00000000-0000-4000-8000-000000000206', '2026-11-03', 'Week 10: Small Bet #2 and go-to-market', 'Class', 'Saba, Derek, Ali',
+ E'Deliverables: Small Bet #2 plus the go-to-market plan, and Build Your Brand.\n\nBet #2 is the head-to-head package survey.', null, null, 'from the ENGIN 188 syllabus'),
+
+('00000000-0000-4000-8000-000000000207', '2026-11-10', 'Week 11: Small Bet #3, adoption push begins', 'Class', 'Saba, Derek, Ali',
+ E'Focus: get it used. Deliverables: Small Bet #3 and the start of the adoption push.\n\nThat adoption push is what Bet #3 became: the flyer going out across platforms with the clicks tracked.', null, null, 'from the ENGIN 188 syllabus'),
+
+('00000000-0000-4000-8000-000000000208', '2026-11-17', 'Week 12: deck and demo', 'Class', 'Saba, Derek, Ali',
+ E'Project work. Deliverables: the deck and demo, plus the Make the Call reflection.', null,
+ E'Have Bet #3 numbers ready to show, with the supervised and social tracks reported separately.', 'from the ENGIN 188 syllabus'),
+
+('00000000-0000-4000-8000-000000000209', '2026-11-24', 'Week 13: final pitch and storytelling', 'Class', 'Whole class',
+ E'Virtual session. Deliverable: the canonical doc finalized.', null, null, 'from the ENGIN 188 syllabus'),
+
+('00000000-0000-4000-8000-000000000210', '2026-12-01', 'Week 14: mock pitches', 'Class', 'Whole class',
+ E'Deliverable: the Final Document, worth 20% of the grade.', null, null, 'from the ENGIN 188 syllabus'),
+
+('00000000-0000-4000-8000-000000000211', '2026-12-08', 'Week 15: Final Showcase', 'Class', 'Whole class, partners',
+ E'The Final Presentation, worth 25%. One of the three unmissable days.\n\nWhat the course anchors everything to: at least 5 real people, sourced by us and not by the partner, using a working model of the concept and completing its core task. Jeff, the SVP, cannot attend in person, so a virtual session is being scheduled for all teams. No date for that yet as of Nov 7.', null, null, 'from the ENGIN 188 syllabus')
+on conflict (id) do nothing;
+
+-- ============================================================
 -- VERIFY
 --   select meeting_date, kind, title from public.meeting_notes order by meeting_date desc;
 --   select policyname, cmd from pg_policies
