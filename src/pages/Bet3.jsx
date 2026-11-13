@@ -66,7 +66,9 @@ export default function Bet3() {
   const [events, setEvents] = useState([])
   const [loaded, setLoaded] = useState(false)
   const [params, setParams] = useSearchParams()
-  const bullseyeOnly = params.get('who') === 'bullseye'
+  // Bullseye unless someone explicitly asks for everyone, so a bare link to
+  // this page shows the flyer built for the age range it is aimed at.
+  const bullseyeOnly = params.get('who') !== 'all'
 
   const setParam = (k, v) => {
     const next = new URLSearchParams(params)
