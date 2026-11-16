@@ -926,3 +926,10 @@ footer.foot{margin-top:26px;padding-top:16px;border-top:1px solid var(--line);co
 .fl-cta-btn:hover{background:#0a47a8}
 .fl-cta-btn:focus-visible{outline:3px solid #ffd35c; outline-offset:3px}
 @media (max-width:560px){ .fl-cta-btn{width:100%; text-align:center; margin-top:12px} }
+
+/* Bet 3 page: see it and test it */
+.b3-try{margin-bottom:16px}
+.b3-try-row{display:flex; flex-wrap:wrap; gap:8px}
+.b3-try a.btn{text-decoration:none}
+.b3-survey-list{list-style:none; margin:0; padding:0; display:grid; gap:8px; font-size:14px; line-height:1.45}
+.b3-survey-list li{display:flex; gap:10px; align-items:flex-start}

@@ -16,6 +16,15 @@ const SOURCES = [
   'whatsapp', 'imessage', 'email', 'qr', 'poster', 'supervised', 'direct', 'test',
 ]
 
+/* A test run. Add ?test=1 to any public link (the flyer, the page behind
+   it, the survey) and it behaves exactly the same but records nothing: no
+   event, no survey response, no email. This is how the team checks a link
+   before sending it without putting their own clicks into the numbers. */
+export function isTestRun() {
+  try { return new URLSearchParams(window.location.search).get('test') === '1' } catch { return false }
+}
+export const withTest = (url) => (isTestRun() ? url + (url.includes('?') ? '&' : '?') + 'test=1' : url)
+
 let session = null
 let startedAt = 0
 
@@ -56,6 +65,7 @@ export async function track(event, { label = null, source = 'direct', variant = 
     ms: Math.max(0, Date.now() - startedAt),
     variant,
   }
+  if (isTestRun()) { console.info('[track] test run, not recorded:', row); return }
   if (!isConfigured) { console.warn('[track] not configured, would record:', row); return }
   try {
     const { error } = await supabase.from('landing_events').insert(row)

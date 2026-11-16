@@ -3,7 +3,8 @@ import { supabase, isConfigured } from '../lib/supabase.js'
 import { BENEFIT_BY_ID } from '../data/packages.js'
 import { FLYER_COPY, FLYER_TOP } from './Bet3.jsx'
 import BenefitIcon from '../components/BenefitIcon.jsx'
-import { startVisit, readSource, track } from '../lib/track.js'
+import { startVisit, readSource, track, isTestRun, withTest } from '../lib/track.js'
+import TestBanner from '../components/TestBanner.jsx'
 
 /* The page the flyer links to. Public, no sign-in.
 
@@ -152,7 +153,7 @@ export default function Landing() {
     if (!EMAIL_RE.test(em)) { setErr('That does not look like an email address.'); return }
     setErr('')
     await track('email', { label: 'landing signup', source: source.current })
-    if (isConfigured) {
+    if (isConfigured && !isTestRun()) {
       try {
         const { error } = await supabase.from('bet2_followups').insert({
           respondent: null, email: em, top_benefit: null, enabler: null, wants_results: true,
@@ -165,6 +166,7 @@ export default function Landing() {
 
   return (
     <div className="lp">
+      <TestBanner />
       <div className="lp-flag">This benefit does not exist yet. It is a research concept, not an offer.</div>
 
       <header className="lp-hero">
@@ -209,7 +211,7 @@ export default function Landing() {
         </p>
         <a
           className="lp-btn"
-          href={`/packages?src=${encodeURIComponent(source.current)}`}
+          href={withTest(`/packages?src=${encodeURIComponent(source.current)}`)}
           onClick={goToSurvey}
         >
           Take the 2-minute survey

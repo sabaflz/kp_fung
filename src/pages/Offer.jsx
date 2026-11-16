@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { supabase, isConfigured } from '../lib/supabase.js'
 import { BENEFIT_BY_ID } from '../data/packages.js'
-import { startVisit, readSource, track } from '../lib/track.js'
+import { startVisit, readSource, track, withTest } from '../lib/track.js'
+import TestBanner from '../components/TestBanner.jsx'
 import { FlyerSheet, FLYER_TOP } from './Bet3.jsx'
 
 /* The flyer on its own, public, no sign-in.
@@ -27,7 +28,7 @@ export default function Offer() {
 
   const go = async (e) => {
     e.preventDefault()
-    const href = `/plan?src=${encodeURIComponent(source.current)}`
+    const href = withTest(`/plan?src=${encodeURIComponent(source.current)}`)
     // Record the click, but never keep someone waiting on it.
     await Promise.race([
       track('flyer_click', { label: 'see what is included', source: source.current }),
@@ -37,11 +38,14 @@ export default function Offer() {
   }
 
   return (
+    <>
+    <TestBanner />
     <div className="offer-wrap">
       <FlyerSheet
         top={top}
         cta={<a className="fl-cta-btn" href="/plan" onClick={go}>See what is included</a>}
       />
     </div>
+    </>
   )
 }

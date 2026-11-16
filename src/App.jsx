@@ -98,7 +98,12 @@ export default function App() {
   const [drawerOpen, setDrawerOpen] = useState(false)  // mobile: slide-over drawer
 
   // Public, standalone package-choice survey: no nav, no sign-in.
-  if (location.pathname.startsWith('/packages')) return <Packages />
+  if (location.pathname.startsWith('/packages')) {
+    const test = new URLSearchParams(location.search).get('test') === '1'
+    return test
+      ? <Packages preview onRestart={() => window.location.reload()} onExit={() => window.close()} />
+      : <Packages />
+  }
   // Public landing page the flyer links to. No sign-in, like the survey.
   if (location.pathname.startsWith('/plan')) return <Landing />
   // Public flyer on its own, for Bet #3 sessions and posts. No sign-in.
