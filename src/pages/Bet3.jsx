@@ -61,6 +61,63 @@ function median(xs) {
 }
 const secs = (ms) => (ms == null ? '—' : ms < 1000 ? '<1s' : Math.round(ms / 1000) + 's')
 
+/* The flyer itself, shared by the team's Bet #3 page (printed, so the link
+   is written out) and the public /offer page (on a screen, so the call to
+   action is a real button passed in as `cta`). */
+export function FlyerSheet({ top, surveyUrl = '', cta = null }) {
+  return (
+    <article className="fl-page">
+      <div className="fl-concept">This benefit does not exist. It is a research concept, not an offer.</div>
+
+      <header className="fl-hero">
+        <p className="fl-eyebrow">Extra benefits for the life you actually have</p>
+        <h2 className="fl-h1">$300 a year.<br />Spend it your way.</h2>
+        <p className="fl-sub">
+          One allowance on top of your health plan, for the kinds of care young adults
+          told us matter most to them. You decide how to split it.
+        </p>
+      </header>
+
+      <section className="fl-benefits">
+        {top.map((id) => {
+          const c = FLYER_COPY[id]
+          return (
+            <div key={id} className="fl-benefit">
+              <span className="fl-ico"><BenefitIcon name={BENEFIT_BY_ID[id].icon} size={26} /></span>
+              <h3>{c.kicker}</h3>
+              <p className="fl-line">{c.line}</p>
+              <ul>{c.points.map((p) => <li key={p}>{p}</li>)}</ul>
+            </div>
+          )
+        })}
+      </section>
+
+      <section className="fl-how">
+        <h3>How it works</h3>
+        <ol>
+          <li><b>Add it</b><span>Choose it alongside your health plan when you enroll.</span></li>
+          <li><b>Use it</b><span>Spend your $300 across these benefits in whatever mix fits your year.</span></li>
+          <li><b>See it</b><span>Your balance and what it covers live in the same app as the rest of your care.</span></li>
+        </ol>
+      </section>
+
+      <section className="fl-cta">
+        <div className="fl-cta-text">
+          <b>Help us get the details right.</b>
+          {cta ? <span>See what is included and tell us what you would want.</span>
+            : <span>See what is included and tell us what you would want at <u>{surveyUrl}</u></span>}
+        </div>
+        {cta}
+      </section>
+
+      <footer className="fl-foot">
+        <p>The $300 allowance and everything inside it are placeholders used for research. Nothing here has been priced or approved.</p>
+        <p>Made by a student research team at UC Berkeley. No health insurer is offering this, and nothing here is an offer of coverage. If enough people tell us they want something like this, that is the case we will put to the people who design health plans.</p>
+      </footer>
+    </article>
+  )
+}
+
 export default function Bet3() {
   const [rows, setRows] = useState([])
   const [events, setEvents] = useState([])
@@ -118,7 +175,16 @@ export default function Bet3() {
   const funnel = useMemo(() => {
     if (!events.length) return null
     const bySession = {}
+    // Flyer page events are a different step (flyer to landing page), so
+    // they are counted on their own and never as landing-page visits.
+    const flyerBy = {}
     for (const e of events) {
+      if (e.event === 'flyer' || e.event === 'flyer_click') {
+        const f = (flyerBy[e.session] ||= { source: e.source || 'direct', ms: null })
+        if (e.source) f.source = e.source
+        if (e.event === 'flyer_click' && (f.ms == null || (e.ms != null && e.ms < f.ms))) f.ms = e.ms ?? 0
+        continue
+      }
       const v = (bySession[e.session] ||= { source: e.source || 'direct', cta: [], survey: false, email: false, firstMs: null })
       if (e.source) v.source = e.source
       if (e.event === 'cta') {
@@ -140,7 +206,14 @@ export default function Bet3() {
     }
     const labels = {}
     for (const v of visits) for (const l of new Set(v.cta)) labels[l] = (labels[l] || 0) + 1
+    const flyerSrc = {}
+    for (const f of Object.values(flyerBy)) {
+      const g = (flyerSrc[f.source] ||= { source: f.source, saw: 0, clicked: 0, within60: 0, times: [] })
+      g.saw++
+      if (f.ms != null) { g.clicked++; g.times.push(f.ms); if (f.ms <= 60000) g.within60++ }
+    }
     return {
+      flyer: Object.values(flyerSrc).sort((a, b) => b.saw - a.saw),
       visits: visits.length,
       clicked: clicked.length,
       survey: visits.filter((v) => v.survey).length,
@@ -198,53 +271,7 @@ export default function Bet3() {
       </div>
 
       <div className="fl-scroll">
-        <article className="fl-page">
-          <div className="fl-concept">This benefit does not exist. It is a research concept, not an offer.</div>
-
-          <header className="fl-hero">
-            <p className="fl-eyebrow">Extra benefits for the life you actually have</p>
-            <h2 className="fl-h1">$300 a year.<br />Spend it your way.</h2>
-            <p className="fl-sub">
-              One allowance on top of your health plan, for the kinds of care young adults
-              told us matter most to them. You decide how to split it.
-            </p>
-          </header>
-
-          <section className="fl-benefits">
-            {top.map((id) => {
-              const c = FLYER_COPY[id]
-              return (
-                <div key={id} className="fl-benefit">
-                  <span className="fl-ico"><BenefitIcon name={BENEFIT_BY_ID[id].icon} size={26} /></span>
-                  <h3>{c.kicker}</h3>
-                  <p className="fl-line">{c.line}</p>
-                  <ul>{c.points.map((p) => <li key={p}>{p}</li>)}</ul>
-                </div>
-              )
-            })}
-          </section>
-
-          <section className="fl-how">
-            <h3>How it works</h3>
-            <ol>
-              <li><b>Add it</b><span>Choose it alongside your health plan when you enroll.</span></li>
-              <li><b>Use it</b><span>Spend your $300 across these benefits in whatever mix fits your year.</span></li>
-              <li><b>See it</b><span>Your balance and what it covers live in the same app as the rest of your care.</span></li>
-            </ol>
-          </section>
-
-          <section className="fl-cta">
-            <div className="fl-cta-text">
-              <b>Help us get the details right.</b>
-              <span>See what is included and tell us what you would want at <u>{surveyUrl}</u></span>
-            </div>
-          </section>
-
-          <footer className="fl-foot">
-            <p>The $300 allowance and everything inside it are placeholders used for research. Nothing here has been priced or approved.</p>
-            <p>Made by a student research team at UC Berkeley. No health insurer is offering this, and nothing here is an offer of coverage. If enough people tell us they want something like this, that is the case we will put to the people who design health plans.</p>
-          </footer>
-        </article>
+        <FlyerSheet top={top} surveyUrl={surveyUrl} />
       </div>
 
       {funnel && (
@@ -291,6 +318,33 @@ export default function Bet3() {
               ? <>Median time from landing to first click: <b>{secs(funnel.medianMs)}</b>. {funnel.within60} of {funnel.clicked} clicked within a minute.</>
               : <>Nobody has clicked yet, so there is no timing to report.</>}
           </p>
+
+          {funnel.flyer.length > 0 && (
+            <>
+              <h4 className="b2-resp-h4" style={{ marginTop: 22 }}>From the flyer to the page</h4>
+              <div className="b2-ci-wrap">
+                <table className="b2-ci">
+                  <thead><tr><th>Source</th><th className="num">Saw the flyer</th><th className="num">Clicked through</th><th className="num">Within a minute</th><th>Time to click</th></tr></thead>
+                  <tbody>
+                    {funnel.flyer.map((f) => (
+                      <tr key={f.source}>
+                        <td className="b2-ci-name">{f.source}</td>
+                        <td className="num">{f.saw}</td>
+                        <td className="num">{f.clicked}</td>
+                        <td className="num">{f.within60}</td>
+                        <td>{f.times.length ? f.times.slice().sort((x, y) => x - y).map(secs).join(', ') : 'no click'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <p className="b2-fine">
+                This is the step Bet #3&rsquo;s 4-of-5 bar judges. For a supervised session, open{' '}
+                <code>/offer?src=interview-yourname</code> on the participant&rsquo;s screen and say nothing.
+                The clock starts when the flyer loads and stops when they press the button.
+              </p>
+            </>
+          )}
 
           {funnel.sources.length > 0 && (
             <>
