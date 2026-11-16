@@ -43,7 +43,7 @@ export const BENEFITS_R2 = [
   { id: 'mental',    name: 'Mental wellbeing',       icon: 'mind',      canonical: 'Additional mental health support',
     blurb: 'Therapy or counseling sessions, plus help with stress, burnout and sleep.' },
   { id: 'fitness',   name: 'Fitness & classes',      icon: 'fitness',   canonical: 'Fitness reimbursement',
-    blurb: 'Money toward a gym, a studio, or classes like yoga, climbing or cycling.' },
+    blurb: 'Money toward a gym, classes like yoga or climbing, or sessions with a personal trainer.' },
   { id: 'pt',        name: 'Physical therapy',       icon: 'pt',        canonical: 'Physical therapy',
     blurb: 'Visits with a physical therapist for an injury, ongoing pain, or recovery.' },
   { id: 'transport', name: 'Rides to care',          icon: 'transport', canonical: 'Transportation to care',
