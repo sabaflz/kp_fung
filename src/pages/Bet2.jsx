@@ -250,7 +250,7 @@ export default function Bet2({ embedded = false }) {
                   Round 1: with dental and vision ({rows.filter((r) => rowRound(r) === 1).length})
                 </button>
                 <button type="button" aria-pressed={round === 2} onClick={() => setRound(2)}>
-                  Round 2: rides and physical therapy ({rows.filter((r) => rowRound(r) === 2).length})
+                  Round 2: without dental and vision ({rows.filter((r) => rowRound(r) === 2).length})
                 </button>
               </div>
               <div className="b2-seg" role="group" aria-label="Who to include">

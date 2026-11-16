@@ -12,6 +12,7 @@ export default function BenefitIcon({ name, size = 22 }) {
     everyday: <><circle cx="12" cy="12" r="9" /><path d="M12 8v8M8 12h8" /></>,
     nutrition: <><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.5 19 2c1 2 2 4.2 2 8 0 5.5-4.5 10-10 10Z" /><path d="M2 21c0-3 1.9-5.4 5.1-6" /></>,
     transport: <><path d="M5 17H3v-5l2-5h10l4 5h2v5h-2" /><path d="M9 17h6" /><circle cx="7" cy="17" r="2" /><circle cx="17" cy="17" r="2" /></>,
+    derm: <path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11Z" />,
     pt: <><circle cx="12" cy="4.5" r="2" /><path d="M5 9l7 1 7-1M12 10v5l-4 6M12 15l4 6" /></>,
   }
   return <svg {...common}>{paths[name] || null}</svg>
