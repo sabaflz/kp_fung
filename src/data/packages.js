@@ -42,7 +42,7 @@ export const BENEFITS_R2 = [
     blurb: 'The things insurance usually skips: cold and allergy medicine, first aid, sunscreen, vitamins.' },
   { id: 'mental',    name: 'Mental wellbeing',       icon: 'mind',      canonical: 'Additional mental health support',
     blurb: 'Therapy or counseling sessions, plus help with stress, burnout and sleep.' },
-  { id: 'fitness',   name: 'Movement & fitness',     icon: 'fitness',   canonical: 'Fitness reimbursement',
+  { id: 'fitness',   name: 'Staying active',         icon: 'fitness',   canonical: 'Fitness reimbursement',
     blurb: 'Money toward a gym, a studio, or classes like yoga, climbing or cycling.' },
   { id: 'pt',        name: 'Physical therapy',       icon: 'pt',        canonical: 'Physical therapy',
     blurb: 'Visits with a physical therapist for an injury, ongoing pain, or recovery.' },

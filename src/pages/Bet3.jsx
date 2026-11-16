@@ -4,7 +4,7 @@ import { supabase, isConfigured } from '../lib/supabase.js'
 import { copyText, useToast } from '../components/ui.jsx'
 import { useAuth } from '../lib/auth.jsx'
 import { isOwner } from '../lib/team.js'
-import { BENEFIT_BY_ID, analyzeResponses } from '../data/packages.js'
+import { BENEFIT_BY_ID, SURVEY_BENEFITS, analyzeResponses } from '../data/packages.js'
 import BenefitIcon from '../components/BenefitIcon.jsx'
 
 /* Bet #3: a concept flyer for the package the survey is pointing at.
@@ -263,6 +263,10 @@ export default function Bet3() {
   const host = import.meta.env.VITE_SITE_URL
     || (typeof window !== 'undefined' ? window.location.host : '')
   const surveyUrl = host + '/plan'
+  // Full address for links the team copies and sends.
+  const siteOrigin = import.meta.env.VITE_SITE_URL
+    ? 'https://' + import.meta.env.VITE_SITE_URL
+    : (typeof window !== 'undefined' ? window.location.origin : '')
 
   return (
     <div className="b3">
@@ -277,6 +281,58 @@ export default function Bet3() {
         <div className="b3-controls">
           <button type="button" className="btn sm" onClick={() => window.print()}>Print or save as PDF</button>
         </div>
+      </div>
+
+      {/* Everything a participant will see, openable without recording anything. */}
+      <div className="b3-notes b3-try">
+        <h3 className="b2-h3">See it and test it</h3>
+        <p className="b2-desc" style={{ marginBottom: 14 }}>
+          These open exactly what a participant sees. A test run records nothing: no click, no survey
+          response, no email. The flyer is shown below, and the survey&rsquo;s current benefits are listed here.
+        </p>
+        <div className="b3-try-row">
+          <a className="btn sm" href="/offer?test=1" target="_blank" rel="noreferrer">Test the flyer</a>
+          <a className="btn ghost sm" href="/plan?test=1" target="_blank" rel="noreferrer">Test the page behind it</a>
+          <a className="btn ghost sm" href="/packages?test=1" target="_blank" rel="noreferrer">Test the survey</a>
+        </div>
+
+        <h4 className="b2-resp-h4" style={{ marginTop: 20 }}>Links for the supervised sessions</h4>
+        <div className="b2-ci-wrap">
+          <table className="b2-ci">
+            <thead><tr><th>Who</th><th>Link to open on the participant&rsquo;s screen</th><th></th></tr></thead>
+            <tbody>
+              {['saba', 'derek', 'allie'].map((who) => {
+                const link = `${siteOrigin}/offer?src=interview-${who}`
+                return (
+                  <tr key={who}>
+                    <td className="b2-ci-name" style={{ textTransform: 'capitalize' }}>{who}</td>
+                    <td><code style={{ overflowWrap: 'anywhere' }}>{link}</code></td>
+                    <td style={{ whiteSpace: 'nowrap' }}>
+                      <button type="button" className="btn ghost sm" onClick={async () => toast((await copyText(link)) ? 'Link copied' : 'Copy failed')}>Copy</button>{' '}
+                      <a className="btn ghost sm" href={`/offer?src=interview-${who}&test=1`} target="_blank" rel="noreferrer">Test it</a>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+        <p className="b2-fine">
+          <b>Copy</b> gives the real link, which records. <b>Test it</b> opens the same link as a test run, so
+          you can check it works before sending it. Each person&rsquo;s sessions appear under their own name in
+          the table further down.
+        </p>
+
+        <h4 className="b2-resp-h4" style={{ marginTop: 20 }}>What the survey asks now (round 2)</h4>
+        <ul className="b3-survey-list">
+          {SURVEY_BENEFITS.map((b) => (
+            <li key={b.id}>
+              <span className="lp-list-ico"><BenefitIcon name={b.icon} size={16} /></span>
+              <span><b>{b.name}.</b> {b.blurb}</span>
+            </li>
+          ))}
+        </ul>
+        <p className="b2-fine">Ten screens, two packages of three each time. Dental and vision are no longer offered.</p>
       </div>
 
       <div className="fl-scroll">
