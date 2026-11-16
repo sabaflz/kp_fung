@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { supabase, isConfigured } from '../lib/supabase.js'
-import { BENEFITS, BENEFIT_BY_ID, buildSession, newRespondentId, tallyResponses } from '../data/packages.js'
+import { SURVEY_BENEFITS as BENEFITS, SURVEY_BY_ID as BENEFIT_BY_ID, SURVEY_ROUND, buildSession, newRespondentId, tallyResponses } from '../data/packages.js'
 import BenefitIcon from '../components/BenefitIcon.jsx'
 
 const Icon = ({ name }) => <BenefitIcon name={name} />
@@ -54,7 +54,7 @@ export default function Packages({ preview = false, onRestart, onExit }) {
 
   // The respondent's own result, computed from just their 10 choices (client-side,
   // so it always shows even if the database save is unavailable).
-  const mine = useMemo(() => (choices.length ? tallyResponses([{ choices }]) : null), [choices])
+  const mine = useMemo(() => (choices.length ? tallyResponses([{ choices }], { round: SURVEY_ROUND }) : null), [choices])
   const topName = mine?.ranking?.length ? BENEFIT_BY_ID[mine.ranking[0].id].name : ''
 
   async function submit(all) {
@@ -141,14 +141,15 @@ export default function Packages({ preview = false, onRestart, onExit }) {
         {stage === 'intro' && (
           <div className="pk-panel pk-intro">
             <span className="pk-eyebrow">2 minute choice survey</span>
-            <h1>Which health benefits would you actually want?</h1>
+            <h1>Which extra health benefits would you actually use?</h1>
             <p className="pk-lead">
-              Imagine your health plan came with an extra wellness benefit worth about <b>$300 a year</b>.
-              It does not replace your insurance, it just adds coverage for the things below.
+              Imagine your health plan came with an extra allowance worth about <b>$300 a year</b>.
+              It does not replace your insurance. It pays for things most plans leave out, like the
+              six below.
             </p>
             <p className="pk-lead">
-              We will show you two versions, 10 times. They always cost the same, so you are only
-              choosing which mix of benefits you would rather have. Pick whichever feels more useful to you.
+              We will show you two packages, 10 times. They are always worth the same, so you are only
+              choosing which mix you would rather have. Go with your gut.
             </p>
             <div className="pk-benefit-key">
               {BENEFITS.map((b) => (
@@ -187,7 +188,7 @@ export default function Packages({ preview = false, onRestart, onExit }) {
               <span className="pk-progress-label">Question {i + 1} of {total}</span>
             </div>
             <h2 className="pk-prompt">Which package would you rather have?</h2>
-            <p className="pk-sub">Both cost the same $300 a year. Tap the one you would pick.</p>
+            <p className="pk-sub">Both are worth the same $300 a year. Tap the one you would pick.</p>
             <div className="pk-grid">
               <Package side="left" ids={session[i].left} onPick={pick} />
               <div className="pk-vs">or</div>

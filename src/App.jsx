@@ -110,7 +110,7 @@ export default function App() {
   const email = session.user?.email || ''
   const viewer = isViewer(email)
   // Meeting notes are Saffron's alone for now: not the KP partners, and not
-  // Derek or Ali either. The database enforces this as well (is_owner() in
+  // Derek or Allie either. The database enforces this as well (is_owner() in
   // supabase_meeting_notes.sql), so hiding the tab is convenience, not the
   // protection.
   const owner = isOwner(email)

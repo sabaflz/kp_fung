@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { supabase, isConfigured } from '../lib/supabase.js'
 import { BENEFIT_BY_ID } from '../data/packages.js'
-import { FLYER_COPY, DEFAULT_TOP } from './Bet3.jsx'
+import { FLYER_COPY, FLYER_TOP } from './Bet3.jsx'
 import BenefitIcon from '../components/BenefitIcon.jsx'
 import { startVisit, readSource, track } from '../lib/track.js'
 
@@ -74,7 +74,7 @@ const SECTIONS = [
     body: () => (
       <>
         <ol className="lp-steps">
-          <li><b>Add it</b><span>You would choose it alongside a health plan when you enrol, the same way dental is added today.</span></li>
+          <li><b>Add it</b><span>You would choose it alongside a health plan when you enrol, the same way other add-ons are chosen today.</span></li>
           <li><b>Use it</b><span>Spend the $300 across the benefits above during the year, in any mix.</span></li>
           <li><b>See it</b><span>Your balance and what it covers would sit in the same place as the rest of your plan.</span></li>
         </ol>
@@ -115,7 +115,6 @@ export default function Landing() {
   const [email, setEmail] = useState('')
   const [err, setErr] = useState('')
   const [sent, setSent] = useState(false)
-  const [rates, setRates] = useState([])
   const source = useRef('direct')
   const emailRef = useRef(null)
 
@@ -125,27 +124,8 @@ export default function Landing() {
     track('view', { source: source.current })
   }, [])
 
-  // The three benefits come from the survey, so the page follows the evidence.
-  //
-  // This calls benefit_win_rates() rather than reading bet2_responses, because
-  // this page is public and that table is not readable without signing in. The
-  // table read silently returned nothing for every real visitor and the page
-  // fell back to the hardcoded list, which looked right to us only because we
-  // are signed in. The function returns six win rates and no rows.
-  useEffect(() => {
-    if (!isConfigured) return
-    let alive = true
-    supabase.rpc('benefit_win_rates')
-      .then(({ data, error }) => { if (alive && !error) setRates(data || []) })
-      .catch(() => {})
-    return () => { alive = false }
-  }, [])
-
-  // Fall back to the predicted order only if the call genuinely returns nothing.
-  const top = useMemo(() => {
-    const ids = (rates || []).map((r) => r.benefit_id).filter((id) => BENEFIT_BY_ID[id])
-    return ids.length >= 3 ? ids.slice(0, 3) : DEFAULT_TOP
-  }, [rates])
+  // Fixed, everyday health first. See FLYER_TOP for why it does not follow live data.
+  const top = FLYER_TOP
 
   const toggle = useCallback((s) => {
     const next = open === s.id ? null : s.id
@@ -191,14 +171,14 @@ export default function Landing() {
         <p className="lp-eyebrow">An idea we are testing</p>
         <h1 className="lp-h1">$300 a year.<br />Spend it your way.</h1>
         <p className="lp-sub">
-          One allowance on top of a health plan, for the kinds of care young adults keep telling us
-          they put off. You would decide how to split it.
+          One allowance on top of a health plan, for the everyday things it usually leaves out.
+          You would decide how to split it.
         </p>
         <div className="lp-chips">
           {top.map((id) => (
             <span key={id} className="lp-chip">
               <BenefitIcon name={BENEFIT_BY_ID[id].icon} size={16} />
-              {BENEFIT_BY_ID[id].name}
+              {FLYER_COPY[id].kicker}
             </span>
           ))}
         </div>

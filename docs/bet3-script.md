@@ -7,7 +7,7 @@ kept separate on purpose.
 
 This is the same text that is in the deck's presenter notes, generated
 from them so the two cannot drift apart. You do not need this open while
-presenting. It is here to rehearse from and to send to Derek and Ali.
+presenting. It is here to rehearse from and to send to Derek and Allie.
 
 **Numbers are from Thursday night**: 19 responses, 18 in range, dental
 60 percent, therapy and mental health 53 percent. The slides read live
