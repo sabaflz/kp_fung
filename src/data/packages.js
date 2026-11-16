@@ -31,7 +31,8 @@ export const BENEFITS = [
 // and our partners pointed out that both come with most plans already, so
 // they tell KP nothing about what would set an offer apart. Round 2 drops
 // them and tests what could: rides to care and physical therapy join the
-// four that stay. Still six benefits, so the 3-and-3 design is unchanged.
+// four that stay, along with dermatology. That makes seven, so each screen
+// rests one benefit and splits the other six 3 and 3 (see buildSession).
 //
 // Round 1 answers are kept and reported on their own. A response belongs to
 // round 2 if any of its screens contains one of the new ids, so no database
@@ -47,12 +48,14 @@ export const BENEFITS_R2 = [
     blurb: 'Visits with a physical therapist for an injury, ongoing pain, or recovery.' },
   { id: 'transport', name: 'Rides to care',          icon: 'transport', canonical: 'Transportation to care',
     blurb: 'A ride to and from appointments, the pharmacy, or urgent care when getting there is hard.' },
+  { id: 'derm',      name: 'Skin care & dermatology', icon: 'derm',     canonical: 'Dermatology',
+    blurb: 'A dermatology visit for acne, a rash or a skin check, and money toward treatment.' },
   { id: 'nutrition', name: 'Nutrition',              icon: 'nutrition', canonical: 'Personalized nutrition support',
     blurb: 'Sessions with a registered dietitian and support for eating well.' },
 ]
 export const SURVEY_ROUND = 2
 export const SURVEY_BENEFITS = BENEFITS_R2
-const R2_ONLY = ['pt', 'transport']
+const R2_ONLY = ['pt', 'transport', 'derm']
 
 // Names by round. Both maps hold all eight ids so a row from the other
 // round can still be shown without a missing name.
@@ -110,10 +113,29 @@ function shuffle(arr) {
 
 // One respondent's run: the 10 splits in random order, each with a random
 // left/right assignment so screen position never biases the result.
-export function buildSession() {
-  return shuffle(buildSplits()).map(([x, y]) =>
-    Math.random() < 0.5 ? { left: x, right: y } : { left: y, right: x }
-  )
+export function buildSession(ids = idsFor(SURVEY_ROUND)) {
+  if (ids.length === 6) {
+    return shuffle(buildSplits(ids)).map(([x, y]) =>
+      Math.random() < 0.5 ? { left: x, right: y } : { left: y, right: x }
+    )
+  }
+  // More than six benefits: still 10 screens of 3 against 3. Each screen
+  // rests one benefit and splits the other six at random. Every benefit
+  // rests once before any rests twice, so each appears on 8 or 9 of the 10
+  // screens. A win rate is wins over appearances, so resting does not count
+  // against a benefit. Balance across pairs holds over many respondents
+  // rather than inside one, which is the price of testing a seventh.
+  const rests = [...shuffle(ids), ...shuffle(ids)].slice(0, 10)
+  const seen = new Set()
+  return rests.map((out) => {
+    const six = ids.filter((x) => x !== out)
+    for (let tries = 0; ; tries++) {
+      const s = shuffle(six)
+      const left = s.slice(0, 3), right = s.slice(3)
+      const key = [left.slice().sort().join(','), right.slice().sort().join(',')].sort().join('|')
+      if (!seen.has(key) || tries > 20) { seen.add(key); return { left, right } }
+    }
+  })
 }
 
 // A stable-ish anonymous id for one completed survey (no personal data).

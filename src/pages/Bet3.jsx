@@ -42,6 +42,11 @@ export const FLYER_COPY = {
     line: 'A ride when you need one.',
     points: ['To and from appointments', 'To the pharmacy or urgent care', 'Booked from your phone'],
   },
+  derm: {
+    kicker: 'Skin care',
+    line: 'See a dermatologist.',
+    points: ['A visit for acne, a rash or a skin check', 'Money toward treatment', 'In person or by video'],
+  },
   nutrition: {
     kicker: 'Nutrition',
     line: 'Your own dietitian.',

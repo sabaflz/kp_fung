@@ -145,7 +145,7 @@ export default function Packages({ preview = false, onRestart, onExit }) {
             <p className="pk-lead">
               Imagine your health plan came with an extra allowance worth about <b>$300 a year</b>.
               It does not replace your insurance. It pays for things most plans leave out, like the
-              six below.
+              ones below.
             </p>
             <p className="pk-lead">
               We will show you two packages, 10 times. They are always worth the same, so you are only
