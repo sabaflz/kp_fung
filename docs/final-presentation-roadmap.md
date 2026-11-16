@@ -63,6 +63,14 @@ project that knows what it is doing and one that ran out of time.
 
 ## Before the final
 
+- A decision on which benefits go on the flyer. On Nov 13 the partners
+  said dental and mental health as shown are covered by most plans and do
+  not set KP apart, and one recommendation is three wellbeing categories
+  (mental, physical, everyday) with dental dropped. That waits on the
+  partners agreeing. Until then the flyer is shown in supervised sessions
+  only and is not posted publicly. The dental result stays in the story
+  either way: most wanted, and also most commonly offered, which is why we
+  went a step further.
 - Bet 3 numbers in, with the supervised and social tracks reported
   separately. The bar, agreed by the team on Nov 12, is 4 of 5 bullseye
   users clicking through within a minute, and it judges the supervised

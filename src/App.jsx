@@ -8,6 +8,7 @@ import Goal from './pages/Goal.jsx'
 import Bets from './pages/Bets.jsx'
 import BetDetail from './pages/BetDetail.jsx'
 import Landing from './pages/Landing.jsx'
+import Offer from './pages/Offer.jsx'
 import Meetings from './pages/Meetings.jsx'
 import Run from './pages/Run.jsx'
 import Sets from './pages/Sets.jsx'
@@ -100,6 +101,8 @@ export default function App() {
   if (location.pathname.startsWith('/packages')) return <Packages />
   // Public landing page the flyer links to. No sign-in, like the survey.
   if (location.pathname.startsWith('/plan')) return <Landing />
+  // Public flyer on its own, for Bet #3 sessions and posts. No sign-in.
+  if (location.pathname.startsWith('/offer')) return <Offer />
 
   if (loading) return <div className="center"><span className="spin" /></div>
   if (!session) return <Login />
