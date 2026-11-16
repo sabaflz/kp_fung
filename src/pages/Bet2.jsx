@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase, isConfigured } from '../lib/supabase.js'
-import { BENEFITS, BENEFIT_BY_ID, tallyResponses, analyzeResponses, summarize, AGREEMENT_BAR } from '../data/packages.js'
+import { BENEFIT_BY_ID as R1_BY_ID, R2_BY_ID, benefitsFor, rowRound, tallyResponses, analyzeResponses, summarize, AGREEMENT_BAR } from '../data/packages.js'
 import BenefitIcon from '../components/BenefitIcon.jsx'
 import { copyText, useToast } from '../components/ui.jsx'
 import { useAuth } from '../lib/auth.jsx'
@@ -31,6 +31,11 @@ export default function Bet2({ embedded = false }) {
   const owner = isOwner(session?.user?.email || '')
   // Opens on the bullseye. "Everyone" is one click away, and the toggle says so.
   const [bullseyeOnly, setBullseyeOnly] = useState(true)
+  // Round 1 is the original six, with dental and vision. Round 2 (from Nov 16)
+  // swaps those two for rides to care and physical therapy. Never mixed.
+  const [round, setRound] = useState(1)
+  const BENEFIT_BY_ID = round === 2 ? R2_BY_ID : R1_BY_ID
+  const BENEFITS = benefitsFor(round)
   const [allPackages, setAllPackages] = useState(false)
 
   const refresh = useCallback(async () => {
@@ -58,11 +63,11 @@ export default function Bet2({ embedded = false }) {
     return () => { supabase.removeChannel(ch) }
   }, [refresh])
 
-  const { ranking, topCombos, respondents, screens } = useMemo(() => tallyResponses(rows), [rows])
+  const { ranking, topCombos, respondents, screens } = useMemo(() => tallyResponses(rows, { round }), [rows, round])
   const winners = ranking.slice(0, 3)
 
   // Deeper read of the same rows. Recomputed on every change, so it is always current.
-  const analysis = useMemo(() => analyzeResponses(rows, { bullseyeOnly }), [rows, bullseyeOnly])
+  const analysis = useMemo(() => analyzeResponses(rows, { bullseyeOnly, round }), [rows, bullseyeOnly, round])
   // Age groups big enough to say anything about. Under three people a win
   // rate is noise wearing a percentage sign, so those groups are not shown.
   const readableAges = useMemo(() => analysis.ages.filter((g) => g.n >= 3), [analysis])
@@ -240,6 +245,14 @@ export default function Bet2({ embedded = false }) {
           <div className="b2-card">
             <div className="b2-resp-head">
               <h3 className="b2-h3">What the data says right now</h3>
+              <div className="b2-seg" role="group" aria-label="Which round">
+                <button type="button" aria-pressed={round === 1} onClick={() => setRound(1)}>
+                  Round 1: with dental and vision ({rows.filter((r) => rowRound(r) === 1).length})
+                </button>
+                <button type="button" aria-pressed={round === 2} onClick={() => setRound(2)}>
+                  Round 2: rides and physical therapy ({rows.filter((r) => rowRound(r) === 2).length})
+                </button>
+              </div>
               <div className="b2-seg" role="group" aria-label="Who to include">
                 <button type="button" aria-pressed={!bullseyeOnly} onClick={() => setBullseyeOnly(false)}>
                   Everyone ({analysis.totalAll})
@@ -489,7 +502,7 @@ export default function Bet2({ embedded = false }) {
             <ul className="b2-resp">
               {rows.slice(0, limit).map((r) => {
                 const open = openId === r.id
-                const own = tallyResponses([r])
+                const own = tallyResponses([r], { round: rowRound(r) })
                 const top = own.ranking.find((x) => x.appear > 0)
                 const fu = fuByRespondent[r.respondent]
                 const picks = r.choices || []

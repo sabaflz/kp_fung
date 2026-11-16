@@ -17,39 +17,59 @@ import BenefitIcon from '../components/BenefitIcon.jsx'
 // How each benefit reads on a flyer. Written to answer the comprehension
 // problem from Bet #1: say exactly what you get, in plain words.
 export const FLYER_COPY = {
-  dental: {
-    kicker: 'Dental',
-    line: 'Cleanings and fillings.',
-    points: ['Two cleanings and X-rays a year', 'Money toward fillings and other dental work', 'See a dentist near you'],
-  },
-  mental: {
-    kicker: 'Therapy & mental health',
-    line: 'Therapy, no referral.',
-    points: ['Covered therapy or counseling sessions', 'No referral needed to start', 'In person, by phone, or by video'],
-  },
-  fitness: {
-    kicker: 'Move your way',
-    line: 'Not just a gym.',
-    points: ['Put it toward a gym, a climbing pass, or classes', 'Works for a run club, yoga, or a mobility program', 'You pick. It changes when you do'],
-  },
-  vision: {
-    kicker: 'Vision',
-    line: 'Exams and glasses.',
-    points: ['A yearly eye exam', 'Money toward glasses or contacts', 'Pick the frames you actually like'],
-  },
   everyday: {
     kicker: 'Everyday health',
     line: 'What insurance skips.',
-    points: ['Cold and allergy medicine', 'Vitamins, first aid, and sunscreen', 'Order online or pick up in store'],
+    points: ['Cold, allergy and pain relief', 'Sunscreen, first aid and vitamins', 'Order online or pick up in store'],
+  },
+  mental: {
+    kicker: 'Mental wellbeing',
+    line: 'Stress, sleep, someone to talk to.',
+    points: ['Therapy or counseling sessions', 'Coaching for stress and burnout', 'Programs for better sleep'],
+  },
+  fitness: {
+    kicker: 'Physical wellbeing',
+    line: 'Move more, hurt less.',
+    points: ['Gym, studio or climbing passes', 'Classes like yoga, strength or cycling', 'Physical therapy and mobility programs'],
+  },
+  pt: {
+    kicker: 'Physical therapy',
+    line: 'Recover properly.',
+    points: ['Visits with a physical therapist', 'For an injury, ongoing pain or recovery', 'A plan you can keep up at home'],
+  },
+  transport: {
+    kicker: 'Rides to care',
+    line: 'A ride when you need one.',
+    points: ['To and from appointments', 'To the pharmacy or urgent care', 'Booked from your phone'],
   },
   nutrition: {
     kicker: 'Nutrition',
     line: 'Your own dietitian.',
     points: ['One-on-one sessions with a registered dietitian', 'A plan built around how you actually eat', 'By video, on your schedule'],
   },
+  // Round 1 only. Not shown on the flyer any more: both come with most plans.
+  dental: {
+    kicker: 'Dental',
+    line: 'Cleanings and fillings.',
+    points: ['Two cleanings and X-rays a year', 'Money toward fillings and other dental work', 'See a dentist near you'],
+  },
+  vision: {
+    kicker: 'Vision',
+    line: 'Exams and glasses.',
+    points: ['A yearly eye exam', 'Money toward glasses or contacts', 'Pick the frames you actually like'],
+  },
 }
 
-export const DEFAULT_TOP = ['dental', 'vision', 'mental']
+/* What the flyer shows, in this order, for everyone.
+
+   Fixed on purpose. Round 1 of the survey put dental first, and our partners
+   pointed out that dental and vision come with most plans, so they would not
+   set an offer apart. Everyday health is the idea they singled out, so it
+   leads. Mental and physical wellbeing follow their recommendation and the
+   round 1 ranking of what is left. It does not move with live data, because
+   five people in one test all have to see the same flyer. */
+export const FLYER_TOP = ['everyday', 'mental', 'fitness']
+export const DEFAULT_TOP = FLYER_TOP
 
 // Median is the honest middle for timings: one person who leaves the tab
 // open for an hour would wreck a mean.
@@ -73,8 +93,8 @@ export function FlyerSheet({ top, surveyUrl = '', cta = null }) {
         <p className="fl-eyebrow">Extra benefits for the life you actually have</p>
         <h2 className="fl-h1">$300 a year.<br />Spend it your way.</h2>
         <p className="fl-sub">
-          One allowance on top of your health plan, for the kinds of care young adults
-          told us matter most to them. You decide how to split it.
+          One allowance on top of your health plan, for the everyday things it usually
+          leaves out. You decide how to split it.
         </p>
       </header>
 
@@ -103,7 +123,7 @@ export function FlyerSheet({ top, surveyUrl = '', cta = null }) {
 
       <section className="fl-cta">
         <div className="fl-cta-text">
-          <b>Help us get the details right.</b>
+          <b>Curious what $300 could cover for you?</b>
           {cta ? <span>See what is included and tell us what you would want.</span>
             : <span>See what is included and tell us what you would want at <u>{surveyUrl}</u></span>}
         </div>
@@ -165,7 +185,7 @@ export default function Bet3() {
 
   const a = useMemo(() => analyzeResponses(rows, { bullseyeOnly }), [rows, bullseyeOnly])
   const fromData = a.n > 0
-  const top = fromData ? a.benefits.slice(0, 3).map((b) => b.id) : DEFAULT_TOP
+  const top = FLYER_TOP
   const { session } = useAuth()
   const owner = isOwner(session?.user?.email || '')
   const toast = useToast()
@@ -243,29 +263,13 @@ export default function Bet3() {
     <div className="b3">
       <div className="b3-bar">
         <div className="b3-evidence">
-          {!loaded ? 'Loading the survey results…' : fromData ? (
-            <>
-              <b>Built from live data.</b> The three benefits below are the current top three across{' '}
-              {a.n} {bullseyeOnly ? 'bullseye ' : ''}{a.n === 1 ? 'response' : 'responses'}:{' '}
-              {top.map((id) => `${BENEFIT_BY_ID[id].name} ${Math.round(a.benefits.find((b) => b.id === id).mean * 100)}%`).join(', ')}.
-              If the ranking changes, the flyer changes with it.
-              {topPackageDiffers && (
-                <> Worth knowing: the single most-picked package is {a.packages[0].ids.map((id) => BENEFIT_BY_ID[id].name).join(' + ')},
-                which is not the same three. That is a sign second and third place are still open.</>
-              )}
-            </>
-          ) : (
-            <>
-              <b>No survey data to draw on{bullseyeOnly ? ' for this group' : ''} yet,</b> so this shows a starting
-              set. Once responses come in, the top three take over automatically.
-            </>
-          )}
+          <b>The flyer shows a fixed three, everyday health first.</b> Round 1 of the survey put dental
+          on top, and our partners pointed out that dental and vision come with most plans, so they
+          would not set an offer apart. The flyer now leads with the idea they singled out, followed by
+          mental and physical wellbeing. It stays fixed so every participant sees the same thing.
+          The public version is at <code>/offer</code>.
         </div>
         <div className="b3-controls">
-          <div className="b2-seg" role="group" aria-label="Who to build from">
-            <button type="button" aria-pressed={!bullseyeOnly} onClick={() => setParam('who', 'all')}>Everyone</button>
-            <button type="button" aria-pressed={bullseyeOnly} onClick={() => setParam('who', 'bullseye')}>Bullseye 18 to 30</button>
-          </div>
           <button type="button" className="btn sm" onClick={() => window.print()}>Print or save as PDF</button>
         </div>
       </div>

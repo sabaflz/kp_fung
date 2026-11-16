@@ -202,7 +202,7 @@ const S3 = (
 /* ---- 4 · What we built: the flyer and where it lands ---- */
 function BuiltSlide() {
   const { analysis: a, loaded } = useSurvey()
-  const top = loaded && a.n > 0 ? a.benefits.slice(0, 3).map((b) => b.id) : DEFAULT_TOP
+  const top = DEFAULT_TOP
   return (
     <div style={{ ...base('#F5F4F0', '#4A5568'), gap: 16 }}>
       {BAR}

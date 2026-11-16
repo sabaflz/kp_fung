@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { supabase, isConfigured } from '../lib/supabase.js'
 import { BENEFIT_BY_ID } from '../data/packages.js'
 import { startVisit, readSource, track } from '../lib/track.js'
-import { FlyerSheet, DEFAULT_TOP } from './Bet3.jsx'
+import { FlyerSheet, FLYER_TOP } from './Bet3.jsx'
 
 /* The flyer on its own, public, no sign-in.
 
@@ -14,7 +14,6 @@ import { FlyerSheet, DEFAULT_TOP } from './Bet3.jsx'
    so nobody has to run a stopwatch. Same privacy rules as the landing
    page: no IP, no cookie, a random in-memory session id. */
 export default function Offer() {
-  const [rates, setRates] = useState(null)
   const source = useRef('direct')
 
   useEffect(() => {
@@ -24,20 +23,7 @@ export default function Offer() {
     document.title = '$300 a year. Spend it your way.'
   }, [])
 
-  // Same public, rows-free call the landing page uses.
-  useEffect(() => {
-    if (!isConfigured) return
-    let alive = true
-    supabase.rpc('benefit_win_rates')
-      .then(({ data, error }) => { if (alive && !error) setRates(data || []) })
-      .catch(() => {})
-    return () => { alive = false }
-  }, [])
-
-  const top = useMemo(() => {
-    const ids = (rates || []).map((r) => r.benefit_id).filter((id) => BENEFIT_BY_ID[id])
-    return ids.length >= 3 ? ids.slice(0, 3) : DEFAULT_TOP
-  }, [rates])
+  const top = FLYER_TOP
 
   const go = async (e) => {
     e.preventDefault()

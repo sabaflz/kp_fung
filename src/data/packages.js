@@ -27,8 +27,53 @@ export const BENEFITS = [
     blurb: 'Sessions with a registered dietitian and support for healthy eating.' },
 ]
 
-export const BENEFIT_BY_ID = Object.fromEntries(BENEFITS.map((b) => [b.id, b]))
+// ROUND 2 of the survey (from Nov 16). Dental and vision came top in round 1,
+// and our partners pointed out that both come with most plans already, so
+// they tell KP nothing about what would set an offer apart. Round 2 drops
+// them and tests what could: rides to care and physical therapy join the
+// four that stay. Still six benefits, so the 3-and-3 design is unchanged.
+//
+// Round 1 answers are kept and reported on their own. A response belongs to
+// round 2 if any of its screens contains one of the new ids, so no database
+// change is needed and the two rounds are never mixed in one win rate.
+export const BENEFITS_R2 = [
+  { id: 'everyday',  name: 'Everyday health',        icon: 'everyday',  canonical: 'Everyday health allowance',
+    blurb: 'The things insurance usually skips: cold and allergy medicine, first aid, sunscreen, vitamins.' },
+  { id: 'mental',    name: 'Mental wellbeing',       icon: 'mind',      canonical: 'Additional mental health support',
+    blurb: 'Therapy or counseling sessions, plus help with stress, burnout and sleep.' },
+  { id: 'fitness',   name: 'Movement & fitness',     icon: 'fitness',   canonical: 'Fitness reimbursement',
+    blurb: 'Money toward a gym, a studio, or classes like yoga, climbing or cycling.' },
+  { id: 'pt',        name: 'Physical therapy',       icon: 'pt',        canonical: 'Physical therapy',
+    blurb: 'Visits with a physical therapist for an injury, ongoing pain, or recovery.' },
+  { id: 'transport', name: 'Rides to care',          icon: 'transport', canonical: 'Transportation to care',
+    blurb: 'A ride to and from appointments, the pharmacy, or urgent care when getting there is hard.' },
+  { id: 'nutrition', name: 'Nutrition',              icon: 'nutrition', canonical: 'Personalized nutrition support',
+    blurb: 'Sessions with a registered dietitian and support for eating well.' },
+]
+export const SURVEY_ROUND = 2
+export const SURVEY_BENEFITS = BENEFITS_R2
+const R2_ONLY = ['pt', 'transport']
+
+// Names by round. Both maps hold all eight ids so a row from the other
+// round can still be shown without a missing name.
+export const BENEFIT_BY_ID = {
+  ...Object.fromEntries(BENEFITS_R2.map((b) => [b.id, b])),
+  ...Object.fromEntries(BENEFITS.map((b) => [b.id, b])),
+}
+export const R2_BY_ID = { ...BENEFIT_BY_ID, ...Object.fromEntries(BENEFITS_R2.map((b) => [b.id, b])) }
+export const SURVEY_BY_ID = R2_BY_ID
 export const ALL_IDS = BENEFITS.map((b) => b.id)
+const IDS = { 1: ALL_IDS, 2: BENEFITS_R2.map((b) => b.id) }
+export const idsFor = (round) => IDS[round] || ALL_IDS
+export const benefitsFor = (round) => (round === 2 ? BENEFITS_R2 : BENEFITS)
+
+export function rowRound(row) {
+  for (const ch of row?.choices || []) {
+    for (const id of [...(ch.left || []), ...(ch.right || [])]) if (R2_ONLY.includes(id)) return 2
+  }
+  return 1
+}
+const inRound = (rows, round) => (rows || []).filter((r) => rowRound(r) === round)
 
 // Every size-3 subset of the six ids.
 function combos3(arr) {
@@ -41,11 +86,11 @@ function combos3(arr) {
 }
 
 // The 10 unique ways to split the six benefits into two groups of three.
-export function buildSplits() {
+export function buildSplits(ids = idsFor(SURVEY_ROUND)) {
   const seen = new Set()
   const splits = []
-  for (const c of combos3(ALL_IDS)) {
-    const comp = ALL_IDS.filter((x) => !c.includes(x))
+  for (const c of combos3(ids)) {
+    const comp = ids.filter((x) => !c.includes(x))
     const key = [c.slice().sort().join(','), comp.slice().sort().join(',')].sort().join('|')
     if (seen.has(key)) continue
     seen.add(key)
@@ -80,9 +125,11 @@ export function newRespondentId() {
 // Given all stored response rows, compute each benefit's win rate: the share of
 // its appearances where its side was the chosen one. Every benefit appears once
 // per screen, so appearances = screens answered.
-export function tallyResponses(rows) {
-  const wins = Object.fromEntries(ALL_IDS.map((id) => [id, 0]))
-  const appear = Object.fromEntries(ALL_IDS.map((id) => [id, 0]))
+export function tallyResponses(allRows, { round = 1 } = {}) {
+  const ids = idsFor(round)
+  const rows = inRound(allRows, round)
+  const wins = Object.fromEntries(ids.map((id) => [id, 0]))
+  const appear = Object.fromEntries(ids.map((id) => [id, 0]))
   const comboPicks = {} // sorted-3-set key -> times that exact package was chosen
   let screens = 0
 
@@ -102,7 +149,7 @@ export function tallyResponses(rows) {
     }
   }
 
-  const ranking = ALL_IDS
+  const ranking = ids
     .map((id) => ({ id, wins: wins[id], appear: appear[id], rate: appear[id] ? wins[id] / appear[id] : 0 }))
     .sort((a, b) => b.rate - a.rate)
 
@@ -143,7 +190,7 @@ function tCrit(df) {
 
 // One person's win rate per benefit: of the screens where it appeared, how
 // often they chose its side.
-function personRates(row) {
+function personRates(row, ids = ALL_IDS) {
   const wins = {}, appear = {}
   let screens = 0
   for (const ch of row.choices || []) {
@@ -155,7 +202,7 @@ function personRates(row) {
     for (const id of chosen) wins[id] = (wins[id] || 0) + 1
   }
   const rates = {}
-  for (const id of ALL_IDS) if (appear[id]) rates[id] = (wins[id] || 0) / appear[id]
+  for (const id of ids) if (appear[id]) rates[id] = (wins[id] || 0) / appear[id]
   return { rates, screens }
 }
 
@@ -163,16 +210,17 @@ function personRates(row) {
 // every response, but the finding we are after is what 18 to 30 year olds want,
 // so a caller has to ask for everyone explicitly rather than get them by
 // accident. Callers that want the whole sample pass { bullseyeOnly: false }.
-export function analyzeResponses(allRows, { bullseyeOnly = true } = {}) {
-  const everyone = (allRows || []).filter((r) => (r.choices || []).length > 0)
+export function analyzeResponses(allRows, { bullseyeOnly = true, round = 1 } = {}) {
+  const ids = idsFor(round)
+  const everyone = inRound(allRows, round).filter((r) => (r.choices || []).length > 0)
   const rows = bullseyeOnly ? everyone.filter((r) => isBullseyeAge(r.age)) : everyone
-  const people = rows.map((r) => ({ row: r, ...personRates(r) })).filter((p) => p.screens > 0)
+  const people = rows.map((r) => ({ row: r, ...personRates(r, ids) })).filter((p) => p.screens > 0)
   const n = people.length
   const partial = people.filter((p) => p.screens < 10).length
 
   // Benefit level. The margin of error treats each PERSON as one data point,
   // not each click: one person's ten picks are not ten independent opinions.
-  const benefits = ALL_IDS.map((id) => {
+  const benefits = ids.map((id) => {
     const xs = people.map((p) => p.rates[id]).filter((x) => x != null)
     const k = xs.length
     const mean = k ? xs.reduce((a, b) => a + b, 0) / k : 0
@@ -217,7 +265,7 @@ export function analyzeResponses(allRows, { bullseyeOnly = true } = {}) {
   const ageOrder = ['Under 18', ...BULLSEYE_AGES, 'Over 30', 'Not given']
   const ages = ageOrder.filter((a) => byAge[a]).map((a) => {
     const g = byAge[a]
-    const means = ALL_IDS.map((id) => {
+    const means = ids.map((id) => {
       const xs = g.map((p) => p.rates[id]).filter((x) => x != null)
       return { id, mean: xs.length ? xs.reduce((s, x) => s + x, 0) / xs.length : 0 }
     }).sort((x, y) => y.mean - x.mean)
@@ -261,6 +309,7 @@ export function analyzeResponses(allRows, { bullseyeOnly = true } = {}) {
   const predictedPartnerInTop3 = benefits.slice(0, 3).some((b) => PREDICTED.partner.includes(b.id))
 
   return {
+    round, ids,
     n, partial, totalAll: everyone.length,
     bullseyeCount: everyone.filter((r) => isBullseyeAge(r.age)).length,
     benefits, packages, ages, agreed, ahead, leader, runnerUp, gap,
@@ -270,12 +319,14 @@ export function analyzeResponses(allRows, { bullseyeOnly = true } = {}) {
 }
 
 const pctStr = (x) => `${Math.round(x * 100)}%`
-const nameOf = (id) => BENEFIT_BY_ID[id]?.name || id
+let nameOf = (id) => BENEFIT_BY_ID[id]?.name || id
 
 // Plain-language findings, regenerated from the data every time. These are the
 // lines the page shows and the "copy summary" button exports.
 export function summarize(a, { bullseyeOnly = true } = {}) {
   const who = bullseyeOnly ? 'bullseye respondents (18 to 30)' : 'respondents'
+  const names = a.round === 2 ? R2_BY_ID : BENEFIT_BY_ID
+  nameOf = (id) => names[id]?.name || id
   if (!a.n) return [`No ${who} yet.`]
   const out = []
   const L = a.leader
@@ -302,7 +353,7 @@ export function summarize(a, { bullseyeOnly = true } = {}) {
     if (ties.length === 1) {
       out.push(`Strongest single package: ${top.ids.map(nameOf).join(' + ')}, picked ${top.picked} of the ${top.shown} times it was shown (${pctStr(top.rate)}).`)
     } else {
-      const shared = ALL_IDS.filter((id) => ties.every((p) => p.ids.includes(id)))
+      const shared = (a.ids || ALL_IDS).filter((id) => ties.every((p) => p.ids.includes(id)))
       out.push(
         `${ties.length} packages tie for strongest at ${pctStr(top.rate)}` +
         (shared.length ? `, and every one of them contains ${shared.map((id) => nameOf(id).toLowerCase()).join(' and ')}.` : '.') +

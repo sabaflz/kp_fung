@@ -8,12 +8,12 @@
 -- public.is_team(), so a placeholder team list locks out the whole team.
 --
 -- THREE GROUPS:
---   team    Saffron, Derek, Ali. Read and write everything.
+--   team    Saffron, Derek, Allie. Read and write everything.
 --   viewer  The KP partners. Read everything, change nothing.
 --   public  Anyone. May SUBMIT a survey response, leave an email, or be
 --           counted visiting the landing page. May read nothing.
 --
--- BEFORE YOU RUN IT: fill in Derek's and Ali's sign-in emails in step 1.
+-- BEFORE YOU RUN IT: fill in Derek's and Allie's sign-in emails in step 1.
 -- Leaving them out does not break anything for you, but neither of them
 -- will be able to save until their email is in that list.
 --
@@ -54,7 +54,7 @@ $$;
 --
 -- A narrower group than the team, for things that are hers alone. Right
 -- now that is the meeting notes: not the KP partners, and not Derek or
--- Ali either. To open them to the whole team later, change the
+-- Allie either. To open them to the whole team later, change the
 -- meeting_notes line in step 3 from is_owner() to is_team().
 -- ============================================================
 create or replace function public.is_owner()
