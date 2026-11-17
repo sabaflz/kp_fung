@@ -156,6 +156,7 @@ export default function Landing() {
     if (isConfigured && !isTestRun()) {
       try {
         const { error } = await supabase.from('bet2_followups').insert({
+          source: source.current,
           respondent: null, email: em, top_benefit: null, enabler: null, wants_results: true,
         })
         if (error) console.warn('[landing] email not saved:', error.message)

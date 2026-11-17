@@ -34,6 +34,12 @@ create table if not exists public.bet2_followups (
   wants_results boolean not null default false
 );
 
+-- Where the person came from, copied from the ?src= tag on the link they
+-- followed (interview-saba, instagram, direct...). Added Nov 17, so rows
+-- written before then have it null and show as "unknown" in the funnel.
+alter table public.bet2_followups
+  add column if not exists source text;
+
 -- Fast lookup when sending someone their own result.
 create index if not exists bet2_followups_respondent_idx
   on public.bet2_followups (respondent);

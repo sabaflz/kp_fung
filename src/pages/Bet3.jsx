@@ -146,6 +146,10 @@ export function FlyerSheet({ top, surveyUrl = '', cta = null }) {
 export default function Bet3() {
   const [rows, setRows] = useState([])
   const [events, setEvents] = useState([])
+  // null means we could not read the interest list: either the table is not
+  // there yet, or this account is a read-only viewer, who is blocked from
+  // respondent emails by design.
+  const [followups, setFollowups] = useState(null)
   const [loaded, setLoaded] = useState(false)
   const [params, setParams] = useSearchParams()
   // Bullseye unless someone explicitly asks for everyone, so a bare link to
@@ -165,6 +169,13 @@ export default function Bet3() {
     // Forgiving: if the table is not there yet, the flyer still renders.
     const ev = await supabase.from('landing_events').select('session, source, event, label, ms')
     setEvents(ev.error ? [] : (ev.data || []))
+    // Emails live in bet2_followups, not in the event log: somebody who leaves
+    // one at the end of the survey never fires a landing-page event, so
+    // counting events alone undercounts the interest list.
+    const fu = await supabase.from('bet2_followups')
+      .select('created_at, email, top_benefit, source, wants_results')
+      .order('created_at', { ascending: false })
+    setFollowups(fu.error ? null : (fu.data || []))
     setLoaded(true)
   }, [])
 
@@ -194,6 +205,16 @@ export default function Bet3() {
   const { session } = useAuth()
   const owner = isOwner(session?.user?.email || '')
   const toast = useToast()
+
+  // The interest list: everyone who actually left an address, wherever they
+  // left it. This is the authoritative count, and the funnel defers to it.
+  const interest = useMemo(() => {
+    if (!followups) return null
+    const list = followups.filter((f) => (f.email || '').trim())
+    const bySource = {}
+    for (const f of list) bySource[f.source || 'unknown'] = (bySource[f.source || 'unknown'] || 0) + 1
+    return { list, count: list.length, bySource, keen: followups.filter((f) => f.wants_results).length }
+  }, [followups])
 
   // The Bet #3 funnel. Each visit counts once per step, so somebody who
   // opens three sections is still one visitor who took a next step.
@@ -242,7 +263,7 @@ export default function Bet3() {
       visits: visits.length,
       clicked: clicked.length,
       survey: visits.filter((v) => v.survey).length,
-      email: visits.filter((v) => v.email).length,
+      emailEvents: visits.filter((v) => v.email).length,
       clickRate: visits.length ? clicked.length / visits.length : 0,
       medianMs: median(clicked.map((v) => v.firstMs).filter((x) => x != null)),
       within60: clicked.filter((v) => v.firstMs != null && v.firstMs <= 60000).length,
@@ -250,6 +271,12 @@ export default function Bet3() {
       labels: Object.entries(labels).sort((a, b) => b[1] - a[1]),
     }
   }, [events])
+
+  // What the page shows for emails. The interest list wins when we can read it.
+  const emailCount = interest ? interest.count : funnel?.emailEvents ?? 0
+  // Per source, the same preference: the interest list first, the event log
+  // only when the list is not readable.
+  const srcEmail = (s) => (interest ? (interest.bySource[s.source] || 0) : s.email)
 
   const topPackageDiffers = fromData && a.packages.length > 0 &&
     a.packages[0].ids.slice().sort().join('+') !== top.slice().sort().join('+')
@@ -348,10 +375,10 @@ export default function Bet3() {
                 const head = `Bet #3 funnel, as of ${new Date().toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`
                 const lines = [head,
                   `${funnel.visits} visits, ${funnel.clicked} took a next step (${Math.round(funnel.clickRate * 100)}%)`,
-                  `${funnel.survey} started the survey, ${funnel.email} left an email`,
+                  `${funnel.survey} started the survey, ${emailCount} left an email`,
                   funnel.medianMs != null ? `Median time to first click: ${secs(funnel.medianMs)}` : '',
                   '', 'By source:',
-                  ...funnel.sources.map((s) => `  ${s.source}: ${s.visits} visits, ${s.clicked} clicked, ${s.survey} survey, ${s.email} email`),
+                  ...funnel.sources.map((s) => `  ${s.source}: ${s.visits} visits, ${s.clicked} clicked, ${s.survey} survey, ${srcEmail(s)} email`),
                   '', 'Most-opened:',
                   ...funnel.labels.map(([l, n]) => `  ${l}: ${n}`)].filter(Boolean).join('\n')
                 toast((await copyText(lines)) ? 'Funnel copied' : 'Copy failed')
@@ -363,12 +390,47 @@ export default function Bet3() {
             step, so someone who opens three sections is still one person who took a next step.
           </p>
 
+          {interest && interest.count > 0 && (
+            <details className="b3-list">
+              <summary>
+                Interest list: {interest.count} {interest.count === 1 ? 'email' : 'emails'}
+                {interest.keen > interest.count && ` (${interest.keen - interest.count} said yes without leaving one)`}
+              </summary>
+              <div className="b2-ci-wrap">
+                <table className="b2-ci">
+                  <thead><tr><th>Email</th><th>Left</th><th>Their top benefit</th><th>Source</th></tr></thead>
+                  <tbody>
+                    {interest.list.map((f, i) => (
+                      <tr key={f.email + i}>
+                        <td className="b2-ci-name"><a href={`mailto:${f.email}`}>{f.email}</a></td>
+                        <td>{f.created_at ? new Date(f.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : ''}</td>
+                        <td>{f.top_benefit || ''}</td>
+                        <td>{f.source || 'unknown'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <p className="b2-fine">
+                These people were told a student research team would send them results. Nothing goes to
+                anyone outside the team unless the survey says so first. Rows left before Nov 17 have no
+                source recorded, so they show as unknown.
+              </p>
+            </details>
+          )}
+          {!interest && (
+            <p className="b2-fine" style={{ marginBottom: 14 }}>
+              The interest list is not readable from this account, so the email count below comes from the
+              page&rsquo;s own event log and misses anyone who left an address at the end of the survey.
+            </p>
+          )}
+
           <div className="b3-funnel">
             {[
               ['Saw the page', funnel.visits, null],
               ['Took a next step', funnel.clicked, funnel.visits],
               ['Started the survey', funnel.survey, funnel.visits],
-              ['Left an email', funnel.email, funnel.visits],
+              ['Left an email', emailCount, funnel.visits],
             ].map(([label, n, of]) => (
               <div key={label} className="b3-step">
                 <span className="b3-step-n">{n}</span>
@@ -424,7 +486,7 @@ export default function Bet3() {
                         <td className="num">{s.visits}</td>
                         <td className="num">{s.clicked} ({s.visits ? Math.round((s.clicked / s.visits) * 100) : 0}%)</td>
                         <td className="num">{s.survey}</td>
-                        <td className="num">{s.email}</td>
+                        <td className="num">{srcEmail(s)}</td>
                       </tr>
                     ))}
                   </tbody>

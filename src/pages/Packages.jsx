@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { supabase, isConfigured } from '../lib/supabase.js'
+import { readSource } from '../lib/track.js'
 import { SURVEY_BENEFITS as BENEFITS, SURVEY_BY_ID as BENEFIT_BY_ID, SURVEY_ROUND, buildSession, newRespondentId, tallyResponses } from '../data/packages.js'
 import BenefitIcon from '../components/BenefitIcon.jsx'
 
@@ -52,6 +53,13 @@ export default function Packages({ preview = false, onRestart, onExit }) {
 
   const total = session.length
 
+  // Which link brought them here, so an email left at the end of the survey
+  // can be counted against the same source as the click that started it.
+  const source = useMemo(
+    () => (typeof window === 'undefined' ? 'direct' : readSource(window.location.search, document.referrer)),
+    [],
+  )
+
   // The respondent's own result, computed from just their 10 choices (client-side,
   // so it always shows even if the database save is unavailable).
   const mine = useMemo(() => (choices.length ? tallyResponses([{ choices }], { round: SURVEY_ROUND }) : null), [choices])
@@ -97,6 +105,7 @@ export default function Packages({ preview = false, onRestart, onExit }) {
           email: em || null,
           top_benefit: topName || null,
           enabler: null, // retired: the old "what would make you use it" question
+          source,
           wants_results: keen, // said yes to hearing more, with or without an email
         })
         if (error) console.error('[survey] follow-up save failed:', error.message)

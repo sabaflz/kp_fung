@@ -933,3 +933,11 @@ footer.foot{margin-top:26px;padding-top:16px;border-top:1px solid var(--line);co
 .b3-try a.btn{text-decoration:none}
 .b3-survey-list{list-style:none; margin:0; padding:0; display:grid; gap:8px; font-size:14px; line-height:1.45}
 .b3-survey-list li{display:flex; gap:10px; align-items:flex-start}
+
+/* Bet 3: interest list dropdown */
+.b3-list{margin:0 0 16px; border:1px solid var(--line); border-radius:var(--radius); background:var(--bg)}
+.b3-list > summary{cursor:pointer; padding:11px 14px; font-size:14px; font-weight:700; color:var(--ink); list-style-position:inside}
+.b3-list > summary:hover{background:var(--surface)}
+.b3-list[open] > summary{border-bottom:1px solid var(--line)}
+.b3-list .b2-ci-wrap{padding:12px 14px 0}
+.b3-list .b2-fine{padding:0 14px 12px; margin-top:8px}
