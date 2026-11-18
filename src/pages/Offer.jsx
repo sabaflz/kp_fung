@@ -13,15 +13,16 @@ import { FlyerSheet, FLYER_TOP } from './Bet3.jsx'
    hand it to her in person.
 
    Three things answer that, and none of them tells anyone to click:
-   1. An action bar fixed to the bottom of the window. It is the one piece of
-      the page that is obviously app chrome rather than paper, and unlike the
-      button inside the sheet it is on screen from the first moment. The old
-      button sat below the fold on a laptop, so for the first stretch of the
-      session there was nothing visible to press.
+   1. The whole flyer is scaled to fit the window, so the button is on
+      screen from the first moment instead of below the fold.
    2. Every benefit is its own control, so there are four ways in instead of
       one, and each carries its own hover and press state.
-   3. The button inside the sheet now reads as a button: an arrow, a shadow,
-      and it lifts and depresses under the pointer.
+   3. The button reads as a button: an arrow, a shadow, and it lifts and
+      depresses under the pointer.
+
+   There was briefly a second copy of the button in a bar fixed to the
+   bottom of the window. Once the whole flyer fit on one screen it was a
+   duplicate of the one already in view, so it is gone.
 
    Privacy is unchanged: no IP, no cookie, a random in-memory session id. */
 export default function Offer() {
@@ -39,7 +40,7 @@ export default function Offer() {
      anything below the fold may as well not exist.
 
      The sheet is laid out at some width, measured, and scaled down until its
-     full height fits between the top of the window and the action bar. A
+     full height fits in the window. A
      wider sheet is a shorter one, so when it has to shrink we also let it
      grow wider (up to a cap) and try again. That keeps the text as large as
      the screen allows instead of just shrinking a tall narrow page. */
@@ -50,9 +51,8 @@ export default function Offer() {
     const run = () => {
       const w = wrap.current, f = fit.current, sh = sheet.current
       if (!w || !f || !sh) return
-      const bar = document.querySelector('.offer-bar')
       const top = w.getBoundingClientRect().top + window.scrollY
-      const availH = window.innerHeight - top - (bar ? bar.offsetHeight : 0) - 16
+      const availH = window.innerHeight - top - 16
       const availW = window.innerWidth - 16
       const phone = window.innerWidth <= 560
       const base = phone ? availW : Math.min(availW, 816)
@@ -111,14 +111,6 @@ export default function Offer() {
         </div>
       </div>
 
-      <div className="offer-bar">
-        <div className="offer-bar-in">
-          <span className="offer-bar-t">$300 a year, spent the way you would spend it.</span>
-          <a className="offer-bar-btn" href="/plan" onClick={go('sticky bar')}>
-            See what is included <span aria-hidden="true">&rarr;</span>
-          </a>
-        </div>
-      </div>
     </>
   )
 }
