@@ -89,7 +89,7 @@ const secs = (ms) => (ms == null ? '—' : ms < 1000 ? '<1s' : Math.round(ms / 1
 /* The flyer itself, shared by the team's Bet #3 page (printed, so the link
    is written out) and the public /offer page (on a screen, so the call to
    action is a real button passed in as `cta`). */
-export function FlyerSheet({ top, surveyUrl = '', cta = null }) {
+export function FlyerSheet({ top, surveyUrl = '', cta = null, onBenefit = null }) {
   return (
     <article className="fl-page">
       <div className="fl-concept">This benefit does not exist. It is a research concept, not an offer.</div>
@@ -106,14 +106,20 @@ export function FlyerSheet({ top, surveyUrl = '', cta = null }) {
       <section className="fl-benefits">
         {top.map((id) => {
           const c = FLYER_COPY[id]
-          return (
-            <div key={id} className="fl-benefit">
+          const inner = (
+            <>
               <span className="fl-ico"><BenefitIcon name={BENEFIT_BY_ID[id].icon} size={26} /></span>
               <h3>{c.kicker}</h3>
               <p className="fl-line">{c.line}</p>
               <ul>{c.points.map((p) => <li key={p}>{p}</li>)}</ul>
-            </div>
+              {onBenefit && <span className="fl-benefit-more">See what is included <span aria-hidden="true">&rarr;</span></span>}
+            </>
           )
+          // On screen every benefit is its own way in, so the page offers four
+          // things to press rather than one button under a wall of text.
+          return onBenefit
+            ? <button key={id} type="button" className="fl-benefit fl-benefit-btn" onClick={(e) => onBenefit(id, e)}>{inner}</button>
+            : <div key={id} className="fl-benefit">{inner}</div>
         })}
       </section>
 
