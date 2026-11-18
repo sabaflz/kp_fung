@@ -135,8 +135,12 @@ export function FlyerSheet({ top, surveyUrl = '', cta = null, onBenefit = null }
       <section className="fl-cta">
         <div className="fl-cta-text">
           <b>Curious what $300 could cover for you?</b>
-          {cta ? <span>See what is included and tell us what you would want.</span>
-            : <span>See what is included and tell us what you would want at <u>{surveyUrl}</u></span>}
+          <span>
+            See what is included and tell us what you would want
+            {cta && surveyUrl ? <span className="fl-print-only"> at <u>{surveyUrl}</u></span> : null}
+            {!cta && surveyUrl ? <> at <u>{surveyUrl}</u></> : null}
+            {cta && !surveyUrl ? '.' : null}
+          </span>
         </div>
         {cta}
       </section>
@@ -369,7 +373,19 @@ export default function Bet3() {
       </div>
 
       <div className="fl-scroll">
-        <FlyerSheet top={top} surveyUrl={surveyUrl} />
+        {/* Same flyer people see at /offer. The button and the benefits open
+            a test run in a new tab, so trying them here records nothing.
+            Printed, the button gives way to the written-out link. */}
+        <FlyerSheet
+          top={top}
+          surveyUrl={surveyUrl}
+          onBenefit={() => window.open('/offer?test=1', '_blank', 'noopener')}
+          cta={
+            <a className="fl-cta-btn" href="/offer?test=1" target="_blank" rel="noreferrer">
+              See what is included <span aria-hidden="true">&rarr;</span>
+            </a>
+          }
+        />
       </div>
 
       {funnel && (
