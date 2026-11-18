@@ -1074,3 +1074,13 @@ footer.foot{margin-top:26px;padding-top:16px;border-top:1px solid var(--line);co
 /* The rest of the page is hidden when the flyer prints, but it still took
    up room and pushed out a blank second sheet. */
 @media print{ html.fl-print body, html.fl-print #root{height:10.4in !important; overflow:hidden !important} }
+/* Stacked layout: every section centred, not just the benefits. */
+@media (max-width:680px){
+  .fl-hero{text-align:center}
+  .fl-sub{margin-left:auto; margin-right:auto}
+  .fl-how{text-align:center}
+  .fl-how li{justify-items:center}
+  .fl-cta{flex-direction:column; align-items:center; text-align:center; gap:14px}
+  .fl-cta-text{flex:none; border-left:none; padding-left:0; justify-items:center}
+  .fl-foot{text-align:center; justify-items:center}
+}
