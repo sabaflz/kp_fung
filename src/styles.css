@@ -1035,10 +1035,10 @@ footer.foot{margin-top:26px;padding-top:16px;border-top:1px solid var(--line);co
   .offer-bar-btn{padding:12px 20px}
   .offer-wrap{padding-bottom:132px}
 }
-/* Short phones in landscape, and small windows: trim further. */
-@media (max-width:560px) and (max-height:700px){
-  .fl-hero{padding:14px 18px 12px}
-  .fl-h1{font-size:26px}
-  .fl-sub{display:none}
-  .fl-benefit{padding:10px 14px}
-}
+
+/* The flyer always fits the window: see the fit logic in Offer.jsx. */
+.offer-wrap{min-height:0 !important; padding:8px 8px 0 !important; display:block !important; overflow:hidden}
+.offer-fit{margin:0 auto; overflow:visible}
+.offer-sheet{transform-origin:top left}
+.offer-sheet .fl-page{width:100% !important; max-width:none !important}
+@media print{ .offer-sheet{transform:none !important; width:auto !important} .offer-fit{width:auto !important; height:auto !important} }

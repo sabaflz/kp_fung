@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef } from 'react'
 import { startVisit, readSource, track, withTest } from '../lib/track.js'
 import TestBanner from '../components/TestBanner.jsx'
 import { FlyerSheet, FLYER_TOP } from './Bet3.jsx'
@@ -34,6 +34,52 @@ export default function Offer() {
     document.title = '$300 a year. Spend it your way.'
   }, [])
 
+  /* Fit the whole flyer in the window, on any screen, with nothing cut off
+     and nothing to scroll. People in the Bet #3 sessions did not scroll, so
+     anything below the fold may as well not exist.
+
+     The sheet is laid out at some width, measured, and scaled down until its
+     full height fits between the top of the window and the action bar. A
+     wider sheet is a shorter one, so when it has to shrink we also let it
+     grow wider (up to a cap) and try again. That keeps the text as large as
+     the screen allows instead of just shrinking a tall narrow page. */
+  const wrap = useRef(null)
+  const fit = useRef(null)
+  const sheet = useRef(null)
+  useLayoutEffect(() => {
+    const run = () => {
+      const w = wrap.current, f = fit.current, sh = sheet.current
+      if (!w || !f || !sh) return
+      const bar = document.querySelector('.offer-bar')
+      const top = w.getBoundingClientRect().top + window.scrollY
+      const availH = window.innerHeight - top - (bar ? bar.offsetHeight : 0) - 16
+      const availW = window.innerWidth - 16
+      const phone = window.innerWidth <= 560
+      const base = phone ? availW : Math.min(availW, 816)
+      const cap = phone ? 620 : 1180
+      // Try a range of widths and keep whichever lets the text be largest.
+      // Too narrow and the sheet is too tall; too wide and it has to shrink
+      // to fit sideways. The best width is somewhere between.
+      let scale = 0, width = base
+      const steps = 14
+      for (let i = 0; i <= steps; i++) {
+        const cand = base + ((Math.max(cap, base) - base) * i) / steps
+        sh.style.width = cand + 'px'
+        const sc = Math.min(1, availH / sh.offsetHeight, availW / cand)
+        if (sc > scale + 0.001) { scale = sc; width = cand }
+      }
+      sh.style.width = width + 'px'
+      sh.style.transform = `scale(${scale})`
+      f.style.width = Math.floor(width * scale) + 'px'
+      f.style.height = Math.floor(sh.offsetHeight * scale) + 'px'
+    }
+    run()
+    window.addEventListener('resize', run)
+    document.fonts?.ready?.then(run).catch(() => {})
+    const t = setTimeout(run, 400)
+    return () => { window.removeEventListener('resize', run); clearTimeout(t) }
+  }, [])
+
   // Which control they pressed is worth knowing: if nobody ever uses the one
   // inside the sheet, that tells us the sheet itself is the problem.
   const go = (label) => async (e) => {
@@ -49,7 +95,9 @@ export default function Offer() {
   return (
     <>
       <TestBanner />
-      <div className="offer-wrap">
+      <div className="offer-wrap" ref={wrap}>
+        <div className="offer-fit" ref={fit}>
+        <div className="offer-sheet" ref={sheet}>
         <FlyerSheet
           top={FLYER_TOP}
           onBenefit={(id, e) => go(`benefit: ${id}`)(e)}
@@ -59,6 +107,8 @@ export default function Offer() {
             </a>
           }
         />
+        </div>
+        </div>
       </div>
 
       <div className="offer-bar">
