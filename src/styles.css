@@ -919,7 +919,7 @@ footer.foot{margin-top:26px;padding-top:16px;border-top:1px solid var(--line);co
 @media (max-width:680px){ .b3-funnel{grid-template-columns:repeat(2,minmax(0,1fr))} }
 
 /* Public flyer page (/offer) */
-.offer-wrap{min-height:100vh; background:#eef1f6; padding:24px 16px 48px; display:flex; justify-content:center; align-items:flex-start}
+.offer-wrap{min-height:100vh; background:#eef1f6; padding:24px 16px 132px; display:flex; justify-content:center; align-items:flex-start}
 .offer-wrap .fl-page{width:100%; max-width:816px}
 .fl-cta-btn{flex:none; display:inline-block; background:#003087; color:#fff; font-weight:800; font-size:17px; text-decoration:none;
   padding:14px 26px; border-radius:999px; white-space:nowrap; box-shadow:0 2px 0 rgba(0,0,0,.18)}
@@ -941,3 +941,43 @@ footer.foot{margin-top:26px;padding-top:16px;border-top:1px solid var(--line);co
 .b3-list[open] > summary{border-bottom:1px solid var(--line)}
 .b3-list .b2-ci-wrap{padding:12px 14px 0}
 .b3-list .b2-fine{padding:0 14px 12px; margin-top:8px}
+
+/* The flyer's own button, made to look pressable rather than printed. */
+.fl-cta-btn{cursor:pointer; box-shadow:0 2px 0 #001a4d, 0 6px 16px rgba(0,48,135,.28);
+  transition:transform .12s ease, box-shadow .12s ease, background .12s ease}
+.fl-cta-btn:hover{transform:translateY(-2px); box-shadow:0 4px 0 #001a4d, 0 10px 22px rgba(0,48,135,.32)}
+.fl-cta-btn:active{transform:translateY(2px); box-shadow:0 0 0 #001a4d, 0 3px 8px rgba(0,48,135,.25)}
+
+/* Each benefit is a way in, not just a paragraph. */
+.fl-benefit-btn{appearance:none; background:transparent; border:0; font:inherit; color:inherit; text-align:left; width:100%;
+  cursor:pointer; position:relative; transition:background .12s ease}
+.fl-benefit-btn:hover{background:var(--fl-tint)}
+.fl-benefit-btn:active{background:#e3edf9}
+.fl-benefit-btn:focus-visible{outline:3px solid #ffd35c; outline-offset:-3px}
+.fl-benefit-more{display:inline-flex; align-items:center; gap:6px; margin-top:12px;
+  font-size:12.5px; font-weight:800; letter-spacing:.04em; color:var(--fl-blue)}
+.fl-benefit-btn:hover .fl-benefit-more{text-decoration:underline}
+
+/* The action bar. The one part of the page that is plainly app chrome, and
+   the only control guaranteed to be on screen when the page loads. */
+.offer-bar{position:fixed; left:0; right:0; bottom:0; z-index:40; background:rgba(255,255,255,.97);
+  backdrop-filter:blur(8px); border-top:1px solid #cdd7e6; box-shadow:0 -6px 24px rgba(16,32,64,.12);
+  padding:12px 16px calc(12px + env(safe-area-inset-bottom, 0px)); animation:offer-bar-up .36s ease both .25s}
+@keyframes offer-bar-up{from{transform:translateY(100%)} to{transform:none}}
+@media (prefers-reduced-motion:reduce){ .offer-bar{animation:none} .fl-cta-btn{transition:none} }
+.offer-bar-in{max-width:816px; margin:0 auto; display:flex; align-items:center; gap:16px; justify-content:space-between}
+.offer-bar-t{font-size:15px; font-weight:600; color:#14213d; min-width:0}
+.offer-bar-btn{flex:none; display:inline-flex; align-items:center; gap:8px; background:#003087; color:#fff;
+  font-weight:800; font-size:17px; text-decoration:none; padding:14px 26px; border-radius:999px; cursor:pointer;
+  box-shadow:0 2px 0 #001a4d, 0 6px 16px rgba(0,48,135,.3); transition:transform .12s ease, box-shadow .12s ease}
+.offer-bar-btn:hover{transform:translateY(-2px); box-shadow:0 4px 0 #001a4d, 0 10px 22px rgba(0,48,135,.34)}
+.offer-bar-btn:active{transform:translateY(2px); box-shadow:0 0 0 #001a4d, 0 3px 8px rgba(0,48,135,.25)}
+.offer-bar-btn:focus-visible{outline:3px solid #ffd35c; outline-offset:3px}
+@media (max-width:560px){
+  .offer-bar-in{flex-direction:column; align-items:stretch; gap:9px}
+  .offer-bar-t{font-size:13.5px; text-align:center}
+  .offer-bar-btn{width:100%; justify-content:center; font-size:16px; padding:13px 20px}
+  .offer-wrap{padding-bottom:168px}
+}
+/* Printed, the flyer is paper again: no bar, no button chrome. */
+@media print{ .offer-bar{display:none !important} .fl-cta-btn{box-shadow:none !important} }
