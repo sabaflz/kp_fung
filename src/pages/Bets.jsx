@@ -33,7 +33,7 @@ export default function Bets() {
             <Link key={b.id} to={`/bets/${b.id}`} className="bet-card bet-card-link">
               <div className="bet-card-head">
                 <span className="bet-week">{b.week}</span>
-                <span className={'bet-status s-' + b.status.toLowerCase()}>{b.status}</span>
+                <span className={'bet-status s-' + b.status.toLowerCase().replace(/\s+/g, '-')}>{b.status}</span>
               </div>
               <h2 className="bet-title">{b.title}</h2>
               <p className="bet-sum">{headline}</p>

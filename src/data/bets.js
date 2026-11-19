@@ -43,15 +43,18 @@ export const BETS = [
     id: 3,
     week: 'Bet #3',
     title: 'Does the flyer make people act',
-    status: 'Draft',
+    status: 'Not supported',
     summary:
-      'Liking a package is cheap. This measures whether the flyer makes someone take an observable next step, and what they do once they have.',
+      'None of five people clicked through the flyer unprompted within a minute. It read as a printed poster, so we rebuilt it.',
     hypothesis:
-      'Shown the flyer with a clear next step, at least 4 of 5 bullseye users will click through to find out more within one minute, without being prompted. Alongside that, the same flyer posted publicly gives us a click-through and sign-up rate per platform. Draft wording, for the team to settle.',
-    result: '',
-    learning: '',
+      'Shown the flyer with a clear next step, at least 4 of 5 bullseye users will click through to find out more within one minute, without being prompted.',
+    result:
+      '0 of 5 clicked through unprompted within a minute, against a bar of 4 of 5. One found the button without help after the first minute, two reached the page once the button was pointed out, and two never got past the flyer.',
+    learning:
+      'The flyer read as a printed poster and its one button sat below the bottom of the screen. What failed was the way in, so this result cannot yet say whether people want what is behind it. The flyer now fits one screen, has one clear button, and every benefit can be tapped. The next test puts it in front of people who have never met us.',
     links: [
-      { label: 'Present Bet #3', to: '/present/bet3', primary: true },
+      { label: 'Present the result', to: '/present/nov20', primary: true },
+      { label: 'The plan, before it ran', to: '/present/bet3' },
       { label: 'Open the flyer', to: '/bets/3' },
       { label: 'The landing page people reach', to: '/plan?src=team', external: false },
       { label: 'Survey results behind it', to: '/bets/2' },

@@ -33,7 +33,7 @@ export default function Overview() {
       <div className="tiles">
         <div className="tile"><div className="n">{counts.interviews}</div><div className="l">interviews</div></div>
         <div className="tile"><div className="n">{counts.survey}</div><div className="l">survey responses</div></div>
-        <div className="tile"><div className="n">{counts.bet}</div><div className="l">choice-test responses</div></div>
+        <div className="tile"><div className="n">{counts.bet}</div><div className="l">round 1 choice-test responses</div></div>
       </div>
 
       {!hasAny && (
@@ -43,13 +43,13 @@ export default function Overview() {
       {hasAny && (
         <>
           <div className="fo-best">
-            <span className="fo-best-label">Current best-guess package</span>
+            <span className="fo-best-label">Best guess from round 1</span>
             <div className="fo-best-chips">
               {bestPackage.map((b) => (
                 <span key={b.id} className="fo-chip"><BenefitIcon name={b.icon} size={16} />{b.name}</span>
               ))}
             </div>
-            <span className="fo-best-note">The three benefits that score highest across all sources. This updates as more data arrives.</span>
+            <span className="fo-best-note">The three that score highest across interviews, the first survey and round 1 of the choice test. It covers the original six benefits, from before dental and vision were removed. Round 2 results are on Bet #2.</span>
           </div>
 
           <div className="card">

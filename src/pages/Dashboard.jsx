@@ -93,7 +93,7 @@ export default function Dashboard() {
         <div>
           <div className="eyebrow">Synthesis</div>
           <h1 style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 'clamp(24px,4vw,32px)', margin: '4px 0 6px' }}>
-            Dashboard
+            What the interviews say
           </h1>
           <p className="lede">The few things the research is telling us, across everyone we have heard from. {headline}</p>
         </div>

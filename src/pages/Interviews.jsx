@@ -154,7 +154,7 @@ export default function Interviews() {
           <h1 style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 'clamp(24px,4vw,32px)', margin: '4px 0 6px' }}>
             Interviews
           </h1>
-          <p className="lede">Every interview the team logs, in one shared place. Paste a transcript and pull the fields out with AI, or fill them in by hand.</p>
+          <p className="lede">{readOnly ? 'Every interview the team has run, newest first. Open one to read the notes.' : 'Every interview the team logs, in one shared place. Paste a transcript and pull the fields out with AI, or fill them in by hand.'}</p>
         </div>
         {!readOnly && <button className="btn" onClick={startNew}>+ Log interview</button>}
       </div>
@@ -164,7 +164,7 @@ export default function Interviews() {
         {loading ? (
           <div className="empty"><span className="spin" /></div>
         ) : rows.length === 0 ? (
-          <div className="empty">Nothing logged yet. Hit <b>Log interview</b> after your first conversation.</div>
+          <div className="empty">{readOnly ? 'No interviews have been written up here yet.' : <>Nothing logged yet. Hit <b>Log interview</b> after your first conversation.</>}</div>
         ) : (
           <div className="tablewrap">
             <table>
