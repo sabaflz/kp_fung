@@ -550,7 +550,8 @@ export default function Bet3() {
           <li>The <b>bullet points</b> under each benefit describe what a member would get in plain words. They still need real limits from KP.</li>
         </ul>
         <div className="b3-links">
-          <Link className="btn sm" to="/present/bet3">Present this week&rsquo;s update</Link>
+          <Link className="btn sm" to="/present/nov20">Present the Nov 20 partner update</Link>
+          <Link className="btn ghost sm" to="/present/bet3">Earlier Bet #3 deck</Link>
           <Link className="btn ghost sm" to="/bets/2">See the survey results behind this</Link>
         </div>
       </div>
