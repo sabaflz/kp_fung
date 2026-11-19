@@ -1086,3 +1086,23 @@ footer.foot{margin-top:26px;padding-top:16px;border-top:1px solid var(--line);co
   .fl-cta-text{flex:none; border-left:none; padding-left:0; justify-items:center}
   .fl-foot{text-align:center; justify-items:center}
 }
+
+/* ---- Presentations: every deck in one list ---- */
+.pres-list{display:flex; flex-direction:column; gap:14px}
+.pres-card{display:flex; gap:20px; align-items:stretch; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+  padding:14px; text-decoration:none; color:inherit; transition:border-color .12s ease, box-shadow .12s ease}
+.pres-card:hover{border-color:#003087; box-shadow:0 4px 16px rgba(14,30,58,.10)}
+.pres-thumb{width:320px; height:180px; flex:none; border-radius:8px; overflow:hidden; border:1px solid var(--line); background:#0E1E3A}
+.pres-body{flex:1; min-width:0; display:flex; flex-direction:column; gap:6px; padding:4px 4px 4px 0}
+.pres-meta{display:flex; flex-wrap:wrap; gap:8px; align-items:center}
+.pres-stage{font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:#0067A8}
+.pres-latest{font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#fff; background:#003087; border-radius:999px; padding:2px 9px}
+.pres-title{font-family:var(--serif); font-weight:600; font-size:22px; line-height:1.2; margin:0}
+.pres-blurb{margin:0; color:var(--muted, #6A7383); line-height:1.45}
+.pres-foot{margin-top:auto; display:flex; justify-content:space-between; align-items:center; gap:12px; font-size:13.5px; color:var(--muted, #6A7383)}
+.pres-open{font-weight:700; color:#003087}
+@media (max-width:680px){
+  .pres-card{flex-direction:column; gap:12px}
+  .pres-thumb{align-self:center; max-width:100%}
+  .pres-body{padding:0 4px 4px}
+}

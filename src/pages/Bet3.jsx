@@ -551,7 +551,7 @@ export default function Bet3() {
         </ul>
         <div className="b3-links">
           <Link className="btn sm" to="/present/nov20">Present the Nov 20 partner update</Link>
-          <Link className="btn ghost sm" to="/present/bet3">Earlier Bet #3 deck</Link>
+          <Link className="btn ghost sm" to="/presentations">All presentations</Link>
           <Link className="btn ghost sm" to="/bets/2">See the survey results behind this</Link>
         </div>
       </div>
