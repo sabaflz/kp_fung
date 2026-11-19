@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { signInWithEmail, signInWithGoogle, signInWithPassword } from '../lib/auth.jsx'
 import { isConfigured } from '../lib/supabase.js'
 import { ThemeToggle } from '../components/ui.jsx'
@@ -19,8 +19,22 @@ export default function Login() {
   const [sent, setSent] = useState(false)
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
-  const [mode, setMode] = useState('link') // link | password
+  const [mode, setMode] = useState('password') // password | link
   const [password, setPassword] = useState('')
+  // A used or expired email link comes back with the reason in the address.
+  // Without reading it, the person just saw this screen again with no word why.
+  const [linkErr, setLinkErr] = useState('')
+  useEffect(() => {
+    const raw = window.location.hash.slice(1) || window.location.search.slice(1)
+    const p = new URLSearchParams(raw)
+    if (!p.get('error') && !p.get('error_code')) return
+    const expired = /expired|otp/i.test((p.get('error_code') || '') + (p.get('error_description') || ''))
+    setLinkErr(expired
+      ? 'That sign-in link has expired or was already used. Links work once and only for a short time.'
+      : 'That sign-in link did not work.')
+    setMode('link')
+    window.history.replaceState(null, '', window.location.pathname)
+  }, [])
 
   async function submit(e) {
     e.preventDefault()
@@ -46,12 +60,12 @@ export default function Login() {
           <div className="row" style={{ justifyContent: 'space-between' }}>
             <div className="brand">
               <span className="mark" style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 22 }}>
-                Benefits Interview Kit
+                Benefits Research
               </span>
             </div>
             <ThemeToggle />
           </div>
-          <p className="lede">The shared workspace for the Fung &times; KP supplemental-benefits research team. Sign in to see the team&rsquo;s interviews and question sets.</p>
+          <p className="lede">A student research project on supplemental health benefits for young adults. Sign in to see the team&rsquo;s findings and presentations.</p>
 
           {!isConfigured && (
             <div className="notice">
@@ -59,16 +73,7 @@ export default function Login() {
             </div>
           )}
 
-          <button className="btn ghost" type="button" onClick={google} disabled={!isConfigured}
-            style={{ justifyContent: 'center' }}>
-            <GoogleIcon /> Continue with Google
-          </button>
-
-          <div className="row" style={{ gap: 10, color: 'var(--faint)', fontSize: 12 }}>
-            <span style={{ flex: 1, height: 1, background: 'var(--line)' }} />
-            {mode === 'password' ? 'or use your password' : 'or email me a link'}
-            <span style={{ flex: 1, height: 1, background: 'var(--line)' }} />
-          </div>
+          {linkErr && <div className="notice" role="alert">{linkErr} Enter your email below and we will send a new one.</div>}
 
           {sent ? (
             <div className="notice">Check your email. We sent a magic sign-in link to <b>{email}</b>. Open it on this device.</div>
@@ -77,7 +82,7 @@ export default function Login() {
               <div className="field">
                 <label htmlFor="email">Email</label>
                 <input id="email" className="inp" type="email" required
-                  placeholder="you@berkeley.edu or you@kp.org" autoComplete="email" value={email}
+                  placeholder="you@example.com" autoComplete="email" value={email}
                   onChange={(e) => setEmail(e.target.value)} disabled={!isConfigured || busy} />
               </div>
               {mode === 'password' && (
@@ -97,10 +102,23 @@ export default function Login() {
                 onClick={() => { setErr(''); setMode(mode === 'password' ? 'link' : 'password') }}>
                 {mode === 'password'
                   ? 'Email me a sign-in link instead'
-                  : 'No Google account, or the link never arrives? Sign in with a password'}
+                  : 'Sign in with a password instead'}
               </button>
             </form>
           )}
+
+          <div className="row" style={{ gap: 10, color: 'var(--faint)', fontSize: 12 }}>
+            <span style={{ flex: 1, height: 1, background: 'var(--line)' }} />
+            student team
+            <span style={{ flex: 1, height: 1, background: 'var(--line)' }} />
+          </div>
+
+          <button className="btn ghost" type="button" onClick={google} disabled={!isConfigured}
+            style={{ justifyContent: 'center' }}>
+            <GoogleIcon /> Continue with Google
+          </button>
+
+          <p className="login-help">Trouble signing in? Reply to the email that invited you and the team will sort it out.</p>
         </div>
       </div>
     </div>

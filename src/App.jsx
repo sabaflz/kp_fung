@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, NavLink, Navigate, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth, signOut } from './lib/auth.jsx'
 import { isViewer, isOwner } from './lib/team.js'
@@ -88,6 +88,29 @@ function SectionNav({ tabs }) {
 
 const isMobile = () => typeof window !== 'undefined' && window.innerWidth <= 860
 
+const PUBLIC_TITLE = 'Extra health benefits: a 2 minute student survey'
+const APP_PATHS = ['/bets', '/presentations', '/present/', '/interviews', '/findings', '/market', '/meetings', '/survey-test',
+  '/flyer', '/run', '/sets', '/dashboard', '/survey', '/bet2', '/outreach', '/login']
+const isAppPath = (p) => p === '/' || APP_PATHS.some((a) => p.startsWith(a))
+
+function PublicNotFound() {
+  return (
+    <div className="center">
+      <div className="card" style={{ width: 'min(440px,100%)' }}>
+        <div className="bd" style={{ display: 'grid', gap: 14 }}>
+          <h1 style={{ fontFamily: 'var(--serif)', fontWeight: 600, fontSize: 24, margin: 0 }}>That link did not work</h1>
+          <p className="lede" style={{ margin: 0 }}>
+            The address may have been cut off or mistyped. If you were on your way to the 2 minute
+            survey about extra health benefits, it is here.
+          </p>
+          <a className="btn" href="/packages" style={{ justifyContent: 'center' }}>Go to the survey</a>
+          <a className="login-switch" href="/" style={{ textAlign: 'center' }}>Research team sign-in</a>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function App() {
   const { session, loading } = useAuth()
   const location = useLocation()
@@ -95,6 +118,13 @@ export default function App() {
   const toast = useToast()
   const [collapsed, setCollapsed] = useState(false)   // desktop: shrink sidebar to an icon rail
   const [drawerOpen, setDrawerOpen] = useState(false)  // mobile: slide-over drawer
+
+  // The tab title. Public pages keep the neutral one from index.html, which
+  // never names the team's workspace or anyone behind the study.
+  const isPublic = /^\/(packages|plan|offer)/.test(location.pathname)
+  useEffect(() => {
+    document.title = isPublic || !session ? PUBLIC_TITLE : 'Benefits Research'
+  }, [isPublic, session])
 
   // Public, standalone package-choice survey: no nav, no sign-in.
   if (location.pathname.startsWith('/packages')) {
@@ -109,7 +139,9 @@ export default function App() {
   if (location.pathname.startsWith('/offer')) return <Offer />
 
   if (loading) return <div className="center"><span className="spin" /></div>
-  if (!session) return <Login />
+  // Signed out on an address the app does not have: most likely a mistyped
+  // survey link, so point to the survey instead of a team sign-in screen.
+  if (!session) return isAppPath(location.pathname) ? <Login /> : <PublicNotFound />
 
   const email = session.user?.email || ''
   const viewer = isViewer(email)
@@ -165,8 +197,8 @@ export default function App() {
       <aside className="sidebar">
         <div className="side-top">
           <Link to="/" className="side-brand" onClick={closeDrawer}>
-            <span className="side-mark">KP Benefits</span>
-            <span className="side-sub">Fung &times; KP research</span>
+            <span className="side-mark">Benefits Research</span>
+            <span className="side-sub">Fung &times; KP student project</span>
           </Link>
           <button className="side-toggle" type="button" onClick={toggleNav}
             title={collapsed ? 'Expand menu' : 'Collapse menu'} aria-label="Toggle menu">
@@ -218,9 +250,11 @@ export default function App() {
           </button>
           <span className="topbar2-title">{currentTitle}</span>
           <div className="topbar2-actions">
-            <button className="pill-btn" type="button" onClick={copySurvey} title="Copy the public survey link">
-              Copy survey link
-            </button>
+            {!viewer && (
+              <button className="pill-btn" type="button" onClick={copySurvey} title="Copy the public survey link">
+                Copy survey link
+              </button>
+            )}
             {viewer && <span className="who-badge view-badge">View only</span>}
             <span className="who-badge email-badge" title={email}>{email}</span>
             <ThemeToggle />

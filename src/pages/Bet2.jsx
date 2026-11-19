@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase, isConfigured } from '../lib/supabase.js'
 import { BENEFIT_BY_ID as R1_BY_ID, R2_BY_ID, benefitsFor, rowRound, tallyResponses, analyzeResponses, summarize, AGREEMENT_BAR } from '../data/packages.js'
@@ -34,6 +34,7 @@ export default function Bet2({ embedded = false }) {
   // Round 1 is the original six, with dental and vision. Round 2 (from Nov 16)
   // swaps those two for rides to care and physical therapy. Never mixed.
   const [round, setRound] = useState(1)
+  const openedRound = useRef(false)
   const BENEFIT_BY_ID = round === 2 ? R2_BY_ID : R1_BY_ID
   const BENEFITS = benefitsFor(round)
   const [allPackages, setAllPackages] = useState(false)
@@ -44,6 +45,9 @@ export default function Bet2({ embedded = false }) {
       .from('bet2_responses').select('*').order('created_at', { ascending: false })
     if (error) { setState('error'); return }
     setRows(data || [])
+    // Open on the current round once it has answers. Only on first load, so a
+    // reader who switches back to round 1 is not moved again by a refresh.
+    if (!openedRound.current) { openedRound.current = true; if ((data || []).some((r) => rowRound(r) === 2)) setRound(2) }
     setState('ok')
     // Separate query, and deliberately forgiving: if the table is not there yet
     // or this account cannot read it, the results above still show.
@@ -247,10 +251,10 @@ export default function Bet2({ embedded = false }) {
               <h3 className="b2-h3">What the data says right now</h3>
               <div className="b2-seg" role="group" aria-label="Which round">
                 <button type="button" aria-pressed={round === 1} onClick={() => setRound(1)}>
-                  Round 1: with dental and vision ({rows.filter((r) => rowRound(r) === 1).length})
+                  Round 1, closed: with dental and vision ({rows.filter((r) => rowRound(r) === 1).length})
                 </button>
                 <button type="button" aria-pressed={round === 2} onClick={() => setRound(2)}>
-                  Round 2: without dental and vision ({rows.filter((r) => rowRound(r) === 2).length})
+                  Round 2, current: without dental and vision ({rows.filter((r) => rowRound(r) === 2).length})
                 </button>
               </div>
               <div className="b2-seg" role="group" aria-label="Who to include">

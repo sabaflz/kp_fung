@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { supabase, isConfigured } from '../lib/supabase.js'
 import { readSource } from '../lib/track.js'
 import { SURVEY_BENEFITS as BENEFITS, SURVEY_BY_ID as BENEFIT_BY_ID, SURVEY_ROUND, buildSession, newRespondentId, tallyResponses } from '../data/packages.js'
@@ -52,6 +52,17 @@ export default function Packages({ preview = false, onRestart, onExit }) {
   const [fuSentEmail, setFuSentEmail] = useState(false)
 
   const total = session.length
+
+  /* Every new screen starts from the top. Without this the page kept the
+     scroll position of the last tap, so the next question opened part-way
+     down with one package in view and the other cut off. */
+  useEffect(() => { window.scrollTo(0, 0) }, [stage, i])
+
+  /* Hover feedback only counts once the pointer has moved on this question.
+     Otherwise the card under a resting cursor, which is the side just picked,
+     opens the next question already lit up. Touch never arms it. */
+  const [armed, setArmed] = useState(false)
+  useEffect(() => { setArmed(false) }, [i])
 
   // Which link brought them here, so an email left at the end of the survey
   // can be counted against the same source as the click that started it.
@@ -170,9 +181,10 @@ export default function Packages({ preview = false, onRestart, onExit }) {
             </div>
             <button type="button" className="pk-start" onClick={() => setStage('age')}>Start</button>
             <p className="pk-fine">
-              This is a student research project, and the benefit above does not exist yet. Your picks
-              are anonymous and there is no sign-in. At the end you can leave an email if you want to
-              hear more, but you do not have to.
+              This is a student research project, and the benefit above does not exist yet. There is no
+              sign-in and your picks are stored without your name. At the end you can leave an email
+              if you want to hear more. You do not have to, and if you do it is saved alongside your
+              picks.
             </p>
           </div>
         )}
@@ -193,12 +205,15 @@ export default function Packages({ preview = false, onRestart, onExit }) {
         {stage === 'q' && (
           <div className="pk-panel">
             <div className="pk-progress">
-              <div className="pk-progress-bar"><span style={{ width: `${(i / total) * 100}%` }} /></div>
+              <div className="pk-progress-bar"><span style={{ width: `${((i + 1) / total) * 100}%` }} /></div>
               <span className="pk-progress-label">Question {i + 1} of {total}</span>
             </div>
             <h2 className="pk-prompt">Which package would you rather have?</h2>
             <p className="pk-sub">Both are worth the same $300 a year. Tap the one you would pick.</p>
-            <div className="pk-grid">
+            {/* Keyed by question so both cards are new elements each time: no
+                focus or pressed state carries over from the last pick. */}
+            <div key={i} className={'pk-grid' + (armed ? ' armed' : '')}
+              onPointerMove={(e) => { if (e.pointerType === 'mouse' && !armed) setArmed(true) }}>
               <Package side="left" ids={session[i].left} onPick={pick} />
               <div className="pk-vs">or</div>
               <Package side="right" ids={session[i].right} onPick={pick} />
@@ -215,9 +230,16 @@ export default function Packages({ preview = false, onRestart, onExit }) {
 
             {mine && mine.ranking.length > 0 && (
               <>
+                {/* Says what they did, not what they are. Ten taps cannot carry
+                    "matters most to you", and a tie is reported as a tie. */}
                 <p className="pk-lead pk-result-lead">
-                  Based on the 10 choices you just made, it looks like
-                  {' '}<b>{BENEFIT_BY_ID[mine.ranking[0].id].name.toLowerCase()}</b> matters most to you.
+                  {(() => {
+                    const top = mine.ranking.filter((r) => r.rate === mine.ranking[0].rate)
+                    const names = top.map((r) => BENEFIT_BY_ID[r.id].name.toLowerCase())
+                    if (names.length === 1) return <>In your 10 choices, you picked packages with <b>{names[0]}</b> most often.</>
+                    if (names.length === 2) return <>In your 10 choices, you picked packages with <b>{names[0]}</b> and <b>{names[1]}</b> equally often.</>
+                    return <>In your 10 choices, no single benefit came out ahead. Your picks were spread evenly.</>
+                  })()}
                 </p>
 
                 {/* The ask comes before the breakdown. Once someone has their
@@ -274,7 +296,7 @@ export default function Packages({ preview = false, onRestart, onExit }) {
                 )}
 
                 <div className="pk-result">
-                  <div className="pk-result-head">Your ideal package</div>
+                  <div className="pk-result-head">What you picked most</div>
                   <div className="pk-result-chips">
                     {mine.ranking.slice(0, 3).map((r) => (
                       <span key={r.id} className="pk-result-chip">

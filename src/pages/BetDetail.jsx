@@ -14,6 +14,7 @@ const BODIES = { 2: Bet2, 3: Bet3 }
 const STATUS_CLASS = {
   supported: 'bp-ok',
   collecting: 'bp-live',
+  'not supported': 'bp-miss',
 }
 
 export default function BetDetail() {

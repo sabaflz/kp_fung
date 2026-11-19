@@ -3,7 +3,10 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { supabase, isConfigured } from '../lib/supabase.js'
 import { copyText, useToast } from '../components/ui.jsx'
 import { useAuth } from '../lib/auth.jsx'
-import { isOwner } from '../lib/team.js'
+import { isOwner, isViewer } from '../lib/team.js'
+import { BETS_BY_ID } from '../data/bets.js'
+
+const BET3 = BETS_BY_ID[3]
 import { BENEFIT_BY_ID, SURVEY_BENEFITS, analyzeResponses } from '../data/packages.js'
 import BenefitIcon from '../components/BenefitIcon.jsx'
 
@@ -214,6 +217,7 @@ export default function Bet3() {
   const top = FLYER_TOP
   const { session } = useAuth()
   const owner = isOwner(session?.user?.email || '')
+  const readOnly = isViewer(session?.user?.email || '')
   const toast = useToast()
 
   // The interest list: everyone who actually left an address, wherever they
@@ -307,6 +311,21 @@ export default function Bet3() {
 
   return (
     <div className="b3">
+      {/* The result leads. A reader should not need the deck to learn what happened. */}
+      <div className="b3-result">
+        <div className="b3-result-n"><b>0</b><span>of 5</span></div>
+        <div className="b3-result-body">
+          <h3>What happened</h3>
+          <p>{BET3.result}</p>
+          <h3>What we took from it</h3>
+          <p>{BET3.learning}</p>
+          <div className="b3-try-row" style={{ marginTop: 4 }}>
+            <Link className="btn sm" to="/present/nov20">Present the result</Link>
+            <a className="btn ghost sm" href="/offer?test=1" target="_blank" rel="noreferrer">See the flyer as a participant does</a>
+          </div>
+        </div>
+      </div>
+
       <div className="b3-bar">
         <div className="b3-evidence">
           <b>The flyer shows a fixed three, everyday health first.</b> Round 1 of the survey put dental
@@ -321,6 +340,7 @@ export default function Bet3() {
       </div>
 
       {/* Everything a participant will see, openable without recording anything. */}
+      {!readOnly && (
       <div className="b3-notes b3-try">
         <h3 className="b2-h3">See it and test it</h3>
         <p className="b2-desc" style={{ marginBottom: 14 }}>
@@ -371,6 +391,7 @@ export default function Bet3() {
         </ul>
         <p className="b2-fine">Ten screens, two packages of three each time. Dental and vision are no longer offered.</p>
       </div>
+      )}
 
       <div className="fl-scroll">
         {/* Same flyer people see at /offer. The button and the benefits open
