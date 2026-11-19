@@ -25,12 +25,12 @@ export const FLYER_COPY = {
   mental: {
     kicker: 'Mental wellbeing',
     line: 'Stress, sleep, someone to talk to.',
-    points: ['Therapy or counseling sessions', 'Coaching for stress and burnout', 'Programs for better sleep'],
+    points: ['Meditation and mindfulness apps', 'Coaching for stress, career and life changes', 'Sleep support and counseling sessions'],
   },
   fitness: {
     kicker: 'Physical wellbeing',
     line: 'Move more, hurt less.',
-    points: ['Gym, studio or climbing passes', 'Classes like yoga, strength or cycling', 'Physical therapy and mobility programs'],
+    points: ['Gym memberships, yoga and dance classes', 'Race entries, sports leagues and fitness apps', 'Sports massage, stretching and physical therapy'],
   },
   pt: {
     kicker: 'Physical therapy',
