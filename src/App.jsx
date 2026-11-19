@@ -19,6 +19,7 @@ import Survey from './pages/Survey.jsx'
 import Market from './pages/Market.jsx'
 import Packages from './pages/Packages.jsx'
 import Deck from './pages/Deck.jsx'
+import Presentations from './pages/Presentations.jsx'
 
 /* Section icons + nav controls (no icon library). */
 const ICON = {
@@ -27,6 +28,7 @@ const ICON = {
   interviews: <path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z" />,
   findings: <><path d="M3 3v18h18" /><path d="M7 16v2M12 11v7M17 7v11" /></>,
   market: <path d="M3 21h18M5 21V8l7-5 7 5v13M10 21v-6h4v6" />,
+  decks: <><rect x="3" y="4" width="18" height="12" rx="2" /><path d="M12 16v4M8 20h8" /></>,
   meetings: <><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4" /></>,
   chevronLeft: <path d="M15 18l-6-6 6-6" />,
   chevronRight: <path d="M9 18l6-6-6-6" />,
@@ -41,6 +43,7 @@ function Ico({ name, size = 18 }) {
 const SECTIONS = [
   ['/', 'Goal', 'goal'],
   ['/bets', 'Bets', 'bets'],
+  ['/presentations', 'Presentations', 'decks'],
   ['/interviews', 'Interviews', 'interviews'],
   ['/findings', 'Findings', 'findings'],
   ['/market', 'Market', 'market'],
@@ -67,12 +70,8 @@ function SurveyTest() {
 }
 
 function sectionFor(p) {
-  if (p.startsWith('/bets')) return SECTIONS[1]
-  if (p.startsWith('/interviews')) return SECTIONS[2]
-  if (p.startsWith('/findings')) return SECTIONS[3]
-  if (p.startsWith('/market')) return SECTIONS[4]
-  if (p.startsWith('/meetings')) return SECTIONS[5]
-  return SECTIONS[0]
+  // Matched by path, not by position, so adding a section cannot shift the rest.
+  return SECTIONS.find(([to]) => to !== '/' && p.startsWith(to)) || SECTIONS[0]
 }
 
 function SectionNav({ tabs }) {
@@ -126,7 +125,7 @@ export default function App() {
   }
 
   // Full-screen present mode: no sidebar or top bar, just the slides.
-  if (location.pathname.startsWith('/present')) {
+  if (location.pathname.startsWith('/present/')) {
     const deckId = location.pathname.split('/')[2] || 'bet1'
     return <Deck deckId={deckId} />
   }
@@ -253,6 +252,7 @@ export default function App() {
               <Route path="*" element={<Navigate to="/findings" replace />} />
             </Route>
 
+            <Route path="/presentations" element={<Presentations />} />
             <Route path="/market" element={<Market />} />
             {owner && <Route path="/meetings" element={<Meetings />} />}
 

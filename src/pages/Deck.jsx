@@ -140,7 +140,7 @@ export default function Deck({ deckId = 'bet1' }) {
   const go = useCallback((x) => setI((c) => Math.min(Math.max(x, 0), n - 1)), [n])
   const exit = useCallback(() => {
     if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {})
-    navigate('/bets')
+    navigate('/presentations')
   }, [navigate])
 
   useEffect(() => {
