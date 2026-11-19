@@ -951,6 +951,8 @@ footer.foot{margin-top:26px;padding-top:16px;border-top:1px solid var(--line);co
 /* Each benefit is a way in, not just a paragraph. */
 .fl-benefit-btn{appearance:none; background:transparent; border:0; font:inherit; color:inherit; text-align:left; width:100%;
   cursor:pointer; position:relative; transition:background .12s ease}
+/* A button centres its content vertically; cards of different length then sit at different heights. */
+.fl-benefit-btn{display:flex; flex-direction:column; align-items:flex-start; justify-content:flex-start}
 .fl-benefit-btn:hover{background:var(--fl-tint)}
 .fl-benefit-btn:active{background:#e3edf9}
 .fl-benefit-btn:focus-visible{outline:3px solid #ffd35c; outline-offset:-3px}
