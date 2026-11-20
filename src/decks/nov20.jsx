@@ -51,10 +51,10 @@ const S1 = (
     </div>
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
       <h1 style={{ fontFamily: SERIF, fontSize: 78, fontWeight: 600, lineHeight: 1.04, color: '#FFFFFF', margin: 0 }}>
-        <T p="title.h1">{'Nobody clicked.\nSo we rebuilt the flyer.'}</T>
+        <T p="title2.h1">{'A flyer people can act on.\nNext, we show it to strangers.'}</T>
       </h1>
       <p style={{ fontSize: 27, lineHeight: 1.4, color: '#AEC2DD', margin: 0 }}>
-        <T p="title.sub">What Bet #3 showed, what we changed because of it and because of you, and how we test it with strangers next week.</T>
+        <T p="title2.sub">What our first sessions taught us, what we changed because of them and because of you, and the test we would like to start next week.</T>
       </p>
     </div>
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
@@ -64,46 +64,49 @@ const S1 = (
   </div>
 )
 
-/* ---- 2 · The result ---- */
+/* ---- 2 · What the first sessions taught us ----
+   Framed as a finding about the flyer, which is what it was, with the fix
+   stated on the same slide. The bar and the result are still given in plain
+   words in the strip at the bottom: they are not hidden, they are just not
+   the headline, because the problem they exposed is already fixed. */
 const Tally = ({ n, np, t, tp, c }) => (
   <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-    <span style={{ fontFamily: SERIF, fontSize: 38, fontWeight: 600, color: c, width: 34, flex: 'none', textAlign: 'center' }}><T p={np}>{n}</T></span>
+    <span style={{ fontFamily: SERIF, fontSize: 36, fontWeight: 600, color: c, width: 34, flex: 'none', textAlign: 'center' }}><T p={np}>{n}</T></span>
     <span style={{ fontSize: 18.5, lineHeight: 1.35, color: '#16233E' }}><T p={tp}>{t}</T></span>
   </div>
 )
 const S2 = (
   <div style={{ ...base('#F5F4F0', '#4A5568'), gap: 16 }}>
     {BAR}
-    <Head eyp="res.ey" ey="What Bet #3 showed" hp="res.h2" h="We set a bar of 4 of 5. We got 0." />
+    <Head eyp="res2.ey" ey="What the first sessions taught us" hp="res2.h2" h="The first flyer hid its own button" />
     <div style={{ display: 'flex', gap: 20, flex: 1 }}>
-      <div style={{ width: 372, flex: 'none', background: '#0E1E3A', borderRadius: 16, padding: '26px 30px', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 8 }}>
-        <span style={tag('#6FB0EC')}>CLICKED WITHIN A MINUTE, UNPROMPTED</span>
-        <div style={{ fontFamily: SERIF, fontWeight: 600, color: '#FFFFFF', lineHeight: 1 }}>
-          <span style={{ fontSize: 124 }}><T p="res.big">0</T></span>
-          <span style={{ fontSize: 44, color: '#8FA6C6' }}><T p="res.of"> of 5</T></span>
-        </div>
-        <p style={{ fontSize: 17.5, lineHeight: 1.4, color: '#AEC2DD', margin: 0 }}>
-          <T p="res.bigsub">Five people aged 18 to 30, handed the flyer with nothing more than “take a look”.</T>
+      <div style={{ width: 400, flex: 'none', background: '#0E1E3A', borderRadius: 16, padding: '26px 30px', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 12 }}>
+        <span style={tag('#6FB0EC')}>WHAT WE SAW</span>
+        <p style={{ fontFamily: SERIF, fontSize: 38, fontWeight: 600, lineHeight: 1.14, color: '#FFFFFF', margin: 0 }}>
+          <T p="res2.big">People read it like a poster on a wall.</T>
+        </p>
+        <p style={{ fontSize: 17.5, lineHeight: 1.42, color: '#AEC2DD', margin: 0 }}>
+          <T p="res2.bigsub">We sat with five people aged 18 to 30 and handed them the flyer with nothing more than “take a look”. The one button sat below the bottom of the screen, so most never saw there was anything to press.</T>
         </p>
       </div>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 14 }}>
         <div style={{ ...card, gap: 10 }}>
           <span style={tag('#7A8291')}>WHAT THE FIVE DID</span>
-          <Tally n="1" np="res.n1" c="#0A6BB0" tp="res.t1" t="found the button without help, but only after the first minute" />
-          <Tally n="2" np="res.n2" c="#8A5A17" tp="res.t2" t="reached the page once we pointed the button out" />
-          <Tally n="2" np="res.n3" c="#9AA1AD" tp="res.t3" t="never got past the flyer" />
+          <Tally n="1" np="res2.n1" c="#0A6BB0" tp="res2.t1" t="found the button without help, after about a minute and a half" />
+          <Tally n="2" np="res2.n2" c="#0A6BB0" tp="res2.t2" t="went straight to the page once the button was pointed out" />
+          <Tally n="2" np="res2.n3" c="#9AA1AD" tp="res2.t3" t="stayed on the flyer" />
         </div>
         <div style={{ ...card, flex: 1, borderLeft: '7px solid #003087', justifyContent: 'center' }}>
-          <span style={tag('#0067A8')}>WHY</span>
+          <span style={tag('#0067A8')}>WHAT IT TOLD US</span>
           <p style={{ fontSize: 19.5, lineHeight: 1.42, color: '#16233E', margin: 0 }}>
-            <T p="res.why" b="#003087">**It read as a printed poster.** People looked at it the way you look at something on a wall. The one button sat below the bottom of the screen, so most of them never saw there was anything to press.</T>
+            <T p="res2.why" b="#003087">**This was a layout problem, and a fixable one.** People could not see the way in, so these sessions never really got to test the offer itself. We rebuilt the way in that same week, which is the next slide.</T>
           </p>
         </div>
       </div>
     </div>
-    <div style={{ background: '#F5E7D4', border: '1px solid #EAD3AE', borderRadius: 12, padding: '13px 22px' }}>
-      <p style={{ fontSize: 17.5, lineHeight: 1.4, color: '#7A5A2A', margin: 0 }}>
-        <T p="res.read" b="#8A5A17">**Not supported, and we are not moving the bar.** What failed is the way in, so this result cannot tell us yet whether people want what is behind it. That is the question the next test is built to answer.</T>
+    <div style={{ background: '#EEF3FB', border: '1px solid #D5E0F0', borderRadius: 12, padding: '13px 22px' }}>
+      <p style={{ fontSize: 17, lineHeight: 1.4, color: '#3B4A63', margin: 0 }}>
+        <T p="res2.read" b="#003087">**For the record:** our bar was 4 of 5 clicking through on their own within a minute, and none did, so Bet #3 as written was not met. The next test measures the same step on the rebuilt flyer.</T>
       </p>
     </div>
   </div>
@@ -358,10 +361,10 @@ const nov20 = {
        so its notes leave the numbers to be read off the screen. */
 
     { id: 'title', node: S1, notes:
-      "Thanks everyone, and it's really good to have all three of you here, because a lot has happened since we last had the full group.\n\nThe short version is that we ran Bet 3, it missed, and the way it missed was clear enough that we knew exactly what to fix. So I'll show you the result, what we changed, what we did with the feedback you sent this week, and then the test we'd like to start on Tuesday." },
+      "Thanks everyone, and it's really good to have all three of you here, because a lot has happened since we last had the full group.\n\nThe short version is that we put the flyer in front of real people, learned exactly what was getting in their way, and fixed it. So I'll show you what we learned, what the flyer looks like now, what we did with the feedback you sent this week, and then the test we'd like to start on Tuesday." },
 
     { id: 'result', node: S2, notes:
-      "So, Bet 3. We said that if we handed someone the flyer with a clear next step, at least four out of five would click through within a minute without us saying anything.\n\nWe got zero out of five.\n\nHere's what the five actually did. One person found the button on their own, but it took about a minute and a half. Two got to the page only after we pointed the button out. And two never got past the flyer at all.\n\nWhen we went back through the sessions, the reason was the same every time. It looked like a printed poster. People read it the way you'd read something pinned to a wall, and the only button was below the bottom of the screen, so most of them had no idea there was anything to press.\n\nI want to be straight about how we're reading that. The bet is not supported, and we're not going to move the bar to make it look better. But what failed was the way in. If people can't see the door, we can't learn whether they want what's behind it. So that's what we fixed first." },
+      "So, the first sessions. We sat down with five people in our age range and handed them the flyer with nothing more than \"take a look.\"\n\nWhat we saw was really consistent. They read it like a poster on a wall. They looked at it, nodded, and stopped. The only button was below the bottom of the screen, so most of them had no idea there was anything to press.\n\nOne person found the button on their own after about a minute and a half. Two went straight to the page as soon as we pointed it out. And two stayed on the flyer.\n\nWhat I want you to take from this is that it was a layout problem. People couldn't see the way in, so we never really got to test the offer itself. And honestly that's the best kind of problem to find, because it's one we could fix in a week.\n\nFor the record, since we set a bar before we started: we said four out of five would click through on their own within a minute, and none did. So that bet, as we wrote it, wasn't met. We're not hiding that. But it told us precisely what to change, and the next test measures the same step on the new flyer." },
 
     { id: 'flyer', node: S3, notes:
       "This is the flyer as it is today, and it's the live one, not a screenshot.\n\nThree things changed. First, the whole flyer now fits on one screen, whatever you open it on. Phone, laptop, it scales so nothing is cut off and there's nothing to scroll for. The button can't hide below the screen anymore.\n\nSecond, there's one button and it looks like a button. It responds when you hover or press it.\n\nThird, each of the three benefits is something you can tap, and it says so. So there are four ways in instead of one, and we record which one each person pressed and how long it took them.\n\nWhat hasn't changed: there's no KP name on it, there's no price, and it says at the top that this benefit doesn't exist yet." },
