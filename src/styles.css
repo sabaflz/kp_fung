@@ -1149,3 +1149,52 @@ footer.foot{margin-top:26px;padding-top:16px;border-top:1px solid var(--line);co
 .b3,.b3 > *{min-width:0; max-width:100%}
 /* A wide child (a table, a row of tabs) must scroll inside itself, never widen the page. */
 .main .grid, .main .grid > *, .b2, .b2 > *{min-width:0}
+
+/* ---- Layout pass: use the width on big screens, stack cleanly on small ones ---- */
+.main-inner{max-width:1180px}
+.bp{max-width:none}
+
+/* Home */
+.goal-split{display:grid; grid-template-columns:minmax(0,2fr) minmax(0,1fr); gap:16px; align-items:start}
+.goal-tiles{grid-template-columns:1fr 1fr}
+.goal-bets{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:980px){
+  .goal-split{grid-template-columns:1fr}
+  .goal-tiles{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@media (max-width:760px){
+  .goal-bets{grid-template-columns:1fr}
+  .goal-tiles{grid-template-columns:1fr 1fr}
+}
+
+/* Bets list: three across when there is room, newest first either way */
+.bet-card-link{display:flex; flex-direction:column}
+.bet-card-link .bet-more{margin-top:auto; padding-top:14px}
+@media (min-width:1100px){ .bet-list{grid-template-columns:repeat(3,minmax(0,1fr))} }
+
+/* Bet 2: supporting cards two to a row; raw responses folded away */
+.b2-cols{display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr)); gap:16px; align-items:start}
+.b2-cols > .b2-card{margin:0; height:100%}
+.b2-more > summary{cursor:pointer; list-style:none; display:flex; flex-wrap:wrap; gap:6px 14px; align-items:baseline; justify-content:space-between}
+.b2-more > summary::-webkit-details-marker{display:none}
+.b2-more > summary::after{content:"+"; font-weight:700; font-size:18px; color:var(--brand); margin-left:auto}
+.b2-more[open] > summary::after{content:"\2212"}
+.b2-more[open] > summary{margin-bottom:14px}
+.b2-more-n{font-size:13px; color:var(--muted)}
+.b2-more > summary:focus-visible{outline:3px solid var(--brand); outline-offset:4px; border-radius:6px}
+
+/* Market */
+@media (min-width:900px){ .mk-ca{grid-template-columns:1fr 1fr} }
+.mk-gaps{grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr))}
+@media (min-width:700px) and (max-width:1149px){ .mk-gaps{grid-template-columns:1fr 1fr} }
+
+/* Bet 3: flyer and its notes side by side when the screen can hold both */
+.b3-stage{display:flex; flex-direction:column; gap:16px; min-width:0}
+.b3-side{display:flex; flex-direction:column; gap:16px; min-width:0}
+.b3-stage > .fl-scroll{order:2}
+.b3-stage > .b3-side{order:1; display:contents}
+@media (min-width:1500px){
+  .b3-stage{display:grid; grid-template-columns:auto minmax(260px,1fr); align-items:start; gap:20px}
+  .b3-stage > .fl-scroll{order:0}
+  .b3-stage > .b3-side{order:0; display:flex}
+}
