@@ -12,7 +12,7 @@ import BenefitIcon from '../components/BenefitIcon.jsx'
    round 1 alone and could still show dental or vision after both were dropped. */
 
 const NOW = [
-  ['Latest result', 'Bet #3 missed its bar: none of five people clicked through the flyer unprompted within a minute. It read as a printed poster.', '/bets/3', 'Read Bet #3'],
+  ['What we learned', 'Our first sessions showed the flyer read as a printed poster: people could not see there was a button to press. A layout problem, and one we could fix.', '/bets/3', 'Read Bet #3'],
   ['What we changed', 'Dental and vision are out. The flyer leads with everyday health, fits one screen, and every benefit can be tapped.', '/offer?test=1', 'See the flyer'],
   ['Testing now', 'A second survey round with seven benefits, and next a small paid ad that shows the flyer to people who have never met us.', '/present/nov20', 'This week\u2019s deck'],
 ]
