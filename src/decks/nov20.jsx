@@ -264,43 +264,55 @@ function RoundSlide() {
 }
 const S5 = <RoundSlide />
 
-/* ---- 6 · The click test ---- */
+/* ---- 6 · The ad test ----
+   One ad, not two. Which benefit leads is no longer a question the ad has to
+   answer: a benefit that earns interest in the survey stays in the package.
+   The ad asks whether strangers respond to the package as a whole, so the
+   measure is the path after the click, and the bar is set before it runs.
+
+   Text keys are `ad1.*` on purpose. The two-ad version used `ad.*`, and any
+   edit saved against those would otherwise reappear over this slide. */
 const Step = ({ k, d, t }) => (
-  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4, padding: '12px 16px', borderLeft: '3px solid #6FB0EC' }}>
-    <span style={{ fontSize: 14, fontWeight: 700, letterSpacing: '1.2px', color: '#6FB0EC' }}><T p={`ad.d${k}`}>{d}</T></span>
-    <span style={{ fontSize: 16.5, lineHeight: 1.35, color: '#EAF1FB' }}><T p={`ad.t${k}`}>{t}</T></span>
+  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4, padding: '10px 16px', borderLeft: '3px solid #6FB0EC' }}>
+    <span style={{ fontSize: 14, fontWeight: 700, letterSpacing: '1.2px', color: '#6FB0EC' }}><T p={`ad1.d${k}`}>{d}</T></span>
+    <span style={{ fontSize: 16.5, lineHeight: 1.35, color: '#EAF1FB' }}><T p={`ad1.t${k}`}>{t}</T></span>
   </div>
 )
-const Ad = ({ k, label, lead, c }) => (
-  <div style={{ flex: 1, background: '#15264A', borderTop: `5px solid ${c}`, borderRadius: 14, padding: '18px 24px', display: 'flex', flexDirection: 'column', gap: 7 }}>
-    <span style={tag(c)}><T p={`ad.l${k}`}>{label}</T></span>
-    <p style={{ fontFamily: SERIF, fontSize: 26, fontWeight: 600, lineHeight: 1.2, color: '#FFFFFF', margin: 0 }}><T p={`ad.h${k}`}>{lead}</T></p>
-    <p style={{ fontSize: 16, lineHeight: 1.4, color: '#AEC2DD', margin: 0 }}><T p={`ad.p${k}`}>Same picture, same wording, same audience, same budget.</T></p>
+const Stage = ({ k, n, h, p, on }) => (
+  <div style={{ flex: 1, background: on ? '#1D3A6E' : '#15264A', border: on ? '2px solid #E8B54A' : '2px solid transparent', borderRadius: 14, padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+    <span style={tag(on ? '#E8B54A' : '#6FB0EC')}><T p={`ad1.n${k}`}>{n}</T></span>
+    <p style={{ fontFamily: SERIF, fontSize: 23, fontWeight: 600, lineHeight: 1.2, color: '#FFFFFF', margin: 0 }}><T p={`ad1.h${k}`}>{h}</T></p>
+    <p style={{ fontSize: 15.5, lineHeight: 1.4, color: '#AEC2DD', margin: 0 }}><T p={`ad1.p${k}`}>{p}</T></p>
   </div>
 )
+const Arrow = <div style={{ alignSelf: 'center', fontSize: 24, color: '#8FA6C6', flex: 'none' }}>&rarr;</div>
 const S6 = (
-  <div style={{ ...base('#0E1E3A', '#C9D6EA'), gap: 16 }}>
+  <div style={{ ...base('#0E1E3A', '#C9D6EA'), gap: 15 }}>
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-      <span style={{ fontSize: 15, fontWeight: 700, letterSpacing: '2.5px', textTransform: 'uppercase', color: '#6FB0EC' }}><T p="ad.ey">Next: a test with strangers</T></span>
-      <h2 style={{ fontFamily: SERIF, fontSize: 44, fontWeight: 600, lineHeight: 1.05, color: '#FFFFFF', margin: 0 }}><T p="ad.h2">Two ads, one difference</T></h2>
+      <span style={{ fontSize: 15, fontWeight: 700, letterSpacing: '2.5px', textTransform: 'uppercase', color: '#6FB0EC' }}><T p="ad1.ey">Next: a test with strangers</T></span>
+      <h2 style={{ fontFamily: SERIF, fontSize: 44, fontWeight: 600, lineHeight: 1.05, color: '#FFFFFF', margin: 0 }}><T p="ad1.h2">One ad, one question: does the package pull people in?</T></h2>
     </div>
-    <p style={{ fontSize: 21, lineHeight: 1.42, margin: 0, maxWidth: 1080 }}>
-      <T p="ad.lede" b="#FFFFFF">Everyone we have tested with so far knew one of us. A small paid ad on Instagram and Facebook puts the flyer in front of **18 to 30 year olds who have never met us**, and a click costs them nothing to withhold.</T>
+    <p style={{ fontSize: 20, lineHeight: 1.42, margin: 0, maxWidth: 1100 }}>
+      <T p="ad1.lede" b="#FFFFFF">Everyone we have tested with so far knew one of us. One small paid ad on Instagram and Facebook puts the flyer in front of **18 to 30 year olds who have never met us**. We are not comparing benefits. We are watching what people do after they arrive.</T>
     </p>
-    <div style={{ display: 'flex', gap: 18, alignItems: 'stretch' }}>
-      <Ad k="a" c="#6FB0EC" label="AD A" lead="Leads with the top benefit from the survey" />
-      <div style={{ alignSelf: 'center', fontFamily: SERIF, fontSize: 26, color: '#8FA6C6' }}>vs</div>
-      <Ad k="b" c="#E8B54A" label="AD B" lead="Leads with the second" />
+    <div style={{ display: 'flex', gap: 10, alignItems: 'stretch' }}>
+      <Stage k="1" n="1 · THE AD" h="Sees it and clicks" p="Tells us about the ad more than the offer." />
+      {Arrow}
+      <Stage k="2" n="2 · THE FLYER" h="Lands on the flyer" p="The same flyer you saw two slides ago." />
+      {Arrow}
+      <Stage k="3" on n="3 · WHERE THE BAR SITS" h="Taps through to find out more" p="Bet #3 again, with strangers. Nobody is there to point at the button." />
+      {Arrow}
+      <Stage k="4" n="4 · GOING FURTHER" h="Starts the survey or leaves an email" p="The strongest signal we can get without a price." />
     </div>
     <div style={{ display: 'flex', gap: 6, flex: 1, alignItems: 'center' }}>
-      <Step k="1" d="FRI NOV 20" t="Pick the two leads. Your go-ahead." />
-      <Step k="2" d="NOV 21 TO 23" t="Build both ads, submit for review." />
-      <Step k="3" d="NOV 24 TO 30" t="Ads run for seven days." />
-      <Step k="4" d="TUE DEC 1" t="Read the numbers." />
+      <Step k="1" d="FRI NOV 20" t="Your go-ahead on the flyer and the ad." />
+      <Step k="2" d="BY MON NOV 23" t="Bar set in writing. Ad submitted for review." />
+      <Step k="3" d="NOV 24 TO 30" t="The ad runs for seven days." />
+      <Step k="4" d="TUE DEC 1" t="Read the numbers against the bar." />
       <Step k="5" d="TUE DEC 8" t="Final showcase." />
     </div>
     <p style={{ fontSize: 16, lineHeight: 1.4, color: '#8FA6C6', margin: 0 }}>
-      <T p="ad.foot">What it tells us: which benefit pulls people in, and how many keep going to the page, the survey or an email. What it cannot tell us: whether anyone would pay.</T>
+      <T p="ad1.foot">The bar is written down before the ad goes live and does not move afterwards. What this cannot tell us: whether anyone would pay.</T>
     </p>
   </div>
 )
@@ -320,8 +332,8 @@ const S7 = (
     {BAR}
     <Head eyp="ask.ey" ey="What we need from you" hp="ask.h2" h="Three things, and the first has a date" />
     <div style={{ display: 'flex', flexDirection: 'column', gap: 11, flex: 1, justifyContent: 'center' }}>
-      <AskRow n="1" hp="ask.r1h" h="A yes, or changes, on the final flyer and the two ads" pp="ask.r1p"
-        p="We send both right after this call. The ads go in for review on Monday, Nov 23, so anything you want changed we need by then." />
+      <AskRow n="1" hp="ask1.r1h" h="A yes, or changes, on the final flyer and the ad" pp="ask1.r1p"
+        p="We send both right after this call. The ad goes in for review on Monday, Nov 23, so anything you want changed we need by then." />
       <AskRow n="2" hp="ask.r2h" h="Anything we should stay away from" pp="ask.r2p"
         p="Nothing carries the KP name. Even so, if there is a word, a claim or an example you would not want near a public ad, tell us now rather than after it has run." />
       <AskRow n="3" hp="ask.r3h" h="Your read on the final story before Dec 8" pp="ask.r3p"
@@ -356,13 +368,13 @@ const nov20 = {
       "A lot of what's on that flyer came from you, so I want to close the loop on it.\n\nYou told us dental and vision already come with most plans, so they don't belong in a supplemental package. We took them out of everything, the flyer, the page and the survey. And we started a second round of the survey that tests physical therapy, rides to care and dermatology in their place.\n\nYou suggested framing it around wellbeing rather than a list of services. So the flyer leads with everyday health, which has been our strongest idea from the start, and then mental wellbeing and physical wellbeing.\n\nYou gave us real examples of what people would spend this on, things like classes, coaching, sleep support, mindfulness apps. Those are going onto the flyer before any ad runs, and you'll see that final version from us right after this call.\n\nAnd on how many benefits can go in, the answer we got was no hard limit, but keep it to five or fewer. So our rule is the top three from the data, plus at most two more if the data supports them." },
 
     { id: 'round2', node: S5, notes:
-      "This is the second round of the survey, and this slide reads the data live.\n\nSame method as before. Each screen shows two packages worth the same amount and people pick one. The percentage is how often someone chose the package with that benefit in it, and the dashed line is a coin flip.\n\nYou can see how many people in our age range have answered so far in the top corner. It's still early, so I'd read this as a direction and not a ranking yet.\n\nWe're keeping the two rounds completely separate. Round one had dental and vision in it, so mixing them would be comparing two different questions.\n\nThe top of this list is what decides which benefits lead the two ads, which is the next slide." },
+      "This is the second round of the survey, and this slide reads the data live.\n\nSame method as before. Each screen shows two packages worth the same amount and people pick one. The percentage is how often someone chose the package with that benefit in it, and the dashed line is a coin flip.\n\nYou can see how many people in our age range have answered so far in the top corner. It's still early, so I'd read this as a direction and not a ranking yet.\n\nWe're keeping the two rounds completely separate. Round one had dental and vision in it, so mixing them would be comparing two different questions.\n\nThis is what decides what goes in the package. Anything that keeps earning interest here stays in, up to the five you suggested. So the ad doesn't need to compare benefits, and that's the next slide." },
 
     { id: 'ads', node: S6, notes:
-      "So here's what we'd like to do next, and it's the part we need your go-ahead on.\n\nEveryone we've tested with so far knew one of us. That's a real weakness, because people are polite to people they know. So we want to put this in front of strangers.\n\nThe plan is two small ads on Instagram and Facebook, aimed at 18 to 30 year olds. The two ads are identical in every way except one: which benefit they lead with. One leads with the top benefit from the survey, the other with the second. Same picture, same wording, same audience, same budget. That way if one does better, we know why.\n\nOn timing: today we pick the two leads. Over the weekend we build both ads, and they go in for review on Monday. They run for seven days, the 24th through the 30th. We read the numbers on December 1st, and that goes straight into the final showcase on the 8th.\n\nWhat this can tell us is which benefit pulls people in, and how many of them keep going, to the page, to the survey, or to leaving an email. What it can't tell us is whether anyone would pay for it, and we're not going to claim that it does." },
+      "So here's what we'd like to do next, and it's the part we need your go-ahead on.\n\nEveryone we've tested with so far knew one of us. That's a real weakness, because people are polite to people they know. So we want to put this in front of strangers.\n\nThe plan is one small ad on Instagram and Facebook, aimed at 18 to 30 year olds. Just one. We thought about running two and comparing which benefit does better, but that's not the question anymore. The survey already tells us which benefits people want, and if a benefit earns interest it stays in. What we don't know is whether the package as a whole makes a stranger want to find out more.\n\nSo what we're measuring is what happens after the click. Someone sees the ad, lands on the flyer, and then either taps through or doesn't. That middle step is exactly what Bet 3 measured, except this time nobody's sitting next to them. And past that, whether they start the survey or leave an email.\n\nBecause there's only one ad, there's nothing to compare it to, so we're setting our bar in writing before it goes live, and we won't move it afterwards.\n\nOn timing: with your go-ahead today, we submit the ad for review by Monday. It runs seven days, the 24th through the 30th. We read the numbers on December 1st, and that goes straight into the final showcase on the 8th.\n\nWhat it can't tell us is whether anyone would pay for this, and we're not going to claim that it does." },
 
     { id: 'asks', node: S7, notes:
-      "So three things from you, and only the first one is urgent.\n\nFirst, a yes or your changes on the final flyer and the two ads. We'll send both right after this call. They need to go in for review on Monday, so anything you'd like changed, we'd need it by then.\n\nSecond, anything you'd want us to stay away from. Nothing carries the KP name. But if there's a word or a claim or an example you wouldn't want anywhere near a public ad, we'd much rather hear it today than after it's been running for a week.\n\nAnd third, before December 8th we'll share a draft of the final presentation, and we'd really value one round of comments from you on it.\n\nBy December 1st we'll know something we haven't known all semester, which is what people who owe us nothing actually do when they see this. Thank you. We'd love to hear your thoughts." },
+      "So three things from you, and only the first one is urgent.\n\nFirst, a yes or your changes on the final flyer and the ad. We'll send both right after this call. The ad needs to go in for review on Monday, so anything you'd like changed, we'd need it by then.\n\nSecond, anything you'd want us to stay away from. Nothing carries the KP name. But if there's a word or a claim or an example you wouldn't want anywhere near a public ad, we'd much rather hear it today than after it's been running for a week.\n\nAnd third, before December 8th we'll share a draft of the final presentation, and we'd really value one round of comments from you on it.\n\nBy December 1st we'll know something we haven't known all semester, which is what people who owe us nothing actually do when they see this. Thank you. We'd love to hear your thoughts." },
   ],
 }
 
