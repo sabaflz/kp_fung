@@ -51,6 +51,14 @@ export default function Offer() {
     const run = () => {
       const w = wrap.current, f = fit.current, sh = sheet.current
       if (!w || !f || !sh) return
+      // The test banner is fixed and wraps to several lines on a phone. Push
+      // the sheet below it so a test run shows the whole flyer too.
+      w.style.marginTop = '0px'
+      const bar = document.querySelector('.pk-testbar')
+      if (bar) {
+        const over = bar.getBoundingClientRect().bottom - w.getBoundingClientRect().top
+        if (over > 0) w.style.marginTop = Math.ceil(over) + 'px'
+      }
       const top = w.getBoundingClientRect().top + window.scrollY
       const availH = window.innerHeight - top - 16
       const availW = window.innerWidth - 16
