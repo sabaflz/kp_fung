@@ -325,6 +325,25 @@ export default function Bet3() {
         </div>
       </div>
 
+      {/* Wide screens: the flyer on the left, what to know about it on the right.
+          Narrower ones stack in the same order. */}
+      <div className="b3-stage">
+      <div className="fl-scroll">
+        {/* Same flyer people see at /offer. The button and the benefits open
+            a test run in a new tab, so trying them here records nothing.
+            Printed, the button gives way to the written-out link. */}
+        <FlyerSheet
+          top={top}
+          surveyUrl={surveyUrl}
+          onBenefit={() => window.open('/offer?test=1', '_blank', 'noopener')}
+          cta={
+            <a className="fl-cta-btn" href="/offer?test=1" target="_blank" rel="noreferrer">
+              See what is included <span aria-hidden="true">&rarr;</span>
+            </a>
+          }
+        />
+      </div>
+        <aside className="b3-side">
       <div className="b3-bar">
         <div className="b3-evidence">
           <b>The flyer shows a fixed three, everyday health first.</b> Round 1 of the survey put dental
@@ -336,6 +355,22 @@ export default function Bet3() {
         <div className="b3-controls">
           <button type="button" className="btn sm" onClick={() => window.print()}>Print or save as PDF</button>
         </div>
+      </div>
+      <div className="b3-notes">
+        <h3 className="b2-h3">What is a placeholder here</h3>
+        <ul>
+          <li>The <b>$300</b> is the same assumed value we used in Bets #1 and #2. It is not a costed number.</li>
+          <li>There is <b>no price</b> on it, on purpose. Asking people what they would pay is a leading question, and the benefits are not final yet.</li>
+          <li>The <b>three benefits</b> are fixed for now: everyday health first, then mental and physical wellbeing. The survey decides what else joins them.</li>
+          <li>The <b>bullet points</b> under each benefit describe what a member would get in plain words. They still need real limits from KP.</li>
+        </ul>
+        <div className="b3-links">
+          <Link className="btn sm" to="/present/nov20">Present the Nov 20 partner update</Link>
+          <Link className="btn ghost sm" to="/presentations">All presentations</Link>
+          <Link className="btn ghost sm" to="/bets/2">See the survey results behind this</Link>
+        </div>
+      </div>
+        </aside>
       </div>
 
       {/* Everything a participant will see, openable without recording anything. */}
@@ -391,22 +426,6 @@ export default function Bet3() {
         <p className="b2-fine">Ten screens, two packages of three each time. Dental and vision are no longer offered.</p>
       </div>
       )}
-
-      <div className="fl-scroll">
-        {/* Same flyer people see at /offer. The button and the benefits open
-            a test run in a new tab, so trying them here records nothing.
-            Printed, the button gives way to the written-out link. */}
-        <FlyerSheet
-          top={top}
-          surveyUrl={surveyUrl}
-          onBenefit={() => window.open('/offer?test=1', '_blank', 'noopener')}
-          cta={
-            <a className="fl-cta-btn" href="/offer?test=1" target="_blank" rel="noreferrer">
-              See what is included <span aria-hidden="true">&rarr;</span>
-            </a>
-          }
-        />
-      </div>
 
       {funnel && (
         <div className="b3-notes">
@@ -560,21 +579,6 @@ export default function Bet3() {
           )}
         </div>
       )}
-
-      <div className="b3-notes">
-        <h3 className="b2-h3">What is a placeholder here</h3>
-        <ul>
-          <li>The <b>$300</b> is the same assumed value we used in Bets #1 and #2. It is not a costed number.</li>
-          <li>There is <b>no price</b> on it, on purpose. Asking people what they would pay is a leading question, and the benefits are not final yet.</li>
-          <li>The <b>three benefits</b> are fixed for now: everyday health first, then mental and physical wellbeing. The survey decides what else joins them.</li>
-          <li>The <b>bullet points</b> under each benefit describe what a member would get in plain words. They still need real limits from KP.</li>
-        </ul>
-        <div className="b3-links">
-          <Link className="btn sm" to="/present/nov20">Present the Nov 20 partner update</Link>
-          <Link className="btn ghost sm" to="/presentations">All presentations</Link>
-          <Link className="btn ghost sm" to="/bets/2">See the survey results behind this</Link>
-        </div>
-      </div>
     </div>
   )
 }

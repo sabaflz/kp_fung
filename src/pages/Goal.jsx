@@ -59,6 +59,9 @@ export default function Goal() {
         </div>
       </div>
 
+      {/* Chart and counts share a row on a wide screen: the chart is the
+          thing to read, the counts are context beside it. */}
+      <div className="goal-split">
       <div className="goal-best card">
         <div className="hd">
           <h2>Round 2 of the choice survey, so far</h2>
@@ -90,12 +93,12 @@ export default function Goal() {
           <Link className="btn ghost sm" to="/bets/2" style={{ marginTop: 14 }}>Open the full results</Link>
         </div>
       </div>
-
-      <div className="tiles">
+      <div className="tiles goal-tiles">
         <div className="tile"><div className="n">{counts.interviews}</div><div className="l">interviews</div></div>
         <div className="tile"><div className="n">{r1.n}</div><div className="l">round 1 survey, aged 18 to 30</div></div>
         <div className="tile"><div className="n">{r2.n}</div><div className="l">round 2 survey, aged 18 to 30</div></div>
         <div className="tile"><div className="n">{BETS.length}</div><div className="l">bets run</div></div>
+      </div>
       </div>
 
       <div>

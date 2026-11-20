@@ -27,7 +27,7 @@ export const BETS = [
     title: 'Which benefits win head-to-head',
     status: 'Collecting',
     summary:
-      'A balanced choice survey ranking six benefits against each other, so every benefit earns a clean win rate.',
+      'A choice survey that puts benefits head to head, so each one earns a clean win rate. Round 2, without dental and vision, is collecting now.',
     live: true,
     hypothesis:
       'Across a short balanced choice survey, one or two benefits will win a majority of their head-to-head matchups consistently enough to name one strongest package.',

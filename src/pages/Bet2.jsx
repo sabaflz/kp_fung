@@ -69,6 +69,8 @@ export default function Bet2({ embedded = false }) {
 
   const { ranking, topCombos, respondents, screens } = useMemo(() => tallyResponses(rows, { round }), [rows, round])
   const winners = ranking.slice(0, 3)
+  // Everything on the page describes one round at a time.
+  const roundRows = useMemo(() => rows.filter((r) => rowRound(r) === round), [rows, round])
 
   // Deeper read of the same rows. Recomputed on every change, so it is always current.
   const analysis = useMemo(() => analyzeResponses(rows, { bullseyeOnly, round }), [rows, bullseyeOnly, round])
@@ -106,7 +108,7 @@ export default function Bet2({ embedded = false }) {
     ],
     'not-supported': [
       "Bet #2's signal is not met",
-      'Win rates are clustering near a coin flip with no benefit clearly ahead, and no benefit is favored by 4 of 5 people. That is the outcome we said in advance would mean preference is too individual to package around. It says nothing about Bet #1, which was met, or Bet #3, which has not run.',
+      'Win rates are clustering near a coin flip with no benefit clearly ahead, and no benefit is favored by 4 of 5 people. That is the outcome we said in advance would mean preference is too individual to package around. It says nothing about Bet #1, which was met, or Bet #3, which measured a different step.',
     ],
     'not-yet': ['Too early to call', 'We need at least 5 people in this group before judging.'],
   }
@@ -146,10 +148,10 @@ export default function Bet2({ embedded = false }) {
   }
   const ageCounts = useMemo(() => {
     const m = {}
-    for (const r of rows) { const a = r.age || 'Not given'; m[a] = (m[a] || 0) + 1 }
+    for (const r of roundRows) { const a = r.age || 'Not given'; m[a] = (m[a] || 0) + 1 }
     const order = ['Under 18', '18–20', '21–23', '24–26', '27–30', 'Over 30', 'Not given']
     return order.map((a) => [a, m[a] || 0]).filter(([, n]) => n > 0)
-  }, [rows])
+  }, [roundRows])
   const ageMax = Math.max(1, ...ageCounts.map(([, n]) => n))
 
   // Opt-in rate and what people said would make them use their top benefit.
@@ -251,10 +253,10 @@ export default function Bet2({ embedded = false }) {
               <h3 className="b2-h3">What the data says right now</h3>
               <div className="b2-seg" role="group" aria-label="Which round">
                 <button type="button" aria-pressed={round === 1} onClick={() => setRound(1)}>
-                  Round 1, closed: with dental and vision ({rows.filter((r) => rowRound(r) === 1).length})
+                  Round 1 · closed ({rows.filter((r) => rowRound(r) === 1).length})
                 </button>
                 <button type="button" aria-pressed={round === 2} onClick={() => setRound(2)}>
-                  Round 2, current: without dental and vision ({rows.filter((r) => rowRound(r) === 2).length})
+                  Round 2 · current ({rows.filter((r) => rowRound(r) === 2).length})
                 </button>
               </div>
               <div className="b2-seg" role="group" aria-label="Who to include">
@@ -266,6 +268,7 @@ export default function Bet2({ embedded = false }) {
                 </button>
               </div>
             </div>
+            <p className="b2-fine" style={{ margin: '0 0 12px' }}>Round 1 included dental and vision. Round 2 replaced them with physical therapy, rides to care and dermatology. The two are never mixed.</p>
 
             {analysis.n === 0 ? (
               <p className="b2-fine" style={{ marginTop: 0 }}>Nobody in this group has answered yet.</p>
@@ -328,7 +331,7 @@ export default function Bet2({ embedded = false }) {
                   that crosses the 50% line means we cannot yet say the benefit beats a coin flip. Each person
                   counts once, however many screens they answered. &ldquo;Favored by&rdquo; counts people who picked
                   that benefit more often than not, and Bet #2's agreement bar is {Math.round(AGREEMENT_BAR * 100)}%. One caution:
-                  the six rates always average 50%, so a runaway leader pulls the others down.
+                  the rates always average 50%, so a runaway leader pulls the others down.
                   &ldquo;Behind&rdquo; means behind the field, not unwanted.
                 </p>
 
@@ -384,20 +387,9 @@ export default function Bet2({ embedded = false }) {
             )}
           </div>
 
-          <div className="b2-card">
-            <h3 className="b2-h3">Who answered</h3>
-            <ul className="b2-bars">
-              {ageCounts.map(([a, n]) => (
-                <li key={a} className="b2-bar">
-                  <span className="b2-bar-name">{a}</span>
-                  <span className="b2-bar-track"><span className="b2-bar-fill" style={{ width: `${Math.max((n / ageMax) * 100, 3)}%` }} /></span>
-                  <span className="b2-bar-pct">{n}</span>
-                </li>
-              ))}
-            </ul>
-            <p className="b2-fine">Age of the {respondents} {respondents === 1 ? 'person' : 'people'} who took the survey.</p>
-          </div>
-
+          {/* Two to a row on a wide screen, one on a phone. The headline
+              read stays full width above; these are the supporting cuts. */}
+          <div className="b2-cols">
           <div className="b2-card">
             <h3 className="b2-h3">Benefit win rates</h3>
             <ul className="b2-bars">
@@ -420,7 +412,22 @@ export default function Bet2({ embedded = false }) {
             </ul>
             <p className="b2-fine">The dashed line marks 50%. {screens} total choices across {respondents} {respondents === 1 ? 'person' : 'people'}.</p>
           </div>
+          <div className="b2-card">
+            <h3 className="b2-h3">Who answered</h3>
+            <ul className="b2-bars">
+              {ageCounts.map(([a, n]) => (
+                <li key={a} className="b2-bar">
+                  <span className="b2-bar-name">{a}</span>
+                  <span className="b2-bar-track"><span className="b2-bar-fill" style={{ width: `${Math.max((n / ageMax) * 100, 3)}%` }} /></span>
+                  <span className="b2-bar-pct">{n}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="b2-fine">Age of the {respondents} {respondents === 1 ? 'person' : 'people'} who took the survey.</p>
+          </div>
+          </div>
 
+          <div className="b2-cols">
           {topCombos.length > 0 && (
             <div className="b2-card">
               <h3 className="b2-h3">Most-picked exact packages</h3>
@@ -441,7 +448,6 @@ export default function Bet2({ embedded = false }) {
               </ul>
             </div>
           )}
-
           {fuStats && (
             <div className="b2-card">
               <h3 className="b2-h3">Closing follow-up</h3>
@@ -473,10 +479,12 @@ export default function Bet2({ embedded = false }) {
               )}
             </div>
           )}
+          </div>
 
-          <div className="b2-card">
+          <details className="b2-card b2-more">
+            <summary><span className="b2-h3">Individual responses</span><span className="b2-more-n">{roundRows.length} in this round · open to read each one</span></summary>
             <div className="b2-resp-head">
-              <h3 className="b2-h3">Individual responses</h3>
+              
               {anyEmails && (
                 <label className="b2-reveal">
                   <input
@@ -504,7 +512,7 @@ export default function Bet2({ embedded = false }) {
             </p>
 
             <ul className="b2-resp">
-              {rows.slice(0, limit).map((r) => {
+              {roundRows.slice(0, limit).map((r) => {
                 const open = openId === r.id
                 const own = tallyResponses([r], { round: rowRound(r) })
                 const top = own.ranking.find((x) => x.appear > 0)
@@ -624,12 +632,12 @@ export default function Bet2({ embedded = false }) {
               })}
             </ul>
 
-            {rows.length > limit && (
+            {roundRows.length > limit && (
               <button type="button" className="btn ghost sm" style={{ marginTop: 14 }} onClick={() => setLimit(limit + 50)}>
-                Show more ({rows.length - limit} left)
+                Show more ({roundRows.length - limit} left)
               </button>
             )}
-          </div>
+          </details>
 
           <div className="b2-share">
             <span>Survey link to share:</span>

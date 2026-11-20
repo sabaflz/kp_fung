@@ -39,7 +39,7 @@ export default function Bets() {
               <p className="bet-sum">{headline}</p>
               {b.live && (
                 <p className="bet-live-line">
-                  {counts.bet} {counts.bet === 1 ? 'response' : 'responses'} so far, updating live.
+                  Collecting now, updating live.
                 </p>
               )}
               <span className="bet-more">Open Bet #{b.id} &rarr;</span>
