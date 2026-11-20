@@ -13,5 +13,5 @@ export const DECK_LIST = [
   { id: 'bet1', stage: 'Bet #1', blurb: 'Market research: what supplemental benefits look like today and where the gaps are.' },
   { id: 'bet2', stage: 'Bet #2', blurb: 'Which benefits people pick when two packages of equal value go head to head.' },
   { id: 'bet3', stage: 'Bet #3 · before it ran', when: 'Nov 13', blurb: 'The plan: the flyer, the page it links to, and the 4 of 5 bar we set.' },
-  { id: 'nov20', stage: 'Bet #3 · the result, and what is next', when: 'Nov 20', blurb: 'What happened, the rebuilt flyer, partner feedback, and the ad test.' },
+  { id: 'nov20', stage: 'Bet #3 · what we learned, and what is next', when: 'Nov 20', blurb: 'What the first sessions taught us, the rebuilt flyer, partner feedback, the ad test, and where the final story is heading.' },
 ]
