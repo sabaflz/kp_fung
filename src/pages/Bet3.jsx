@@ -311,16 +311,15 @@ export default function Bet3() {
 
   return (
     <div className="b3">
-      {/* The result leads. A reader should not need the deck to learn what happened. */}
+      {/* What we learned and fixed leads; the bar and the count follow in plain words. */}
       <div className="b3-result">
-        <div className="b3-result-n"><b>0</b><span>of 5</span></div>
         <div className="b3-result-body">
-          <h3>What happened</h3>
-          <p>{BET3.result}</p>
-          <h3>What we took from it</h3>
+          <h3>What we learned, and what we changed</h3>
           <p>{BET3.learning}</p>
+          <h3>For the record</h3>
+          <p>{BET3.result}</p>
           <div className="b3-try-row" style={{ marginTop: 4 }}>
-            <Link className="btn sm" to="/present/nov20">Present the result</Link>
+            <Link className="btn sm" to="/present/nov20">Present this update</Link>
             <a className="btn ghost sm" href="/offer?test=1" target="_blank" rel="noreferrer">See the flyer as a participant does</a>
           </div>
         </div>
@@ -567,7 +566,7 @@ export default function Bet3() {
         <ul>
           <li>The <b>$300</b> is the same assumed value we used in Bets #1 and #2. It is not a costed number.</li>
           <li>There is <b>no price</b> on it, on purpose. Asking people what they would pay is a leading question, and the benefits are not final yet.</li>
-          <li>The <b>three benefits</b> come straight from the survey. Second and third place are close, so expect them to move.</li>
+          <li>The <b>three benefits</b> are fixed for now: everyday health first, then mental and physical wellbeing. The survey decides what else joins them.</li>
           <li>The <b>bullet points</b> under each benefit describe what a member would get in plain words. They still need real limits from KP.</li>
         </ul>
         <div className="b3-links">

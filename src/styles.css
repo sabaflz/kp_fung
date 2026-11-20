@@ -1115,12 +1115,9 @@ footer.foot{margin-top:26px;padding-top:16px;border-top:1px solid var(--line);co
 }
 
 /* ---- Audit fixes: partner-facing pages ---- */
-.s-not-supported{background:#f6e7e2;color:#9a3412}
-:root[data-theme="dark"] .s-not-supported{background:#3a1d14;color:#fdba74}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .s-not-supported{background:#3a1d14;color:#fdba74}}
-.betnav-dot.s-not-supported{background:#c2410c; opacity:1}
-.betnav-tab.is-on .betnav-dot.s-not-supported{background:currentColor}
-.bp-miss{color:#c2410c}
+.s-bar-not-met{background:var(--surface-2);color:var(--muted)}
+.betnav-dot.s-bar-not-met{background:var(--muted); opacity:1}
+.betnav-tab.is-on .betnav-dot.s-bar-not-met{background:currentColor}
 .login-help{margin:0; font-size:13px; line-height:1.45; color:var(--muted); text-align:center}
 
 .goal-now{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin-top:8px}
@@ -1138,10 +1135,7 @@ footer.foot{margin-top:26px;padding-top:16px;border-top:1px solid var(--line);co
 .goal-r2-pct{text-align:right; font-weight:700; font-variant-numeric:tabular-nums}
 
 .b3-result{display:flex; gap:24px; align-items:flex-start; background:var(--surface); border:1px solid var(--line);
-  border-left:6px solid #c2410c; border-radius:var(--radius); padding:20px 24px}
-.b3-result-n{flex:none; display:flex; flex-direction:column; align-items:center; line-height:1}
-.b3-result-n b{font-family:var(--serif); font-size:64px; font-weight:600; color:#c2410c}
-.b3-result-n span{font-size:14px; font-weight:700; color:var(--muted); margin-top:4px}
+  border-left:6px solid var(--brand); border-radius:var(--radius); padding:20px 24px}
 .b3-result-body{display:flex; flex-direction:column; gap:6px; min-width:0}
 .b3-result-body h3{margin:6px 0 0; font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
 .b3-result-body h3:first-child{margin-top:0}

@@ -43,17 +43,18 @@ export const BETS = [
     id: 3,
     week: 'Bet #3',
     title: 'Does the flyer make people act',
-    status: 'Not supported',
+    status: 'Bar not met',
     summary:
-      'None of five people clicked through the flyer unprompted within a minute. It read as a printed poster, so we rebuilt it.',
+      'Five sessions showed the first flyer read as a printed poster and hid its own button. We rebuilt it that week, and the next test measures the same step with strangers.',
     hypothesis:
       'Shown the flyer with a clear next step, at least 4 of 5 bullseye users will click through to find out more within one minute, without being prompted.',
-    result:
-      '0 of 5 clicked through unprompted within a minute, against a bar of 4 of 5. One found the button without help after the first minute, two reached the page once the button was pointed out, and two never got past the flyer.',
+    // Learning first, the record second: the problem this bet exposed is fixed.
     learning:
-      'The flyer read as a printed poster and its one button sat below the bottom of the screen. What failed was the way in, so this result cannot yet say whether people want what is behind it. The flyer now fits one screen, has one clear button, and every benefit can be tapped. The next test puts it in front of people who have never met us.',
+      'People read the first flyer the way you read a poster on a wall. Its one button sat below the bottom of the screen, so most never saw there was anything to press. That is a layout problem, and the sessions never really got to test the offer itself. The flyer now fits one screen, has one clear button, and every benefit can be tapped. The next test measures the same step with people who have never met us.',
+    result:
+      'Our bar was 4 of 5 clicking through on their own within a minute, and none did. One found the button without help after about a minute and a half, two went to the page once it was pointed out, and two stayed on the flyer.',
     links: [
-      { label: 'Present the result', to: '/present/nov20', primary: true },
+      { label: 'Present this update', to: '/present/nov20', primary: true },
       { label: 'The plan, before it ran', to: '/present/bet3' },
       { label: 'Open the flyer', to: '/bets/3' },
       { label: 'The landing page people reach', to: '/plan?src=team', external: false },
